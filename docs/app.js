@@ -788,7 +788,7 @@
   function api() {
     return { state: state, run: run, P: prep(state.site), hours: hoursTotal(), RATE: RATE, C: C,
              sim: sim, fmtDate: fmtDate, shortDate: shortDate, plural: plural,
-             prep: prep, sites: SITES, data: DATA };
+             prep: prep, sites: SITES, data: DATA, masts: MAST_CHOICES, dayChoices: DAY_CHOICES };
   }
   window.LANDER_APP = {
     onRefresh: function (f) { listeners.push(f); if (run) f(api()); },
@@ -796,7 +796,16 @@
     onHour: function (f) { hourListeners.push(f); },   // f(dataIndex) whenever the shown hour changes
     setHour: function (h) { state.hour = Math.max(0, Math.min(hoursTotal(), h)); stopPlay(); drawPano(); drawTime(); },
     setStart: function (idx) { state.start = idx; clampStart(); state.hour = 0; refresh(); },
-    setSite: function (id) { if (DATA[id]) { state.site = id; clampStart(); state.hour = 0; refresh(); } }
+    setSite: function (id) { if (DATA[id]) { state.site = id; clampStart(); state.hour = 0; refresh(); } },
+    // change any of: site, start (hour index), days, batt, mast; anything not valid is ignored
+    set: function (p) {
+      if (p.site && DATA[p.site]) state.site = p.site;
+      if (DAY_CHOICES.indexOf(p.days) >= 0) state.days = p.days;
+      if (MAST_CHOICES.indexOf(p.mast) >= 0) state.mast = p.mast;
+      if (p.batt >= 24 && p.batt <= 240) state.batt = Math.round(p.batt / 12) * 12;
+      if (typeof p.start === "number") state.start = p.start;
+      clampStart(); state.hour = 0; refresh();
+    }
   };
 
   function readHash() {

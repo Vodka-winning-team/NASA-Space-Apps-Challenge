@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="planner.css">
 <link rel="stylesheet" href="extras.css">
 <link rel="stylesheet" href="mode.css">
+<link rel="stylesheet" href="rescue.css">
 </head>
 <body class="mode-simple">
 
@@ -77,6 +78,12 @@
     <p class="vText" id="vText"></p>
     <p class="vWhy" id="vWhy"></p>
     <p class="vFacts" id="vFacts"></p>
+  </section>
+
+  <section class="rescue" id="rescue" aria-label="How to save the mission" aria-live="polite" hidden>
+    <h2 id="rescueTitle">How do we save it?</h2>
+    <p class="say" id="rescueSay"></p>
+    <div class="rescueList" id="rescueList"></div>
   </section>
 
   <section class="sure pro" aria-label="How sure is this answer">
@@ -264,6 +271,7 @@
 <script src="app.js"></script>
 <script src="planner.js"></script>
 <script src="extras.js"></script>
+<script src="rescue.js"></script>
 <script src="vendor/three.min.js"></script>
 <script src="vendor/OrbitControls.js"></script>
 <script src="terrain3d.js"></script>
