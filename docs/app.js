@@ -786,12 +786,22 @@
   var listeners = [];
   function api() {
     return { state: state, run: run, P: prep(state.site), hours: hoursTotal(), RATE: RATE, C: C,
-             sim: sim, fmtDate: fmtDate, shortDate: shortDate, plural: plural };
+             sim: sim, fmtDate: fmtDate, shortDate: shortDate, plural: plural,
+             prep: prep, sites: SITES, data: DATA };
   }
   window.LANDER_APP = {
     onRefresh: function (f) { listeners.push(f); if (run) f(api()); },
     get: api,
-    setStart: function (idx) { state.start = idx; clampStart(); state.hour = 0; refresh(); }
+    setStart: function (idx) { state.start = idx; clampStart(); state.hour = 0; refresh(); },
+    setSite: function (id) { if (DATA[id]) { state.site = id; clampStart(); state.hour = 0; refresh(); } },
+    onHour: function (f) { hourListeners.push(f); }
+  };
+
+  // Tell add-ons whenever the view is redrawn for a new hour (dragging the chart, Play).
+  var hourListeners = [], drawPanoOnly = drawPano;
+  drawPano = function () {
+    drawPanoOnly();
+    hourListeners.forEach(function (f) { try { f(); } catch (e) { console.error(e); } });
   };
 
   function readHash() {

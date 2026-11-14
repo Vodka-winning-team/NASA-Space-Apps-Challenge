@@ -31,11 +31,11 @@ Do not claim Quickmap or Moon Trek in the submission unless someone on the team 
 |---|---|
 | Choose from a curated list of notable landing sites | Yes: six candidate south pole sites |
 | Input custom lunar coordinates | **Missing** |
-| Side-by-side or sequential comparison of sites | Partly: the two-year stripes compare all six; no side-by-side view of two |
+| Side-by-side or sequential comparison of sites | Yes: "How does another place compare?" shows two places on the same date, plus the two-year stripes for all six |
 | Select landing dates, explore lunar days and seasons | Yes |
 | Show Sun and Earth relative to the horizon | Yes: the view from the lander |
-| **Time remaining before sunset or Earthset** (mentioned twice) | **Missing** |
-| **Solar elevation angle, shown prominently** | **Missing**: we have the number but do not show it |
+| **Time remaining before sunset or Earthset** (mentioned twice) | Yes: shown under the view, and it updates as the mission plays |
+| **Solar elevation angle, shown prominently** | Yes: "Sun's height" under the view, with how far it clears the hills |
 | Duration of sunlight, Earth visibility windows | Yes: percentages and the strips under the battery chart |
 | 2D maps, 3D surface views | 2D view and a 2D map; no 3D |
 | Animations or timelines over lunar days | Yes: Play the mission |
@@ -47,10 +47,13 @@ Do not claim Quickmap or Moon Trek in the submission unless someone on the team 
 
 ## Cheapest gaps to close, in order
 
-1. **Sunset and Earthset countdown**: "Sun sets in 31 hours", "Earth sets in 5 hours" beside the view. Small.
-2. **Sun's height above the level horizon, in degrees**, shown beside the view. Small.
-3. **Side-by-side comparison of two places.** Medium.
-4. **Custom coordinates** (land anywhere). Large, and the answers would be rougher than for the six prepared sites.
+Done on 14 Nov, 23:40: sunset and Earthset countdown, Sun's and Earth's height, side-by-side comparison (all in `docs/extras.js`).
+
+Still open:
+
+1. **Custom coordinates** (land anywhere). Large, and the answers would be rougher than for the six prepared sites.
+2. **Detailed numbers or an export for planners.**
+3. **A 3D surface view** (optional in the challenge text).
 
 ---
 Drafted with AI assistance (Claude). The quoted paragraph is NASA's text.
