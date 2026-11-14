@@ -120,7 +120,7 @@ Every hill and every Sun position is NASA data. We then checked ourselves agains
 **On the slide**
 
 - "Go outside, look at the Moon, and the lander is looking back."
-- Picture: `desktop-lost-planner-14-mauritius.jpg` ("Yes. For 54 hours of this mission, the lander can see Earth while the Moon is in the sky over Port Louis.")
+- Picture: `desktop-lost-planner-15-mauritius.jpg` ("Yes. For 54 hours of this mission, the lander can see Earth while the Moon is in the sky over Port Louis.")
 - QR code: `pitch/qr-code-dark.png` (for a dark slide) or `pitch/qr-code.png` (for a white slide). Scan it once with a phone before the pitch.
 - Links: vodka-winning-team.github.io/NASA-Space-Apps-Challenge · github.com/Vodka-winning-team/NASA-Space-Apps-Challenge
 - Footer, small: NASA data: LRO LOLA, NASA/JPL Horizons, NASA GSFC PGDA. Built with AI assistance (Claude, OpenAI Codex). Not a NASA product.

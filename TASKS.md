@@ -49,6 +49,8 @@ Status: `open`, `doing (name)`, `done`. Take any open task. Edit this file and p
 
 ## Bugs and notes
 
+- 15 Nov, early morning, Suresh (with Claude and OpenAI Codex): added "Somewhere else" (land anywhere south of 85° S) and "The numbers, hour by hour" (CSV), the submission pack drafts, the backup video, and a browser test suite (`tests/run.sh`, 112 checks, all passing). Codex reviewed the code and found 13 issues; 12 are fixed and tested (`tests/review.mjs`). Not changed: after a deploy, a phone that loses the network halfway through loading could mix old and new files for one visit; the cache now never stores error pages, so a reload fixes it.
+
 - 15 Nov 02:40, Suresh: merged `plain-words` (Simple / Mission planner switch, "How do we save it?") into `main`. Automated test in headless Firefox, on desktop (1366 px) and phone widths (390 and 360 px; the first run was really at 500 px because Firefox windows cannot be narrower, so it was re-run with the page in an iframe of exactly 390 and 360 px): no script errors, no sideways scroll, all 6 places x 24 dates run, Play works, a shared link opens the same settings, "Try it" saves a lost mission and "Put it back" undoes it, the offline copy fills (38 files). The same test passed on the live GitHub Pages link. No bugs found. Small thing for later: the map dots (30 px) and the battery slider (28 px tall) are a bit small to tap.
 - Note for the pitch: the page opens in **Simple** mode, which hides the detailed sections (among them the planner, the hill side view, the two-place comparison and the two-year calendar). Click **Mission planner** to show judges everything, or share a link ending `?mode=planner`.
 

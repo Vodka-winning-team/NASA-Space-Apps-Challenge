@@ -92,6 +92,7 @@
   var REACH_PX = Math.ceil(18200 / SCALE) + 2;       // 3D square corner, 12.8 km x sqrt(2)
   function check(lat, lon) {
     if (!(lat >= -90 && lat <= -85)) return "Choose a place between 85° and 90° south.";
+    if (lat < -89.99) return "Choose a place at least 0.01° (300 m) from the pole itself: at the exact pole every direction is north.";
     if (!(lon >= -360 && lon <= 360)) return "Longitude must be between −180° and 360°.";
     return "";
   }

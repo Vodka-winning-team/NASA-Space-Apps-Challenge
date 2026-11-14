@@ -33,7 +33,7 @@ python build_custom.py         # docs/data/dem/: 640 m coarse map + 80 m tiles (
 node check_custom.mjs          # rebuilds the six sites the "custom place" way and compares (horizon, Sun/Earth, verdicts)
 ```
 
-There is no test suite or linter. `validate.py` is the numeric check against NASA. For front-end changes, verify by opening the page.
+There is no linter. `validate.py` is the numeric check against NASA. Front-end: `tests/run.sh` runs browser tests in headless Firefox (needs `firefox`, `geckodriver`, Node 22+, Python 3; no npm packages): desktop, true 360/390 px phone widths (page inside an iframe, since Firefox windows can't be that narrow), custom places, the CSV, hostile links/rapid clicks/no WebGL/no storage, `file://`, and fixes from the Codex review. Every test also fails on any console error. Run it before pushing.
 
 ## Data contract (engine → website)
 
@@ -59,7 +59,7 @@ Conventions: azimuth is clockwise from north (the Horizons convention), elevatio
 
 ## Checklists
 
-- **Adding or renaming any file under `docs/`:** add it to `FILES` in `docs/sw.js` and bump `CACHE` (`lander-vN`). Otherwise offline/PWA users get stale or missing files.
+- **Adding or renaming any file under `docs/`:** add it to `FILES` in `docs/sw.js` and bump `CACHE` (`lander-vN`). Otherwise offline/PWA users get stale or missing files. The service worker is network-first, saves only good same-origin answers (never 404/500 pages), keeps `data/dem/*` in a separate `lander-dem` cache that survives updates, and on activate deletes only old `lander-vN` caches.
 - **Adding a site:** add it to `engine/sites.json` and run the build scripts. Then add its `<script src="data/<id>.js">` to `index.html` and both data files to `sw.js`.
 
 ## Project rules (from PLAN.md / README)

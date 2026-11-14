@@ -84,18 +84,28 @@
     current = out.site;
   }
 
+  // a shared link that could not be rebuilt: put it back in the address bar, so reloading later tries again
+  function keepLink(quiet) {
+    if (!quiet || !window.LANDER_HASH0) return;
+    try { history.replaceState(null, "", window.LANDER_HASH0); } catch (e) { /* opened from disk: fine */ }
+  }
+
   function land(lat, lon, quiet) {
     if (busy) return;
     var err = CALC.check(lat, lon);
     if (err) { say(err, "bad"); return; }
     lon = ((lon + 180) % 360 + 360) % 360 - 180;
+    // work with exactly the precision the place's id and link keep, so the same id always means the same place
+    lat = Math.round(lat * 1e4) / 1e4; lon = Math.round(lon * 1e4) / 1e4;
     if (current && Math.abs(current.lat - lat) < 1e-5 && Math.abs(current.lon - lon) < 1e-5) { APP.setSite(current.id); return; }
     busy = true; form.classList.add("busy");
     say("Loading NASA's height map around " + fmt(lat, lon) + "…");
     loadAll(lat, lon, function (failed) {
       if (failed) {
         busy = false; form.classList.remove("busy");
-        say("Could not load the height map for this place. The first time you use a new place, the page needs the internet.", "bad");
+        say("Could not load the height map for this place. The first time you use a new place, the page needs the internet." +
+            (quiet ? " Showing Haworth for now; reload the page to try the shared place again." : ""), "bad");
+        whenReady(function () { keepLink(quiet); });
         return;
       }
       say("Working out the hills in every direction, out to 200 km… (a few seconds)");
@@ -107,6 +117,7 @@
         } catch (e) {
           busy = false; form.classList.remove("busy");
           say("Could not work out this place: " + e.message, "bad");
+          whenReady(function () { keepLink(quiet); });
           return;
         }
         whenReady(function () {

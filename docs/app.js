@@ -48,8 +48,9 @@
   // Run the battery through a mission. Charge is in "hours of life without Sun".
   // opts (optional): { rate, load, charge (start, 0-1), sunScale } for the "how sure" scenarios
   function sim(P, start, hours, batt, keep, opts) {
-    var o = opts || {}, rate = o.rate || RATE, load = o.load || 1, sunScale = o.sunScale || 1;
-    var c = batt * (o.charge || 1), min = c, died = -1, sunSum = 0, earthSum = 0, dark = 0, longest = 0, lastFull = 0;
+    var o = opts || {}, num = function (v, dflt) { return typeof v === "number" && isFinite(v) ? v : dflt; };
+    var rate = num(o.rate, RATE), load = num(o.load, 1), sunScale = num(o.sunScale, 1);
+    var c = batt * num(o.charge, 1), min = c, died = -1, sunSum = 0, earthSum = 0, dark = 0, longest = 0, lastFull = 0;
     var series = keep ? new Float32Array(hours + 1) : null;
     if (series) series[0] = c;
     for (var h = 0; h < hours; h++) {
@@ -295,7 +296,11 @@
   var timeGeom = null;
 
   function drawTime() {
-    var P = prep(state.site), o = fit($("time")), ctx = o.ctx, W = o.w, H = o.h;
+    var tc = $("time"), hr = Math.round(state.hour);
+    tc.setAttribute("aria-valuemax", hoursTotal()); tc.setAttribute("aria-valuenow", hr);
+    tc.setAttribute("aria-valuetext", "Day " + (Math.floor(hr / 24) + 1) + ", hour " + (hr % 24) + ", battery " +
+      Math.round((run && run.series ? run.series[Math.min(hr, run.series.length - 1)] / state.batt : 1) * 100) + "%");
+    var P = prep(state.site), o = fit(tc), ctx = o.ctx, W = o.w, H = o.h;
     var hours = hoursTotal(), L = gut(), Rr = W - gut(), pw = Rr - L;
     var top = 22, stripH = 14, gap = 26, strips = 2;
     var chartB = H - 22 - strips * (stripH + gap) - 4, ch = chartB - top;
@@ -393,6 +398,16 @@
     c.addEventListener("pointermove", function (e) { if (down) move(e); });
     c.addEventListener("pointerup", function () { down = false; });
     c.addEventListener("pointercancel", function () { down = false; });
+    c.addEventListener("keydown", function (e) {
+      var k = e.key, step = e.shiftKey ? 24 : 1, h = Math.round(state.hour), H = hoursTotal();
+      if (k === "ArrowRight" || k === "ArrowUp") h += step;
+      else if (k === "ArrowLeft" || k === "ArrowDown") h -= step;
+      else if (k === "PageUp") h += 24; else if (k === "PageDown") h -= 24;
+      else if (k === "Home") h = 0; else if (k === "End") h = H;
+      else return;
+      e.preventDefault();
+      state.hour = Math.max(0, Math.min(H, h)); stopPlay(); drawPano(); drawTime();
+    });
   }
 
   function togglePlay() { if (playing) stopPlay(); else startPlay(); }
@@ -784,6 +799,8 @@
     listeners.forEach(function (f) { try { f(api()); } catch (e) { console.error(e); } });
   }
 
+  function known(id) { return typeof id === "string" && Object.prototype.hasOwnProperty.call(DATA, id) && !!DATA[id] && !!DATA[id].sun_az; }
+
   // Shared hook so add-on sections (e.g. planner.js) can read the mission without editing this file.
   var listeners = [], hourListeners = [];
   function api() {
@@ -795,16 +812,17 @@
     onRefresh: function (f) { listeners.push(f); if (run) f(api()); },
     get: api,
     onHour: function (f) { hourListeners.push(f); },   // f(dataIndex) whenever the shown hour changes
-    setHour: function (h) { state.hour = Math.max(0, Math.min(hoursTotal(), h)); stopPlay(); drawPano(); drawTime(); },
-    setStart: function (idx) { state.start = idx; clampStart(); state.hour = 0; refresh(); },
-    setSite: function (id) { if (DATA[id]) { state.site = id; clampStart(); state.hour = 0; refresh(); } },
+    setHour: function (h) { if (!isFinite(h)) return; state.hour = Math.max(0, Math.min(hoursTotal(), h)); stopPlay(); drawPano(); drawTime(); },
+    setStart: function (idx) { if (!isFinite(idx)) return; state.start = idx; clampStart(); state.hour = 0; refresh(); },
+    setSite: function (id) { if (known(id)) { state.site = id; clampStart(); state.hour = 0; refresh(); } },
     // change any of: site, start (hour index), days, batt, mast; anything not valid is ignored
     set: function (p) {
-      if (p.site && DATA[p.site]) state.site = p.site;
+      if (!p) return;
+      if (known(p.site)) state.site = p.site;
       if (DAY_CHOICES.indexOf(p.days) >= 0) state.days = p.days;
       if (MAST_CHOICES.indexOf(p.mast) >= 0) state.mast = p.mast;
       if (p.batt >= 24 && p.batt <= 240) state.batt = Math.round(p.batt / 12) * 12;
-      if (typeof p.start === "number") state.start = p.start;
+      if (typeof p.start === "number" && isFinite(p.start)) state.start = p.start;
       clampStart(); state.hour = 0; refresh();
     }
   };
@@ -847,5 +865,11 @@
     }
   }
 
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+  // Start once the fonts are in, but never wait more than 1.5 s for them (a stalled font must not stop the page).
+  var begun = false;
+  function begin() { if (begun) return; begun = true; start(); }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { if (begun) window.dispatchEvent(new Event("resize")); else begin(); }, begin);
+    setTimeout(begin, 1500);
+  } else begin();
 })();

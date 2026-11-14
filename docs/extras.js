@@ -28,10 +28,11 @@
   /* ---------- 1. right now ---------- */
 
   // Hours until a body next changes between "in view" and "hidden", looking up to 60 days ahead.
+  // -1: no change for 60 days; -2: no change before the data ends (end of 2028)
   function untilChange(arr, i) {
     var now = arr[i] > 0, limit = Math.min(arr.length - 1, i + 60 * 24);
     for (var k = i + 1; k <= limit; k++) if ((arr[k] > 0) !== now) return k - i;
-    return -1;
+    return i + 60 * 24 > arr.length - 1 ? -2 : -1;
   }
 
   function tile(label, value, sub, cls) {
@@ -44,7 +45,7 @@
     var sunUp = P.sun[i] > 0, earthUp = P.earth[i] > 0;
     var sunGap = d.sun_el[i] - horizonAt(d, d.sun_az[i]), earthGap = d.earth_el[i] - horizonAt(d, d.earth_az[i]);
     var sunIn = untilChange(P.sun, i), earthIn = untilChange(P.earth, i);
-    var when = function (h) { return h < 0 ? "60+ days away" : "in " + span(h); };
+    var when = function (h) { return h === -2 ? "after our data ends (end of 2028)" : h < 0 ? "60+ days away" : "in " + span(h); };
 
     $("nowGrid").innerHTML =
       tile("Sun's height", signed(d.sun_el[i]),
@@ -105,7 +106,7 @@
     }
     $("vsSay").innerHTML = say;
     $("vsSwitch").textContent = "Switch to " + nameB;
-    $("vsSwitch").onclick = function () { var from = s.site; APP.setSite(other); other = from; };
+    $("vsSwitch").onclick = function () { var from = s.site, to = other; other = from; APP.setSite(to); };
 
     // both battery lines on one chart
     var c = $("vsChart"), r = c.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2.5);

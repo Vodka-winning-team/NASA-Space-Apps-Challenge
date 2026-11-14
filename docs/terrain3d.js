@@ -195,7 +195,7 @@
     camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); render();
   }
   var queued = false, onScreen = true;
-  new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; if (onScreen) render(); }).observe(section);
+  if ("IntersectionObserver" in window) new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; if (onScreen) render(); }).observe(section);
   function render() {          // at most one draw per screen frame, however often the hour changes
     if (!renderer || queued || !onScreen) return;
     queued = true;
