@@ -10,7 +10,9 @@ Pick a landing site near the Moon's south pole and a landing date. The tool show
 
 ## Open it
 
-Double-click `docs/index.html`. It needs no internet and no installation.
+**Live:** https://vodka-winning-team.github.io/NASA-Space-Apps-Challenge/ (works on phones, and can be added to the home screen; after the first visit it also works offline).
+
+Or double-click `docs/index.html`. It needs no internet and no installation.
 
 ## What is in this repo
 
