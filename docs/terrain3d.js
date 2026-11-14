@@ -88,6 +88,7 @@
     controls.enableDamping = false;
     controls.maxPolarAngle = Math.PI * 0.495;
     controls.addEventListener("change", render);
+    renderer.domElement.style.touchAction = "pan-y";      // let the page scroll past on phones
 
     new ResizeObserver(resize).observe(host);
     resize();
@@ -95,7 +96,7 @@
 
   function buildGround(id) {
     var t = heights(id), n = t.n, size = t.size_m;
-    if (ground) { scene.remove(ground); ground.geometry.dispose(); }
+    if (ground) { scene.remove(ground); ground.geometry.dispose(); ground.material.dispose(); }
     var g = new T.PlaneGeometry(size, size, n - 1, n - 1);
     g.rotateX(-Math.PI / 2);                                  // row 0 (north) ends up at -z
     var pos = g.attributes.position, col = new Float32Array(pos.count * 3);
@@ -124,7 +125,7 @@
   // far hills (beyond the square) as a ring wall, from the same skyline the rest of the page uses
   function buildRing(id, mast) {
     var d = DATA[id], hor = d.horizons[mast], n = hor.length, eye = parseFloat(mast);
-    if (ring) { scene.remove(ring); ring.geometry.dispose(); }
+    if (ring) { scene.remove(ring); ring.geometry.dispose(); ring.material.dispose(); }
     var t = heights(id), base = t.min_m * exag - 400;
     var pos = new Float32Array((n + 1) * 2 * 3), idxs = [];
     for (var k = 0; k <= n; k++) {
@@ -142,10 +143,11 @@
   }
 
   function setView(v) {
+    if (!renderer || !api) return;
     view = v;
     if (ring) ring.visible = v === "lander";     // far hills only make sense from the lander's own spot
     [].forEach.call($("t3dViews").children, function (b) { b.setAttribute("aria-pressed", b.dataset.v === v); });
-    var eye = parseFloat(api.state.mast) * exag + 1.6;
+    var eye = parseFloat(api.state.mast) * exag;     // same height the skyline was computed for
     if (v === "lander") {
       var d = DATA[api.state.site], look = dir(d.sun_az[idx], 0);
       camera.near = 0.5; camera.fov = 55;
@@ -172,6 +174,11 @@
     sunSprite.position.copy(sun).multiplyScalar(200000); sunSprite.scale.setScalar(26000);
     earthSprite.position.copy(earth).multiplyScalar(200000); earthSprite.scale.setScalar(16000);
     var h = idx - api.state.start, dead = !api.run.alive && h >= api.run.died;
+    if (view === "lander") {
+      var look = dir(d.sun_az[idx], 0), y = parseFloat(api.state.mast) * exag;
+      camera.position.set(0, y, 0);                       // pinned, so it cannot drift
+      controls.target.set(look.x, y, look.z); controls.update();
+    }
     landerMat.color.set(dead ? 0xec6049 : f * 3 >= 1 ? 0x58d08a : 0xf2b544);
     var el = d.sun_el[idx];
     $("t3dNow").innerHTML = "Sun <b>" + (el >= 0 ? el.toFixed(1) + "° up" : Math.abs(el).toFixed(1) + "° below level") +
@@ -187,7 +194,13 @@
     renderer.setSize(w, h, false);
     camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); render();
   }
-  function render() { if (renderer) renderer.render(scene, camera); }
+  var queued = false, onScreen = true;
+  new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; if (onScreen) render(); }).observe(section);
+  function render() {          // at most one draw per screen frame, however often the hour changes
+    if (!renderer || queued || !onScreen) return;
+    queued = true;
+    requestAnimationFrame(function () { queued = false; renderer.render(scene, camera); });
+  }
 
   /* ---------- keep in step with the rest of the page ---------- */
 
@@ -206,6 +219,7 @@
       });
       return;
     }
+    if ($("t3dNote").textContent.indexOf("Loading") === 0) $("t3dNote").textContent = "";
     if (mast !== mastShown) { mastShown = mast; buildRing(id, mast); if (view === "lander") setView("lander"); }
     place();
   }
@@ -215,6 +229,7 @@
 
   [].forEach.call($("t3dViews").children, function (b) { b.onclick = function () { setView(b.dataset.v); }; });
   $("t3dExag").onclick = function () {
+    if (!renderer) return;
     exag = exag === 1 ? 3 : 1;
     this.setAttribute("aria-pressed", exag === 3);
     if (siteShown) { buildGround(siteShown); buildRing(siteShown, api.state.mast); setView(view); place(); }
@@ -223,7 +238,9 @@
   // build only when the section comes into view, so the page stays quick to open
   var io = new IntersectionObserver(function (es) {
     if (!es.some(function (e) { return e.isIntersecting; })) return;
-    io.disconnect(); started = true; init(); sync();
+    io.disconnect();
+    try { init(); } catch (e) { $("t3dNote").textContent = "This browser cannot show 3D graphics."; return; }
+    started = true; sync();
   }, { rootMargin: "300px" });
   io.observe(section);
 })();
