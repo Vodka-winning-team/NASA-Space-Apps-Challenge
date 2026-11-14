@@ -309,7 +309,7 @@
     ctx.textBaseline = "bottom"; ctx.fillText("Empty", L, chartB - 4);
 
     // range of outcomes under other assumptions (see "How sure is this?")
-    if (sure && sure.lo) {
+    if (sure && sure.lo && !document.body.classList.contains("mode-simple")) {   // planner view only
       ctx.beginPath();
       for (h = 0; h <= hours; h++) ctx.lineTo(X(h), chartB - sure.hi[h] / state.batt * ch);
       for (h = hours; h >= 0; h--) ctx.lineTo(X(h), chartB - sure.lo[h] / state.batt * ch);
@@ -318,7 +318,7 @@
       ctx.beginPath(); for (h = 0; h <= hours; h++) ctx.lineTo(X(h), chartB - sure.lo[h] / state.batt * ch); ctx.stroke();
       ctx.setLineDash([]);
       ctx.font = "500 12px " + MONO; ctx.fillStyle = C.t3; ctx.textAlign = "right"; ctx.textBaseline = "bottom";
-      ctx.fillText("Dashed: worst case of 16 what-ifs", Rr, top - 4);
+      ctx.fillText("Dashed line: if everything goes wrong", Rr, top - 4);
     }
 
     // battery curve
@@ -554,7 +554,7 @@
   // 16 what-ifs: every mix of four assumptions, each either as modelled or worse.
   var FACTORS = [
     { key: "sunScale", off: 1, on: 0.85, name: "15% less sunlight" },
-    { key: "rate", off: RATE, on: 2.5, name: "weaker panels" },
+    { key: "rate", off: RATE, on: 2.5, name: "weaker solar panels" },
     { key: "load", off: 1, on: 1.2, name: "20% more power use" },
     { key: "charge", off: 1, on: 0.8, name: "a battery only 80% full at landing" }
   ];
@@ -595,9 +595,9 @@
 
     var breaks = sure.single.filter(function (x) { return !x.r.alive; });
     var msg;
-    if (run.alive && ok === 16) msg = "The lander survives all 16 what-ifs, even with every assumption made worse at once.";
+    if (run.alive && ok === 16) msg = "The lander survives all 16 tougher versions, even with everything going wrong at once.";
     else if (run.alive && breaks.length) msg = "One thing going wrong is enough: with <b>" + breaks.map(function (x) { return x.f.name; }).join("</b> or <b>") + "</b> the lander is lost.";
-    else if (run.alive) msg = "No single problem kills it, but some combinations do. It survives " + ok + " of 16 what-ifs.";
+    else if (run.alive) msg = "No single problem kills it, but some combinations do. It survives " + ok + " of the 16 tougher versions.";
     else msg = "Making things worse only brings the end sooner: as early as <b>day " + (Math.floor((sure.firstDeath - 1) / 24) + 1) + "</b>.";
     var days = function (h) { var d = h / 24; return (d % 1 ? d.toFixed(1) : d) + (d === 1 ? " day" : " days"); };
     if (ok < 16) msg += sure.need ? " To survive all 16, the battery would need to last <b>" + days(sure.need) + "</b> without Sun (now " + days(state.batt) + ")."
@@ -605,8 +605,8 @@
     $("sureSay").innerHTML = msg;
 
     // rows = sunlight x panels, columns = power use x starting charge
-    var rowName = ["Sun as mapped<br> panels as planned", "Sun as mapped<br> weaker panels", "15% less Sun<br> panels as planned", "15% less Sun<br> weaker panels"];
-    var colName = ["Normal use<br> full battery", "Normal use<br> 80% battery", "+20% use<br> full battery", "+20% use<br> 80% battery"];
+    var rowName = ["Normal Sun<br> normal panels", "Normal Sun<br> weaker panels", "15% less Sun<br> normal panels", "15% less Sun<br> weaker panels"];
+    var colName = ["Normal power use<br> full battery", "Normal power use<br> battery 80% full", "20% more power use<br> full battery", "20% more power use<br> battery 80% full"];
     var html = '<div class="sureCorner" aria-hidden="true"></div>';
     colName.forEach(function (n) { html += '<div class="sureCol" aria-hidden="true">' + n + "</div>"; });
     for (var ri = 0; ri < 4; ri++) {
@@ -614,7 +614,7 @@
       for (var ci = 0; ci < 4; ci++) {
         var m = (ri >> 1) | ((ri & 1) << 1) | ((ci >> 1) << 2) | ((ci & 1) << 3);
         var c = sure.cells[m], r = c.r;
-        var txt = r.alive ? "low " + Math.round(r.min * 100) + "%" : "day " + (Math.floor((r.died - 1) / 24) + 1);
+        var txt = r.alive ? "lowest " + Math.round(r.min * 100) + "%" : "day " + (Math.floor((r.died - 1) / 24) + 1);
         var label = rowName[ri].replace("<br> ", ", ") + ", " + colName[ci].replace("<br> ", ", ") + ": " +
                     (r.alive ? "survives, lowest charge " + Math.round(r.min * 100) + "%" : "lost on " + txt);
         html += '<div class="sureCell ' + c.g + (m === 0 ? " base" : "") + '" role="img" aria-label="' + label + '"><span class="sym">' +
@@ -668,13 +668,13 @@
       var on = !!pick && pick.from === sp.from;
       var fatal = isFatal(sp);
       return '<button type="button" data-from="' + sp.from + '" aria-pressed="' + on + '"' + (fatal ? ' class="fatal"' : "") + "><b>" +
-             plural(sp.len, "hour") + "</b><span>day " + (Math.floor(sp.from / 24) + 1) + " · Sun " + compass(sp.az) + (fatal ? " · fatal" : "") + "</span></button>";
+             plural(sp.len, "hour") + "</b><span>day " + (Math.floor(sp.from / 24) + 1) + " · Sun in the " + compass(sp.az) + (fatal ? " · ended the mission" : "") + "</span></button>";
     }).join("");
     [].forEach.call(box.children, function (b) {
       b.onclick = function () { ridgePick = spells.filter(function (s) { return s.from === +b.dataset.from; })[0]; drawRidge(); drawPano(); };
     });
     if (!pick) {
-      $("ridgeSay").innerHTML = "The Sun never stays hidden long on this mission. Tap the sky view above to look at any direction.";
+      $("ridgeSay").innerHTML = "The Sun never stays hidden for long on this mission. Tap the sky picture above to look in any direction.";
       drawSection(null);
       return;
     }
@@ -683,11 +683,11 @@
     var where = rg.dist < 1 ? Math.round(rg.dist * 1000) + " m" : rg.dist.toFixed(1) + " km";
     var msg = spell
       ? "For <b>" + plural(pick.len, "hour") + "</b> from day " + (Math.floor(pick.from / 24) + 1) + " the Sun was low in the " + compass(pick.az) + ", behind "
-      : "Looking " + compass(rg.profAz) + " (" + Math.round(rg.profAz) + "°), the skyline is set by ";
+      : "Looking " + compass(rg.profAz) + ", the highest thing in the way is ";
     if (rg.dist < 0.5) msg += "the slope the lander stands on, only " + where + " away.";
     else msg += "a hill <b>" + where + "</b> away, its top <b>" + Math.abs(rg.rise) + " m " + (rg.rise >= 0 ? "above" : "below") + "</b> the lander.";
-    if (spell && sunEl + d.sun_width_deg / 2 < 0) msg += " The Sun was " + Math.abs(sunEl).toFixed(1) + "° below level, so even flat ground would have hidden all of it.";
-    else if (spell) msg += " The Sun was " + (sunEl < 0 ? Math.abs(sunEl).toFixed(1) + "° below level" : sunEl.toFixed(1) + "° up") + "; that hill reaches " + rg.el.toFixed(1) + "°.";
+    if (spell && sunEl + d.sun_width_deg / 2 < 0) msg += " The Sun sat " + Math.abs(sunEl).toFixed(1) + "° below level ground, so even a flat plain would have hidden all of it.";
+    else if (spell) msg += " The Sun sat " + (sunEl < 0 ? Math.abs(sunEl).toFixed(1) + "° below level ground" : "only " + sunEl.toFixed(1) + "° above level ground") + ", and the top of that hill reaches " + rg.el.toFixed(1) + "°.";
     $("ridgeSay").innerHTML = msg;
     drawSection(rg, sunEl);
   }
@@ -741,8 +741,8 @@
       ctx.fillStyle = col; ctx.font = "600 12px " + MONO; ctx.textAlign = "right"; ctx.textBaseline = below ? "top" : "bottom";
       ctx.fillText(label, Rr - 4, Math.max(4, Math.min(H - botPad - 16, Y(h) + (below ? 6 : -6))));
     };
-    ray(rg.el, "rgba(236,232,220,0.6)", [2, 4], "SKYLINE " + rg.el.toFixed(1) + "°", sunEl !== null && sunEl > rg.el);
-    if (sunEl !== null) ray(sunEl, C.sun, [7, 4], "SUN " + sunEl.toFixed(1) + "°", sunEl <= rg.el);
+    ray(rg.el, "rgba(236,232,220,0.6)", [2, 4], "Line to the hill top, " + rg.el.toFixed(1) + "°", sunEl !== null && sunEl > rg.el);
+    if (sunEl !== null) ray(sunEl, C.sun, [7, 4], "Line to the Sun, " + sunEl.toFixed(1) + "°", sunEl <= rg.el);
     ctx.fillStyle = C.text; ctx.fillRect(x0 - 1, y0, 3, Math.max(4, Y(0) - y0));
     ctx.beginPath(); ctx.arc(x0 + 0.5, y0, 4, 0, 6.2832); ctx.fill();
 
@@ -752,11 +752,11 @@
       ctx.strokeStyle = C.dead; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(rx - 6, ry); ctx.lineTo(rx, ry - 6); ctx.lineTo(rx + 6, ry); ctx.lineTo(rx, ry + 6); ctx.closePath(); ctx.stroke();
       ctx.fillStyle = C.dead; ctx.font = "600 12px " + MONO; ctx.textBaseline = "bottom";
-      var t = "BLOCKING HILL", right = rx + 12 + ctx.measureText(t).width < Rr - 130;
+      var t = "The hill in the way", right = rx + 12 + ctx.measureText(t).width < Rr - 130;
       ctx.textAlign = right ? "left" : "right"; ctx.fillText(t, right ? rx + 12 : rx - 12, ry - 8);
     }
-    $("ridgeCap").textContent = "Side view looking " + compass(rg.profAz) + " (" + Math.round(rg.profAz) + "°). Heights stretched " +
-      (ex >= 10 ? Math.round(ex) : ex.toFixed(1)) + "× so the hills show; the Moon's curve is included. NASA LOLA height map, 80 m pixels.";
+    $("ridgeCap").textContent = "Side view, looking " + compass(rg.profAz) + ". Heights are drawn " +
+      (ex >= 10 ? Math.round(ex) : ex.toFixed(1)) + "× taller so the hills show. The Moon's curve is included. Drawn from NASA's height map.";
   }
 
   function bindRidge() {

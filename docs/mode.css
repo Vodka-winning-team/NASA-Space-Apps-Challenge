@@ -1,0 +1,32 @@
+/* Styles for the Simple / Mission planner switch (mode.js). Written with AI assistance (Claude). */
+
+body.mode-simple .pro { display: none !important; }
+body.mode-planner .simple-only { display: none !important; }
+
+.top { flex-wrap: wrap; align-items: center; }
+.modes { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line-2); border-radius: 999px; }
+.modes button {
+  border: 0; background: transparent; color: var(--text-2); cursor: pointer;
+  min-height: 36px; padding: 0 16px; border-radius: 999px; font: 600 15px/1 var(--sans); white-space: nowrap;
+  transition: background 150ms, color 150ms;
+}
+.modes button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+@media (hover: hover) { .modes button[aria-pressed="false"]:hover { color: var(--text); } }
+
+/* the invitation at the end of the simple view */
+.moreView { padding-top: 28px; border-top: 1px solid var(--line-2); margin-left: var(--gut); margin-right: var(--gut); padding-left: 0; padding-right: 0; }
+.moreView ul { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 32px; margin: 20px 0 0; padding: 0; max-width: 980px; }
+.moreView li { color: var(--text-2); }
+.moreView li b { display: block; color: var(--text); font-weight: 600; }
+.moreView button {
+  margin-top: 26px; background: var(--text); color: var(--bg); border: 0; min-height: 48px; padding: 0 22px;
+  border-radius: 999px; font: 700 16px/1 var(--sans); cursor: pointer;
+}
+
+@media (max-width: 900px) { .moreView ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) {
+  .modes { width: 100%; }
+  .modes button { flex: 1; min-height: 44px; }
+  .moreView ul { grid-template-columns: minmax(0, 1fr); }
+  .moreView button { width: 100%; }
+}

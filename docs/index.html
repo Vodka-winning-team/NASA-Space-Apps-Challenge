@@ -12,12 +12,16 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="planner.css">
 <link rel="stylesheet" href="extras.css">
+<link rel="stylesheet" href="mode.css">
 </head>
-<body>
+<body class="mode-simple">
 
 <header class="top">
   <p class="brand">Will the lander <em>survive?</em></p>
-  <p class="mark">Moon south pole <span>/</span> NASA Space Apps 2026</p>
+  <div class="modes" role="group" aria-label="How much detail to show">
+    <button type="button" data-mode="simple" aria-pressed="true">Simple</button>
+    <button type="button" data-mode="planner" aria-pressed="false">Mission planner</button>
+  </div>
 </header>
 
 <main>
@@ -75,18 +79,17 @@
     <p class="vFacts" id="vFacts"></p>
   </section>
 
-  <section class="sure" aria-label="How sure is this answer">
+  <section class="sure pro" aria-label="How sure is this answer">
     <div class="sureHead">
       <div>
-        <p class="tag">Stress test · 16 what-ifs</p>
         <h2>How sure is this answer?</h2>
         <p class="say" id="sureSay"></p>
-        <p class="hint">We re-run the same mission with four things made worse, one at a time and all together: less sunlight than our map gives (it runs higher than NASA's), weaker panels, more power use, and a battery not full at landing. These are what-ifs, not probabilities.</p>
+        <p class="hint">We run the same mission again with some bad luck added: less sunlight (our map is a little generous compared with NASA's), weaker solar panels, a lander that uses more power, and a battery that is not full at landing. First one at a time, then all together. These are what-ifs, not odds.</p>
       </div>
       <p class="sureScore"><span class="sureNum" id="sureNum"></span><span class="sureWord" id="sureWord"></span></p>
     </div>
     <div class="sureGrid" id="sureGrid"></div>
-    <p class="hint">Each square is the same mission under one mix of assumptions; the outlined square is the answer above. The number is the lowest the battery gets, or the day it runs out.</p>
+    <p class="hint">Each square is one version of the mission. The outlined square is the answer above. The number shows how low the battery got, or the day it ran out.</p>
   </section>
 
   <section class="watch" aria-label="Watch the mission">
@@ -102,48 +105,47 @@
       <p class="now" id="now"></p>
       <div class="chips" id="chips"></div>
     </div>
-    <div class="nowGrid" id="nowGrid" aria-live="off"></div>
+    <div class="nowGrid pro" id="nowGrid" aria-live="off"></div>
     <canvas id="time" class="time" role="img" aria-label="Battery level through the mission"></canvas>
     <p class="hint">Drag across the battery chart to move through the mission.</p>
   </section>
 
-  <section class="t3d" id="terrain3d" aria-label="The ground in 3D">
+  <section class="t3d pro" id="terrain3d" aria-label="The ground in 3D">
     <div class="head">
       <div>
-        <p class="tag">3D · NASA LOLA · 25.6 km across</p>
         <h2>Stand on the ground.</h2>
-        <p class="lede">The real ground around the lander, lit by the Sun at the hour shown above. Drag to turn, scroll to zoom. Play the mission or drag the battery chart and the shadows move with it.</p>
+        <p class="lede">The real ground around the lander, about 26 km across, lit by the Sun at the hour shown above. Drag to turn it, scroll to zoom. Play the mission and the shadows move.</p>
       </div>
       <div class="t3dCtl">
         <div class="seg t3dViews" id="t3dViews" role="group" aria-label="Camera">
           <button type="button" data-v="overview" aria-pressed="true">From above</button>
-          <button type="button" data-v="lander" aria-pressed="false">Lander's eye</button>
+          <button type="button" data-v="lander" aria-pressed="false">From the lander</button>
         </div>
-        <button type="button" class="t3dExag" id="t3dExag" aria-pressed="false">Stretch heights ×3</button>
+        <button type="button" class="t3dExag" id="t3dExag" aria-pressed="false">Make hills 3× taller</button>
       </div>
     </div>
     <div class="t3dCanvas" id="t3dCanvas"><p class="t3dNote" id="t3dNote"></p></div>
     <p class="t3dNow" id="t3dNow" aria-live="polite"></p>
-    <p class="hint">The beacon marks the lander (green: charging, yellow: on battery, red: lost); a real lander would be too small to see. In the lander’s-eye view, hills further away are drawn as a ring using the same skyline as the sky view. Shadows on the ground shown are computed live; when the far hills hide the Sun, the whole scene goes dark. Heights are true scale unless stretched.</p>
+    <p class="hint">The glowing marker is the lander: green when it is charging, yellow when it runs on battery, red when it is lost. A real lander would be too small to see. In the view from the lander, far-away hills are drawn as a ring around you, with the same outline as in the sky picture above. Shadows are worked out live, and when the far hills hide the Sun the whole scene goes dark. Heights are true to scale unless you make them taller.</p>
   </section>
 
-  <section class="planner" id="planner" aria-label="Plan the science">
+  <section class="planner pro" id="planner" aria-label="Plan the science">
     <h2>Can it do science too?</h2>
-    <p class="lede">Give the lander a job, then see what it costs in power. Pick a task and tap the timeline to place it. There is one slot for each task.</p>
-    <p class="planner-assumption"><b>Illustrative numbers</b> — task loads and durations are examples, not instrument specifications. Loads are extra units per hour above the lander's base load of 1.</p>
-    <div class="planner-types" id="plannerTypes" role="group" aria-label="Choose a science task"></div>
+    <p class="lede">Give the lander jobs to do and see if the battery can afford them. Pick a job, then tap the chart to choose when it happens. Each job can be done once.</p>
+    <p class="planner-assumption"><b>Our own examples.</b> The jobs and the power they need are made up for this demo. They are not figures from a real instrument.</p>
+    <div class="planner-types" id="plannerTypes" role="group" aria-label="Choose a job"></div>
     <form class="planner-controls" id="plannerPlace">
-      <label for="plannerHour">Start at mission hour</label>
+      <label for="plannerHour">Start at hour number</label>
       <input id="plannerHour" type="number" min="0" step="1" value="0" required>
-      <button type="submit" id="plannerAdd">Place task</button>
-      <button type="button" id="plannerAuto">Auto-plan</button>
-      <button type="button" id="plannerClear">Clear plan</button>
+      <button type="submit" id="plannerAdd">Add this job</button>
+      <button type="button" id="plannerAuto">Plan it for me</button>
+      <button type="button" id="plannerClear">Start over</button>
     </form>
-    <p class="hint" id="plannerHelp">Drag a task block to move it; click it to remove. On a task button, arrow keys move by 1 hour and Delete removes. On the chart, arrows choose an hour and Enter places a task.</p>
+    <p class="hint" id="plannerHelp">Drag a job to move it. Click it to remove it. With a keyboard: on a job, the arrow keys move it by one hour and Delete removes it; on the chart, the arrow keys pick an hour and Enter adds the job.</p>
     <canvas class="planner-chart" id="plannerChart" tabindex="0" role="img" aria-label="Science timeline: Sun, Earth, tasks and battery with and without science" aria-describedby="plannerHelp plannerTakeaway"></canvas>
-    <p class="planner-key"><span class="planner-plan">Solid: with science</span><span class="planner-base">Dashed: without science</span><span>Red cross: task failed</span><span>Red hatching: lander lost</span></p>
+    <p class="planner-key"><span class="planner-plan">Solid line: battery with the jobs</span><span class="planner-base">Dashed line: battery without them</span><span>Red cross: job failed</span><span>Red stripes: lander lost</span></p>
     <div class="planner-result" aria-live="polite" aria-atomic="true">
-      <p class="planner-score"><strong id="plannerScore">0 / 4</strong> <span>tasks done</span></p>
+      <p class="planner-score"><strong id="plannerScore">0 / 4</strong> <span>jobs done</span></p>
       <p class="say" id="plannerTakeaway">Loading the mission.</p>
       <p class="hint" id="plannerNotice"></p>
     </div>
@@ -157,17 +159,16 @@
     <p class="hint">Each square is the same mission, landing one day later. Tap one to try it.</p>
   </section>
 
-  <section class="ridge" aria-label="Which hill hid the Sun">
-    <p class="tag">Terrain forensics · NASA LOLA</p>
+  <section class="ridge pro" aria-label="Which hill hid the Sun">
     <h2>Which hill hid the Sun?</h2>
     <p class="say" id="ridgeSay"></p>
     <div class="ridgeSpells" id="ridgeSpells" aria-label="Longest dark spells of this mission"></div>
     <canvas id="ridgeCut" class="ridgeCut" role="img" aria-label="Side view of the ground from the lander to the hill that blocks the Sun"></canvas>
     <p class="hint" id="ridgeCap"></p>
-    <p class="hint">Pick one of the longest dark spells, or tap anywhere on the sky view to look in that direction.</p>
+    <p class="hint">Pick one of the longest dark periods above, or tap anywhere on the sky picture to look in that direction.</p>
   </section>
 
-  <section class="vs" aria-label="Compare two places">
+  <section class="vs pro" aria-label="Compare two places">
     <h2>How does another place compare?</h2>
     <p class="say" id="vsSay"></p>
     <div class="vsPickRow">
@@ -180,7 +181,7 @@
     <p class="hint">Same landing date, same lander, two places. The dashed line is the second place.</p>
   </section>
 
-  <section class="cal" aria-label="Compare the six places">
+  <section class="cal pro" aria-label="Compare the six places">
     <h2>Which place is safest?</h2>
     <p class="say" id="calSay"></p>
     <canvas id="cal" class="calCanvas" role="img" aria-label="Safe and unsafe landing dates for six places over two years"></canvas>
@@ -192,6 +193,20 @@
     <h2>Can Mauritius see it?</h2>
     <p class="say" id="morisText"></p>
     <p class="hint" id="morisSub"></p>
+  </section>
+
+  <section class="moreView simple-only" aria-label="More detail">
+    <h2>Want to dig deeper?</h2>
+    <p class="lede">The mission planner view adds the detail an engineer would ask for.</p>
+    <ul>
+      <li><b>What if things go wrong?</b> The same mission with less Sun, weaker panels and a weaker battery.</li>
+      <li><b>The ground in 3D.</b> The real hills, with the Sun's shadows moving across them.</li>
+      <li><b>Which hill blocked the Sun?</b> A side view of the hill that got in the way.</li>
+      <li><b>Jobs for the lander.</b> Drill, take photos, send results home, and see what the battery can afford.</li>
+      <li><b>Two places side by side.</b> Same date, same lander, two landing places.</li>
+      <li><b>Every date for two years.</b> Safe and unsafe landing dates for all six places.</li>
+    </ul>
+    <button type="button" data-mode="planner" data-scroll=".sure">Open the mission planner view</button>
   </section>
 
   <section class="about">
@@ -235,6 +250,7 @@
 
 </main>
 
+<script src="mode.js"></script>
 <script src="data/validation.js"></script>
 <script src="data/sites.js"></script>
 <script src="data/moris.js"></script>
