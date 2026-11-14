@@ -25,11 +25,11 @@ Status: `open`, `doing (name)`, `done`. Take any open task. Edit this file and p
 | W3 | Site picker and date picker | done |
 | W4 | Battery run and the survived / died verdict | done |
 | W5 | Launch-delay calendar (green and red dates) | done |
-| W6 | Phone layout; add-to-home-screen; works offline | done on headless Chrome; needs a test on real phones |
+| W6 | Phone layout; add-to-home-screen; works offline | done on headless Chrome and headless Firefox at 390 and 360 px; needs a test on real phones |
 | W7 | Mauritius moment | done |
 | W8 | "About and limits" panel: data sources, assumptions, what the tool does not do | done |
 | W9 | Public link that opens without a login | open |
-| W10 | Test on 2 phones and 2 browsers; list bugs here | open |
+| W10 | Test on 2 phones and 2 browsers; list bugs here | doing (Suresh): headless Firefox passed at 1366, 390 and 360 px (see notes); real phones still to do |
 
 ## Story (lead Paveesh, backup Suresh)
 
@@ -47,5 +47,8 @@ Status: `open`, `doing (name)`, `done`. Take any open task. Edit this file and p
 | S10 | Three timed rehearsals | open |
 
 ## Bugs and notes
+
+- 15 Nov 02:40, Suresh: merged `plain-words` (Simple / Mission planner switch, "How do we save it?") into `main`. Automated test in headless Firefox, on desktop (1366 px) and phone widths (390 and 360 px): no script errors, no sideways scroll, all 6 places x 24 dates run, Play works, a shared link opens the same settings, "Try it" saves a lost mission and "Put it back" undoes it, the offline copy fills (38 files). No bugs found.
+- Note for the pitch: the page opens in **Simple** mode, which hides the detailed sections (among them the planner, the hill side view, the two-place comparison and the two-year calendar). Click **Mission planner** to show judges everything, or share a link ending `?mode=planner`.
 
 (add here)

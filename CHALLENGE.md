@@ -37,7 +37,7 @@ Do not claim Quickmap or Moon Trek in the submission unless someone on the team 
 | **Time remaining before sunset or Earthset** (mentioned twice) | Yes: shown under the view, and it updates as the mission plays |
 | **Solar elevation angle, shown prominently** | Yes: "Sun's height" under the view, with how far it clears the hills |
 | Duration of sunlight, Earth visibility windows | Yes: percentages and the strips under the battery chart |
-| 2D maps, 3D surface views | 2D view and a 2D map; no 3D |
+| 2D maps, 3D surface views | Yes: 2D view, a 2D map, and a 3D view of the ground (NASA LOLA) lit by the Sun at the chosen hour |
 | Animations or timelines over lunar days | Yes: Play the mission |
 | Serve planners and the public alike | Public: yes. Planners: no detailed numbers or export yet |
 | Help when launch delays force a new date | Yes: this is our strongest section |
@@ -53,7 +53,7 @@ Still open:
 
 1. **Custom coordinates** (land anywhere). Large, and the answers would be rougher than for the six prepared sites.
 2. **Detailed numbers or an export for planners.**
-3. **A 3D surface view** (optional in the challenge text).
+3. ~~A 3D surface view~~: done (`docs/terrain3d.js`).
 
 ---
 Drafted with AI assistance (Claude). The quoted paragraph is NASA's text.

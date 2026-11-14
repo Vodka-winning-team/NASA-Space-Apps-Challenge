@@ -21,11 +21,17 @@ Double-click `docs/index.html`. It needs no internet and no installation.
 
 ## Rebuild the data (optional)
 
-Needs Python 3 with `numpy` and `requests`.
+Needs Python 3 with `numpy` and `requests` (and `Pillow` for the map picture).
 
 1. Download `ldem_80s_80m.img` (115 MB) from the NASA PDS Geosciences Node, LOLA polar gridded data, into `data_raw/`:
    https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/
-2. `cd engine`, then `python build_sites.py` and `python build_moris.py`.
+2. `cd engine`, then run in this order:
+   - `python build_sites.py`: the hill line, Sun and Earth for each site (asks NASA/JPL Horizons, needs internet)
+   - `python build_moris.py`: the Moon over Port Louis
+   - `python build_ridges.py`: which hill blocks each direction (run after `build_sites.py`; it checks against those files)
+   - `python build_terrain.py`: the ground for the 3D view
+   - `python build_map.py`: the small map picture
+   - `python validate.py`: the check against NASA's sunlight maps (needs the NASA files listed in VALIDATION.md)
 
 ## Data and sources
 
