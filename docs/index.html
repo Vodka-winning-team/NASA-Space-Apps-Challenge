@@ -10,6 +10,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="planner.css">
 </head>
 <body>
 
@@ -92,6 +93,29 @@
     </div>
     <canvas id="time" class="time" role="img" aria-label="Battery level through the mission"></canvas>
     <p class="hint">Drag across the battery chart to move through the mission.</p>
+  </section>
+
+  <section class="planner" id="planner" aria-label="Plan the science">
+    <h2>Can it do science too?</h2>
+    <p class="lede">Give the lander a job, then see what it costs in power. Pick a task and tap the timeline to place it. There is one slot for each task.</p>
+    <p class="planner-assumption"><b>Illustrative numbers</b> — task loads and durations are examples, not instrument specifications. Loads are extra units per hour above the lander's base load of 1.</p>
+    <div class="planner-types" id="plannerTypes" role="group" aria-label="Choose a science task"></div>
+    <form class="planner-controls" id="plannerPlace">
+      <label for="plannerHour">Start at mission hour</label>
+      <input id="plannerHour" type="number" min="0" step="1" value="0" required>
+      <button type="submit" id="plannerAdd">Place task</button>
+      <button type="button" id="plannerAuto">Auto-plan</button>
+      <button type="button" id="plannerClear">Clear plan</button>
+    </form>
+    <p class="hint" id="plannerHelp">Drag a task block to move it; click it to remove. On a task button, arrow keys move by 1 hour and Delete removes. On the chart, arrows choose an hour and Enter places a task.</p>
+    <canvas class="planner-chart" id="plannerChart" tabindex="0" role="img" aria-label="Science timeline: Sun, Earth, tasks and battery with and without science" aria-describedby="plannerHelp plannerTakeaway"></canvas>
+    <p class="planner-key"><span class="planner-plan">Solid: with science</span><span class="planner-base">Dashed: without science</span><span>Red cross: task failed</span><span>Red hatching: lander lost</span></p>
+    <div class="planner-result" aria-live="polite" aria-atomic="true">
+      <p class="planner-score"><strong id="plannerScore">0 / 4</strong> <span>tasks done</span></p>
+      <p class="say" id="plannerTakeaway">Loading the mission.</p>
+      <p class="hint" id="plannerNotice"></p>
+    </div>
+    <div class="planner-tasks" id="plannerTasks" role="group" aria-label="Placed tasks; click to remove, arrow keys to move"></div>
   </section>
 
   <section class="slip" aria-label="Landing later">
@@ -177,5 +201,6 @@
 <script src="data/SP07.js"></script>
 <script src="data/ridges.js"></script>
 <script src="app.js"></script>
+<script src="planner.js"></script>
 </body>
 </html>

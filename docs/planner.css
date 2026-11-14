@@ -1,0 +1,36 @@
+/* Science operations: inherit the lander's type, rules and signal colours. */
+.planner { min-width: 0; }
+.planner ::selection { background: var(--sun); color: var(--bg); }
+.planner-assumption { margin-top: 18px; max-width: 75ch; color: var(--text-3); font-size: 14px; }
+.planner-assumption b { font: 500 12px/1.5 var(--mono); text-transform: uppercase; color: var(--sun); }
+.planner-types { display: flex; flex-wrap: wrap; margin-top: 24px; border-top: 1px solid var(--line-2); }
+.planner button { border: 1px solid var(--line-2); border-radius: 0; background: transparent; padding: 10px 14px; min-height: 44px; cursor: pointer; text-align: left; }
+.planner-types button { flex: 1 1 210px; border-width: 0 0 1px; padding: 16px 12px; }
+.planner-types button strong { display: block; font-size: 17px; }
+.planner-types button span { display: block; margin-top: 6px; font: 500 12px/1.5 var(--mono); color: var(--text-2); }
+.planner-types button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.planner-types button[aria-pressed="true"] span { color: var(--bg); }
+.planner-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 20px; }
+.planner-controls label { font-size: 14px; color: var(--text-2); }
+.planner-controls input { width: 7em; max-width: 100%; min-height: 44px; border: 1px solid var(--line-2); border-radius: 0; padding: 8px; background: var(--bg-2); font: 500 16px/1.5 var(--mono); accent-color: var(--sun); caret-color: var(--sun); color-scheme: dark; }
+#plannerAuto { border-color: var(--sun); color: var(--sun); }
+.planner button:disabled { opacity: .45; cursor: default; }
+@media (hover: hover) { .planner button:enabled:hover { border-color: var(--text); } }
+.planner-chart { display: block; width: 100%; height: 460px; margin-top: 24px; touch-action: pan-y; cursor: crosshair; }
+.planner-key { display: flex; flex-wrap: wrap; gap: 8px 24px; color: var(--text-3); font: 500 12px/1.5 var(--mono); }
+.planner-plan { color: var(--live); }
+.planner-base { color: var(--text-2); }
+.planner-result { border-top: 1px solid var(--line-2); margin-top: 24px; padding-top: 20px; }
+.planner-score { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; }
+.planner-score strong { font: 800 clamp(3.5rem, 9vw, 6rem)/1 var(--sans); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.planner-score span { font: 500 12px/1.5 var(--mono); text-transform: uppercase; color: var(--text-2); }
+.planner-result .say { max-width: 65ch; }
+.planner-tasks { display: grid; margin-top: 20px; }
+.planner-tasks button { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 20px; border-width: 0 0 1px; padding: 14px 0; }
+.planner-tasks button span { font: 500 12px/1.5 var(--mono); color: var(--text-2); }
+.planner-tasks button[data-failed="true"] span { color: var(--dead); }
+@media (max-width: 560px) {
+  .planner-types button { flex-basis: 100%; }
+  .planner-controls label { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .planner * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
