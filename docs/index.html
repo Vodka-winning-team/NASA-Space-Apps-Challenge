@@ -28,33 +28,43 @@
 
   <section class="choose" aria-label="Choose a place and a date">
     <div class="pick">
-      <fieldset class="field field-sites">
-        <legend>Where do we land?</legend>
-        <div class="sites" id="sites" role="radiogroup"></div>
-      </fieldset>
-      <label class="field field-date">
-        <span class="legend">When?</span>
-        <input type="date" id="date" min="2027-01-01" max="2028-11-30">
-      </label>
-    </div>
-
-    <details class="more">
-      <summary><span>More settings</span><span class="moreNow" id="setSum"></span></summary>
-      <div class="moreBody">
-        <fieldset class="field">
-          <legend>How long is the mission?</legend>
-          <div class="seg" id="days" role="radiogroup"></div>
+      <div class="pickMain">
+        <fieldset class="field field-sites">
+          <legend>Where do we land?</legend>
+          <div class="sites" id="sites" role="radiogroup"></div>
         </fieldset>
-        <label class="field">
-          <span class="legend">Battery lasts <output id="battOut"></output> without Sun</span>
-          <input type="range" id="batt" min="24" max="240" step="12">
+        <label class="field field-date">
+          <span class="legend">When?</span>
+          <input type="date" id="date" min="2027-01-01" max="2028-11-30">
         </label>
-        <fieldset class="field">
-          <legend>How high is the solar panel?</legend>
-          <div class="seg" id="mast" role="radiogroup"></div>
-        </fieldset>
+        <details class="more">
+          <summary><span>More settings</span><span class="moreNow" id="setSum"></span></summary>
+          <div class="moreBody">
+            <fieldset class="field">
+              <legend>How long is the mission?</legend>
+              <div class="seg" id="days" role="radiogroup"></div>
+            </fieldset>
+            <label class="field">
+              <span class="legend">Battery lasts <output id="battOut"></output> without Sun</span>
+              <input type="range" id="batt" min="24" max="240" step="12">
+            </label>
+            <fieldset class="field">
+              <legend>How high is the solar panel?</legend>
+              <div class="seg" id="mast" role="radiogroup"></div>
+            </fieldset>
+          </div>
+        </details>
       </div>
-    </details>
+      <figure class="moon">
+        <div class="moonDisc" id="moon">
+          <img src="map.jpg" alt="The Moon's south pole seen from above" width="640" height="640">
+          <span class="toEarth">Toward Earth</span>
+          <span class="pole" aria-hidden="true"></span>
+          <span class="poleName">South Pole</span>
+        </div>
+        <figcaption>The Moon's south pole from above, about 430 km across. Each dot is a landing place. Drawn from NASA's height map.</figcaption>
+      </figure>
+    </div>
   </section>
 
   <section class="verdict" id="verdict" aria-live="polite">
@@ -82,7 +92,7 @@
     <div class="head">
       <div>
         <h2>Why? Watch the mission.</h2>
-        <p class="lede">This is the sky around the lander, as if you stood there and turned in a full circle. The grey shape is the hills. The lander only has power while the Sun is above them.</p>
+        <p class="lede">You are standing on the Moon, next to the lander, turning in a full circle. The grey ground is the Moon: the hills around you. The lander only has power while the Sun is above them.</p>
       </div>
       <button class="play" id="play" type="button">Play the mission</button>
     </div>

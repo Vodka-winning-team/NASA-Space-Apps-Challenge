@@ -104,6 +104,19 @@
       b.onclick = function () { state.site = s.id; clampStart(); state.hour = 0; refresh(); };
       $("sites").appendChild(b);
     });
+    // the same six places as dots on the map of the south pole
+    var MOON_R = 1737400, MAP_HALF = 215000;
+    SITES.forEach(function (s) {
+      var r = 2 * MOON_R * Math.tan(Math.PI / 4 + s.lat * Math.PI / 360), lon = s.lon * Math.PI / 180;
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "dot"; b.setAttribute("role", "radio"); b.dataset.id = s.id;
+      b.setAttribute("aria-label", s.name);
+      b.style.left = (50 + r * Math.sin(lon) / MAP_HALF * 50) + "%";
+      b.style.top = (50 - r * Math.cos(lon) / MAP_HALF * 50) + "%";
+      b.innerHTML = "<span>" + s.name + "</span>";
+      b.onclick = function () { state.site = s.id; clampStart(); state.hour = 0; refresh(); };
+      $("moon").appendChild(b);
+    });
     DAY_CHOICES.forEach(function (n) {
       var b = document.createElement("button");
       b.type = "button"; b.setAttribute("role", "radio"); b.dataset.n = n; b.textContent = n + " days";
@@ -131,6 +144,7 @@
   }
   function syncControls() {
     [].forEach.call($("sites").children, function (b) { b.setAttribute("aria-checked", b.dataset.id === state.site); });
+    [].forEach.call($("moon").querySelectorAll(".dot"), function (b) { b.setAttribute("aria-checked", b.dataset.id === state.site); });
     [].forEach.call($("days").children, function (b) { b.setAttribute("aria-checked", +b.dataset.n === state.days); });
     [].forEach.call($("mast").children, function (b) { b.setAttribute("aria-checked", b.dataset.m === state.mast); });
     $("date").value = iso(state.start);
@@ -176,7 +190,7 @@
     if (!P.top) {   // highest the Earth or Sun ever gets here, so neither leaves the picture
       P.top = Math.max(Math.max.apply(null, d.earth_el) + d.earth_width_deg / 2, Math.max.apply(null, d.sun_el));
     }
-    var elMax = Math.max(9, Math.ceil(hi) + 2.5, P.top + 2.2), elMin = Math.min(-5, Math.floor(lo) - 1.5);
+    var elMax = Math.max(9, Math.ceil(hi) + 2.5, P.top + 2.2), elMin = Math.min(-6.5, Math.floor(lo) - 3);   // leaves room for the ground and the lander
     var ys = H / (elMax - elMin);
     var X = function (az) { return ((((az + 180) % 360) + 360) % 360) / 360 * W; };
     var Y = function (el) { return H - (el - elMin) * ys; };
@@ -232,6 +246,21 @@
       ctx.beginPath(); ctx.moveTo(rxp, ryp - 8); ctx.lineTo(rxp, H); ctx.stroke(); ctx.setLineDash([]);
       ctx.beginPath(); ctx.moveTo(rxp - 5, ryp); ctx.lineTo(rxp, ryp - 5); ctx.lineTo(rxp + 5, ryp); ctx.lineTo(rxp, ryp + 5); ctx.closePath(); ctx.stroke();
     }
+
+    // "you are here": the lander on the ground, and a name for the ground itself
+    var lx = W / 2, ly = H - 12;
+    ctx.strokeStyle = C.text; ctx.lineWidth = 1.5; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(lx - 7, ly - 10); ctx.lineTo(lx - 14, ly); ctx.moveTo(lx + 7, ly - 10); ctx.lineTo(lx + 14, ly);   // legs
+    ctx.moveTo(lx - 17, ly); ctx.lineTo(lx - 11, ly); ctx.moveTo(lx + 11, ly); ctx.lineTo(lx + 17, ly);           // feet
+    ctx.moveTo(lx, ly - 20); ctx.lineTo(lx, ly - 30);                                                             // mast
+    ctx.stroke();
+    ctx.fillStyle = C.text; ctx.fillRect(lx - 9, ly - 20, 18, 10);                                                // body
+    ctx.fillStyle = C.sun; ctx.fillRect(lx - 13, ly - 35, 26, 5);                                                 // solar panel
+    ctx.font = "600 13px " + MONO; ctx.textBaseline = "middle"; ctx.textAlign = "left"; ctx.fillStyle = C.text;
+    ctx.fillText("The lander is here", lx + 26, ly - 12);
+    ctx.font = "500 13px " + MONO; ctx.fillStyle = C.t2; ctx.textAlign = "left";
+    ctx.fillText("The Moon's surface", gut(), ly - 12);
 
     // labels
     ctx.font = "600 12px " + MONO; ctx.textBaseline = "middle";
