@@ -6,21 +6,21 @@ Status: `open`, `doing (name)`, `done`. Take any open task. Edit this file and p
 
 | # | Task | Status |
 |---|---|---|
-| E1 | Write the data format and a sample data file | doing (Jayesh + Claude) |
-| E2 | Download NASA's south pole height map (LOLA) | open |
-| E3 | Compute the horizon (hill line) around one site | open |
-| E4 | Get Sun and Earth sky positions from NASA/JPL Horizons for one site | open |
-| E5 | Produce the real data file for one site | open |
-| E6 | Choose the 5 landing sites, with coordinates and a source for each | open |
-| E7 | Produce data files for all 5 sites | open |
-| E8 | Moon-over-Port-Louis times from NASA/JPL Horizons | open |
+| E1 | Data format and data files (docs/data) | done |
+| E2 | Download NASA's south pole height map (LOLA) | done |
+| E3 | Compute the horizon (hill line) around one site | done |
+| E4 | Get Sun and Earth sky positions from NASA/JPL Horizons for one site | done |
+| E5 | Produce the real data file for one site | done |
+| E6 | Choose the 5 landing sites, with coordinates and a source for each | done (6 sites, from Wueller et al. 2026) |
+| E7 | Produce data files for all 5 sites | done |
+| E8 | Moon-over-Port-Louis times from NASA/JPL Horizons | done |
 | E9 | Check our sunlight numbers against NASA's published sunlight map | open |
 
 ## Website (lead Suresh, backup Jayesh)
 
 | # | Task | Status |
 |---|---|---|
-| W1 | Page skeleton that loads the sample data file | open |
+| W1 | Page skeleton that loads the sample data file | doing (Jayesh + Claude) |
 | W2 | Lander view: hill line with the Sun and Earth moving along it | open |
 | W3 | Site picker and date picker | open |
 | W4 | Battery run and the survived / died verdict | open |
