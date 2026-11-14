@@ -39,7 +39,7 @@ Status: `open`, `doing (name)`, `done`. Take any open task. Edit this file and p
 | S2 | Slide outline, 7 slides (structure is in the Presentation Guidelines PDF) | open |
 | S3 | Draft the NASA submission text: summary (50 to 200 words), project details, NASA data, references, AI use | open |
 | S4 | Pitch script for 4 minutes; decide who speaks | open |
-| S5 | Screenshots of every screen, for slides and as backup | open |
+| S5 | Screenshots of every screen, for slides and as backup | done (Suresh): `pitch/screenshots/`, desktop and phone, both modes |
 | S6 | 30-second backup screen recording | open |
 | S7 | QR code to the public link for the last slide | open |
 | S8 | Make the repo public; test every link in a private browser window | open |
