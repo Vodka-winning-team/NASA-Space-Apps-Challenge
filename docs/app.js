@@ -45,16 +45,18 @@
   }
 
   // Run the battery through a mission. Charge is in "hours of life without Sun".
-  function sim(P, start, hours, batt, keep) {
-    var c = batt, min = batt, died = -1, sunSum = 0, earthSum = 0, dark = 0, longest = 0, lastFull = 0;
+  // opts (optional): { rate, load, charge (start, 0-1), sunScale } for the "how sure" scenarios
+  function sim(P, start, hours, batt, keep, opts) {
+    var o = opts || {}, rate = o.rate || RATE, load = o.load || 1, sunScale = o.sunScale || 1;
+    var c = batt * (o.charge || 1), min = c, died = -1, sunSum = 0, earthSum = 0, dark = 0, longest = 0, lastFull = 0;
     var series = keep ? new Float32Array(hours + 1) : null;
     if (series) series[0] = c;
     for (var h = 0; h < hours; h++) {
       var s = P.sun[start + h];
       sunSum += s; earthSum += P.earth[start + h];
-      if (s * RATE < 1) { dark++; if (dark > longest) longest = dark; } else dark = 0;
+      if (s * rate * sunScale < load) { dark++; if (dark > longest) longest = dark; } else dark = 0;
       if (died < 0) {
-        c += s * RATE - 1;
+        c += s * sunScale * rate - load;
         if (c >= batt) { c = batt; lastFull = h + 1; }
         if (c < min) min = c;
         if (c <= 0) { c = 0; min = 0; died = h + 1; }
@@ -223,6 +225,14 @@
     for (j = 0; j <= n; j++) { az = -180 + j * step; var yy = Y(horizonAt(d, az)); if (j) ctx.lineTo(j / n * W, yy); else ctx.moveTo(0, yy); }
     ctx.strokeStyle = P.sun[i] > 0 ? "rgba(255,236,196,0.55)" : "rgba(232,228,216,0.22)"; ctx.lineWidth = 1.25; ctx.stroke();
 
+    // the direction picked in "Which hill hid the Sun?"
+    if (ridgePick) {
+      var rxp = X(ridgePick.az), ryp = Y(horizonAt(d, ridgePick.az));
+      ctx.strokeStyle = C.dead; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(rxp, ryp - 8); ctx.lineTo(rxp, H); ctx.stroke(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(rxp - 5, ryp); ctx.lineTo(rxp, ryp - 5); ctx.lineTo(rxp + 5, ryp); ctx.lineTo(rxp, ryp + 5); ctx.closePath(); ctx.stroke();
+    }
+
     // labels
     ctx.font = "600 12px " + MONO; ctx.textBaseline = "middle";
     var label = function (txt, x, y, r, col, side) {
@@ -268,6 +278,19 @@
     ctx.fillText("Battery full", L, top - 4);
     ctx.textBaseline = "bottom"; ctx.fillText("Empty", L, chartB - 4);
 
+    // range of outcomes under other assumptions (see "How sure is this?")
+    if (sure && sure.lo) {
+      ctx.beginPath();
+      for (h = 0; h <= hours; h++) ctx.lineTo(X(h), chartB - sure.hi[h] / state.batt * ch);
+      for (h = hours; h >= 0; h--) ctx.lineTo(X(h), chartB - sure.lo[h] / state.batt * ch);
+      ctx.closePath(); ctx.fillStyle = "rgba(236,232,220,0.07)"; ctx.fill();
+      ctx.setLineDash([3, 4]); ctx.strokeStyle = "rgba(236,232,220,0.35)"; ctx.lineWidth = 1;
+      ctx.beginPath(); for (h = 0; h <= hours; h++) ctx.lineTo(X(h), chartB - sure.lo[h] / state.batt * ch); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = "500 12px " + MONO; ctx.fillStyle = C.t3; ctx.textAlign = "right"; ctx.textBaseline = "bottom";
+      ctx.fillText("Dashed: worst case of 16 what-ifs", Rr, top - 4);
+    }
+
     // battery curve
     var endH = run.alive ? hours : run.died, h;
     var col = run.alive ? C.live : C.dead;
@@ -283,7 +306,8 @@
     if (!run.alive) {
       var dx = X(run.died);
       ctx.fillStyle = "rgba(232,87,63,0.07)"; ctx.fillRect(dx, top, Rr - dx, chartB - top);
-      ctx.strokeStyle = C.dead; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(dx, top); ctx.lineTo(dx, chartB); ctx.stroke();
+      ctx.strokeStyle = C.dead; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);   // a marker, not a recharge
+      ctx.beginPath(); ctx.moveTo(dx, top); ctx.lineTo(dx, chartB); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle = C.dead; ctx.font = "600 12px " + MONO; ctx.textBaseline = "top";
       var txt = "Battery empty: lander lost"; var right = dx + 8 + ctx.measureText(txt).width < Rr;
       ctx.textAlign = right ? "left" : "right"; ctx.fillText(txt, right ? dx + 8 : dx - 8, top + 4);
@@ -495,13 +519,229 @@
     }
   }
 
+  /* ---------- how sure is this answer? ---------- */
+
+  // 16 what-ifs: every mix of four assumptions, each either as modelled or worse.
+  var FACTORS = [
+    { key: "sunScale", off: 1, on: 0.85, name: "15% less sunlight" },
+    { key: "rate", off: RATE, on: 2.5, name: "weaker panels" },
+    { key: "load", off: 1, on: 1.2, name: "20% more power use" },
+    { key: "charge", off: 1, on: 0.8, name: "a battery only 80% full at landing" }
+  ];
+  var sure = null;
+
+  function computeSure() {
+    var P = prep(state.site), hours = hoursTotal(), cells = [];
+    var lo = new Float32Array(hours + 1), hi = new Float32Array(hours + 1);
+    lo.fill(Infinity); hi.fill(-Infinity);
+    for (var m = 0; m < 16; m++) {
+      var opts = {};
+      FACTORS.forEach(function (f, b) { opts[f.key] = (m >> b) & 1 ? f.on : f.off; });
+      var r = sim(P, state.start, hours, state.batt, true, opts);
+      for (var h = 0; h <= hours; h++) { var v = r.series[h]; if (v < lo[h]) lo[h] = v; if (v > hi[h]) hi[h] = v; }
+      cells.push({ mask: m, r: r, g: grade(r) });
+    }
+    var single = FACTORS.map(function (f, b) { return { f: f, r: cells[1 << b].r }; });
+    // smallest battery (in 12 h steps, up to 30 days) that survives the worst mix of all four
+    var worst = cells[15].r.alive ? state.batt : null, opts15 = {};
+    FACTORS.forEach(function (f) { opts15[f.key] = f.on; });
+    if (worst === null) {
+      for (var b = state.batt + 12; b <= 720; b += 12) if (sim(P, state.start, hours, b, false, opts15).alive) { worst = b; break; }
+    }
+    var first = Infinity;
+    cells.forEach(function (c) { if (!c.r.alive && c.r.died < first) first = c.r.died; });
+    sure = { cells: cells, lo: lo, hi: hi, single: single, need: worst, firstDeath: first,
+             ok: cells.filter(function (c) { return c.r.alive; }).length };
+  }
+
+  function drawSure() {
+    computeSure();
+    var ok = sure.ok, word, cls;
+    if (!run.alive) { word = "Lost before anything goes wrong."; cls = "dead"; }
+    else if (ok === 16) { word = "Solid."; cls = "live"; }
+    else if (ok >= 12) { word = "Likely."; cls = "live"; }
+    else { word = "Fragile."; cls = "close"; }
+    $("sureNum").innerHTML = ok + "<span>/16</span>";
+    $("sureWord").textContent = word;
+    $("sureWord").className = "sureWord " + cls;
+
+    var breaks = sure.single.filter(function (x) { return !x.r.alive; });
+    var msg;
+    if (run.alive && ok === 16) msg = "The lander survives all 16 what-ifs, even with every assumption made worse at once.";
+    else if (run.alive && breaks.length) msg = "One thing going wrong is enough: with <b>" + breaks.map(function (x) { return x.f.name; }).join("</b> or <b>") + "</b> the lander is lost.";
+    else if (run.alive) msg = "No single problem kills it, but some combinations do. It survives " + ok + " of 16 what-ifs.";
+    else msg = "Making things worse only brings the end sooner: as early as <b>day " + (Math.floor((sure.firstDeath - 1) / 24) + 1) + "</b>.";
+    var days = function (h) { var d = h / 24; return (d % 1 ? d.toFixed(1) : d) + (d === 1 ? " day" : " days"); };
+    if (ok < 16) msg += sure.need ? " To survive all 16, the battery would need to last <b>" + days(sure.need) + "</b> without Sun (now " + days(state.batt) + ")."
+                                  : " Even a battery lasting 30 days would not survive all 16.";
+    $("sureSay").innerHTML = msg;
+
+    // rows = sunlight x panels, columns = power use x starting charge
+    var rowName = ["Sun as mapped<br>panels as planned", "Sun as mapped<br>weaker panels", "15% less Sun<br>panels as planned", "15% less Sun<br>weaker panels"];
+    var colName = ["Normal use<br>full battery", "Normal use<br>80% battery", "+20% use<br>full battery", "+20% use<br>80% battery"];
+    var html = '<div class="sureCorner" aria-hidden="true"></div>';
+    colName.forEach(function (n) { html += '<div class="sureCol" aria-hidden="true">' + n + "</div>"; });
+    for (var ri = 0; ri < 4; ri++) {
+      html += '<div class="sureRow" aria-hidden="true">' + rowName[ri] + "</div>";
+      for (var ci = 0; ci < 4; ci++) {
+        var m = (ri >> 1) | ((ri & 1) << 1) | ((ci >> 1) << 2) | ((ci & 1) << 3);
+        var c = sure.cells[m], r = c.r;
+        var txt = r.alive ? "low " + Math.round(r.min * 100) + "%" : "day " + (Math.floor((r.died - 1) / 24) + 1);
+        var label = rowName[ri].replace("<br>", ", ") + ", " + colName[ci].replace("<br>", ", ") + ": " +
+                    (r.alive ? "survives, lowest charge " + Math.round(r.min * 100) + "%" : "lost on " + txt);
+        html += '<div class="sureCell ' + c.g + (m === 0 ? " base" : "") + '" role="img" aria-label="' + label + '"><span class="sym">' +
+                (c.g === "dead" ? "✕" : c.g === "close" ? "!" : "✓") + '</span><span class="v">' + txt + "</span></div>";
+      }
+    }
+    $("sureGrid").innerHTML = html;
+  }
+
+  /* ---------- which hill hid the Sun? ---------- */
+
+  var RIDGES = window.LANDER_RIDGES || {}, ridgePick = null;   // {az, from, len} for a dark spell, or {az} from a tap
+  var COMPASS = ["north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west"];
+  function compass(az) { return COMPASS[Math.round((((az % 360) + 360) % 360) / 45) % 8]; }
+
+  // dark spells: hours when the panels make less than the lander uses
+  function darkSpells() {
+    var P = prep(state.site), hours = hoursTotal(), out = [], from = -1;
+    for (var h = 0; h <= hours; h++) {
+      var dark = h < hours && P.sun[state.start + h] * RATE < 1;
+      if (dark && from < 0) from = h;
+      if (!dark && from >= 0) { out.push({ from: from, len: h - from }); from = -1; }
+    }
+    out.forEach(function (sp) { sp.az = P.d.sun_az[state.start + sp.from + Math.floor(sp.len / 2)]; });
+    return out;
+  }
+
+  function ridgeAt(az) {
+    var R = RIDGES[state.site];
+    if (!R) return null;
+    var n = R.dist_km.length, i = Math.round((((az % 360) + 360) % 360) / R.step_deg) % n;
+    var pi = (Math.round(i / R.profile_every) * R.profile_every) % n;
+    return { dist: R.dist_km[i], rise: R.rise_m[i], el: prep(state.site).d.horizon[i], prof: R.profiles[String(pi)], profAz: pi * R.step_deg };
+  }
+
+  function drawRidge() {
+    var R = RIDGES[state.site], spells = darkSpells(), box = $("ridgeSpells");
+    if (!R) { $("ridgeSay").textContent = "Hill data is missing for this place."; box.innerHTML = ""; drawSection(null); return; }
+    var pick = ridgePick;
+    if (!pick) {
+      var killer = !run.alive ? spells.filter(function (s) { return s.from < run.died && s.from + s.len >= run.died; })[0] : null;
+      pick = killer || spells.slice().sort(function (a, b) { return b.len - a.len; })[0] || null;
+      ridgePick = pick;
+    }
+    var top = spells.slice().sort(function (a, b) { return b.len - a.len; }).slice(0, 5).sort(function (a, b) { return a.from - b.from; });
+    box.innerHTML = top.map(function (sp) {
+      var on = !!pick && pick.from === sp.from;
+      var fatal = !run.alive && sp.from < run.died && sp.from + sp.len >= run.died;
+      return '<button type="button" data-from="' + sp.from + '" aria-pressed="' + on + '"' + (fatal ? ' class="fatal"' : "") + "><b>" +
+             plural(sp.len, "hour") + "</b><span>day " + (Math.floor(sp.from / 24) + 1) + " · Sun " + compass(sp.az) + (fatal ? " · fatal" : "") + "</span></button>";
+    }).join("");
+    [].forEach.call(box.children, function (b) {
+      b.onclick = function () { ridgePick = spells.filter(function (s) { return s.from === +b.dataset.from; })[0]; drawRidge(); drawPano(); };
+    });
+    if (!pick) {
+      $("ridgeSay").innerHTML = "The Sun never stays hidden long on this mission. Tap the sky view above to look at any direction.";
+      drawSection(null);
+      return;
+    }
+    var rg = ridgeAt(pick.az), d = prep(state.site).d, spell = pick.from !== undefined;
+    var sunEl = spell ? d.sun_el[state.start + pick.from + Math.floor(pick.len / 2)] : null;
+    var where = rg.dist < 1 ? Math.round(rg.dist * 1000) + " m" : rg.dist.toFixed(1) + " km";
+    var msg = spell
+      ? "For <b>" + plural(pick.len, "hour") + "</b> from day " + (Math.floor(pick.from / 24) + 1) + " the Sun was low in the " + compass(pick.az) + ", behind "
+      : "Looking " + compass(pick.az) + " (" + Math.round(pick.az) + "°), the skyline is set by ";
+    if (rg.dist < 0.5) msg += "the slope the lander stands on, only " + where + " away.";
+    else msg += "a hill <b>" + where + "</b> away, its top <b>" + Math.abs(rg.rise) + " m " + (rg.rise >= 0 ? "above" : "below") + "</b> the lander.";
+    if (spell && sunEl < 0 && sunEl < rg.el) msg += " The Sun was " + Math.abs(sunEl).toFixed(1) + "° below level, so even flat ground would have hidden it.";
+    else if (spell) msg += " The Sun was " + sunEl.toFixed(1) + "° up; that hill reaches " + rg.el.toFixed(1) + "°.";
+    $("ridgeSay").innerHTML = msg;
+    drawSection(rg, sunEl);
+  }
+
+  // side view from the lander out past the hill; heights stretched so the shape is visible
+  function drawSection(rg, sunEl) {
+    var o = fit($("ridgeCut")), ctx = o.ctx, W = o.w, H = o.h, L = gut(), Rr = W - gut(), pw = Rr - L;
+    if (!rg || !rg.prof) { $("ridgeCap").textContent = ""; return; }
+    var z = rg.prof.z, endM = rg.prof.end_km * 1000, n = z.length, k, eye = 2;
+    var zs = z.filter(function (v) { return v !== null; }).concat([0, eye]);
+    var skyEnd = eye + Math.tan(rg.el * Math.PI / 180) * endM;
+    zs.push(skyEnd);
+    if (sunEl !== null) zs.push(eye + Math.tan(sunEl * Math.PI / 180) * endM);
+    var zMax = Math.max.apply(null, zs), zMin = Math.min.apply(null, zs);
+    var span = Math.max(40, zMax - zMin), topPad = 30, botPad = 34, ph = H - topPad - botPad;
+    var Y = function (m) { return topPad + (zMax - m) / span * ph; };
+    var X = function (m) { return L + m / endM * pw; };
+    var ex = (endM / pw) / (span / ph);
+
+    ctx.strokeStyle = C.line; ctx.lineWidth = 1;
+    ctx.font = "500 12px " + MONO; ctx.fillStyle = C.t3; ctx.textBaseline = "top";
+    for (k = 0; k <= 4; k++) {
+      var gx = Math.round(X(endM * k / 4)) + 0.5;
+      ctx.beginPath(); ctx.moveTo(gx, topPad - 10); ctx.lineTo(gx, H - botPad); ctx.stroke();
+      var km = rg.prof.end_km * k / 4;
+      ctx.textAlign = k === 0 ? "left" : k === 4 ? "right" : "center";
+      ctx.fillText(k === 0 ? "Lander" : (km < 1 ? Math.round(km * 1000) + " m" : km.toFixed(km < 10 ? 1 : 0) + " km"), X(endM * k / 4), H - botPad + 8);
+    }
+
+    ctx.beginPath(); ctx.moveTo(X(0), H - botPad);
+    for (k = 0; k < n; k++) if (z[k] !== null) ctx.lineTo(X(endM * k / (n - 1)), Y(z[k]));
+    ctx.lineTo(X(endM), H - botPad); ctx.closePath();
+    var g = ctx.createLinearGradient(0, topPad, 0, H - botPad);
+    g.addColorStop(0, "#2b2e35"); g.addColorStop(1, "#16181d");
+    ctx.fillStyle = g; ctx.fill();
+    ctx.beginPath();
+    var started = false;
+    for (k = 0; k < n; k++) if (z[k] !== null) { var px = X(endM * k / (n - 1)), py = Y(z[k]); if (started) ctx.lineTo(px, py); else { ctx.moveTo(px, py); started = true; } }
+    ctx.strokeStyle = "rgba(232,228,216,0.45)"; ctx.lineWidth = 1.25; ctx.stroke();
+
+    // straight lines stay straight when heights are stretched, so the sight lines are exact
+    var x0 = X(0), y0 = Y(eye);
+    var ray = function (deg, col, dash, label, below) {
+      var h = eye + Math.tan(deg * Math.PI / 180) * endM;
+      ctx.setLineDash(dash); ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(X(endM), Y(h)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = col; ctx.font = "600 12px " + MONO; ctx.textAlign = "right"; ctx.textBaseline = below ? "top" : "bottom";
+      ctx.fillText(label, Rr - 4, Math.max(4, Math.min(H - botPad - 16, Y(h) + (below ? 6 : -6))));
+    };
+    ray(rg.el, "rgba(236,232,220,0.6)", [2, 4], "SKYLINE " + rg.el.toFixed(1) + "°", sunEl !== null && sunEl > rg.el);
+    if (sunEl !== null) ray(sunEl, C.sun, [7, 4], "SUN " + sunEl.toFixed(1) + "°", sunEl <= rg.el);
+    ctx.fillStyle = C.text; ctx.fillRect(x0 - 1, y0, 3, Math.max(4, Y(0) - y0));
+    ctx.beginPath(); ctx.arc(x0 + 0.5, y0, 4, 0, 6.2832); ctx.fill();
+
+    var ridgeM = rg.dist * 1000;
+    if (rg.dist >= 0.5 && ridgeM <= endM) {
+      var rx = X(ridgeM), ry = Y(eye + Math.tan(rg.el * Math.PI / 180) * ridgeM);
+      ctx.strokeStyle = C.dead; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(rx - 6, ry); ctx.lineTo(rx, ry - 6); ctx.lineTo(rx + 6, ry); ctx.lineTo(rx, ry + 6); ctx.closePath(); ctx.stroke();
+      ctx.fillStyle = C.dead; ctx.font = "600 12px " + MONO; ctx.textBaseline = "bottom";
+      var t = "BLOCKING HILL", right = rx + 12 + ctx.measureText(t).width < Rr - 130;
+      ctx.textAlign = right ? "left" : "right"; ctx.fillText(t, right ? rx + 12 : rx - 12, ry - 8);
+    }
+    $("ridgeCap").textContent = "Side view looking " + compass(rg.profAz) + " (" + Math.round(rg.profAz) + "°). Heights stretched " +
+      (ex >= 10 ? Math.round(ex) : ex.toFixed(1)) + "× so the hills show; the Moon's curve is included. NASA LOLA height map, 80 m pixels.";
+  }
+
+  function bindRidge() {
+    var c = $("pano");
+    c.style.cursor = "crosshair";
+    c.addEventListener("click", function (e) {
+      var r = c.getBoundingClientRect(), az = (e.clientX - r.left) / r.width * 360 - 180;
+      ridgePick = { az: (az + 360) % 360 };
+      drawRidge(); drawPano();
+    });
+  }
+
   /* ---------- everything together ---------- */
 
   function refresh() {
     stopPlay();
+    var key = state.site + "|" + state.start + "|" + state.days + "|" + state.mast;
+    if (key !== refresh.key) { ridgePick = null; refresh.key = key; }
     run = sim(prep(state.site), state.start, hoursTotal(), state.batt, true);
     state.hour = Math.max(0, Math.min(hoursTotal(), state.hour));
-    syncControls(); drawVerdict(); drawPano(); drawTime(); drawSlip(); drawCal(); drawMoris();
+    syncControls(); drawVerdict(); drawSure(); drawPano(); drawTime(); drawRidge(); drawSlip(); drawCal(); drawMoris();
     var q = "site=" + state.site + "&date=" + iso(state.start) + "&days=" + state.days + "&batt=" + state.batt + "&panel=" + state.mast;
     try { history.replaceState(null, "", "#" + q); } catch (e) { /* opened from disk: fine */ }
     listeners.forEach(function (f) { try { f(api()); } catch (e) { console.error(e); } });
@@ -545,11 +785,11 @@
 
   function start() {
     drawValidation();
-    buildControls(); bindTime(); bindCal(); readHash(); refresh();
+    buildControls(); bindTime(); bindCal(); bindRidge(); readHash(); refresh();
     window.addEventListener("hashchange", function () { readHash(); state.hour = 0; refresh(); });
     var again = null;
     window.addEventListener("resize", function () {
-      clearTimeout(again); again = setTimeout(function () { drawPano(); drawTime(); drawCal(); }, 80);
+      clearTimeout(again); again = setTimeout(function () { drawPano(); drawTime(); drawCal(); drawRidge(); }, 80);
     });
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       navigator.serviceWorker.register("sw.js").catch(function () {});

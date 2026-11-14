@@ -117,6 +117,54 @@ details[open] > summary > span:first-child::before { transform: rotate(45deg); }
 .vFacts { color: var(--text-2); margin-top: 12px; max-width: 60ch; }
 .vFacts b { color: var(--text); font-weight: 600; }
 
+/* ---------- shared: small technical tag above a heading ---------- */
+.tag {
+  font: 500 12px/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3);
+  margin-bottom: 10px; display: flex; align-items: center; gap: 10px;
+}
+.tag::before { content: ""; width: 18px; height: 1px; background: var(--line-2); }
+
+/* ---------- how sure ---------- */
+.sureHead { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px 48px; }
+.sureScore { display: flex; flex-direction: column; align-items: flex-end; flex: none; text-align: right; }
+.sureNum { font: 800 clamp(4rem, 10vw, 8.5rem)/0.85 var(--sans); letter-spacing: -0.06em; font-variant-numeric: tabular-nums; }
+.sureNum span { color: var(--text-3); font-size: 0.42em; letter-spacing: -0.02em; margin-left: 0.08em; }
+.sureWord { font: 700 clamp(1.1rem, 2vw, 1.5rem)/1.2 var(--sans); margin-top: 10px; }
+.sureWord.live { color: var(--live); } .sureWord.close { color: var(--close); } .sureWord.dead { color: var(--dead); }
+.sureGrid {
+  display: grid; grid-template-columns: minmax(96px, 150px) repeat(4, minmax(0, 1fr)); gap: 6px;
+  margin-top: 28px; border-top: 1px solid var(--line-2); padding-top: 16px;
+}
+.sureCol, .sureRow { font: 500 12px/1.35 var(--mono); color: var(--text-3); letter-spacing: 0.02em; }
+.sureCol { align-self: end; padding: 0 2px 6px; }
+.sureRow { align-self: center; padding-right: 8px; }
+.sureCell {
+  border-radius: 10px; min-height: 64px; padding: 8px; display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  color: #0c0e11; background: var(--live);
+}
+.sureCell.close { background: var(--close); }
+.sureCell.dead { background: var(--dead); }
+.sureCell.base { outline: 3px solid var(--text); outline-offset: 2px; }
+.sureCell .sym { font: 800 20px/1 var(--sans); }
+.sureCell .v { font: 600 13px/1.1 var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ---------- which hill ---------- */
+.ridgeSpells { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.ridgeSpells button {
+  background: transparent; border: 1px solid var(--line-2); color: var(--text-2); border-radius: 10px; cursor: pointer;
+  padding: 10px 14px; min-height: 44px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;
+  transition: border-color 150ms var(--ease);
+}
+.ridgeSpells button b { font: 700 16px/1.2 var(--sans); color: var(--text); }
+.ridgeSpells button span { font: 500 12px/1.3 var(--mono); color: var(--text-3); }
+.ridgeSpells button.fatal { border-color: rgba(236, 96, 73, 0.6); }
+.ridgeSpells button.fatal span { color: var(--dead); }
+.ridgeSpells button[aria-pressed="true"] { background: var(--text); border-color: var(--text); }
+.ridgeSpells button[aria-pressed="true"] b, .ridgeSpells button[aria-pressed="true"] span { color: var(--bg); }
+@media (hover: hover) { .ridgeSpells button:hover { border-color: var(--text-2); } }
+.ridgeCut { display: block; width: calc(100% + 2 * var(--gut)); margin: 20px calc(-1 * var(--gut)) 0; height: clamp(220px, 26vw, 320px); background: #0a0b0e; }
+#ridgeCap { font-family: var(--mono); font-size: 12px; letter-spacing: 0.02em; }
+
 /* ---------- watch ---------- */
 .watch { padding: 0; }
 .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px 32px; padding: 0 var(--gut); }
@@ -188,6 +236,17 @@ details[open] > summary > span:first-child::before { transform: rotate(45deg); }
   .moreBody { grid-template-columns: minmax(0, 1fr); }
   .head { flex-direction: column; align-items: flex-start; }
   .slipRow { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .sureHead { flex-direction: column; align-items: flex-start; }
+  .sureScore { align-items: flex-start; text-align: left; }
+}
+@media (max-width: 640px) {
+  .sureGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sureCorner { display: none; }
+  .sureRow { grid-column: 1 / -1; padding: 8px 0 0; }
+  .sureRow br { display: none; }
+  .sureCol { font-size: 11px; }
+  .sureCell { flex-direction: column; justify-content: center; min-height: 58px; padding: 6px 2px; }
+  .sureCell .v { font-size: 11px; }
 }
 @media (max-width: 560px) {
   .mark { display: none; }

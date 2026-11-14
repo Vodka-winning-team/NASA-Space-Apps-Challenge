@@ -63,6 +63,20 @@
     <p class="vFacts" id="vFacts"></p>
   </section>
 
+  <section class="sure" aria-label="How sure is this answer">
+    <div class="sureHead">
+      <div>
+        <p class="tag">Stress test · 16 what-ifs</p>
+        <h2>How sure is this answer?</h2>
+        <p class="say" id="sureSay"></p>
+        <p class="hint">We re-run the same mission with four things made worse, one at a time and all together: less sunlight than our map gives (it runs higher than NASA's), weaker panels, more power use, and a battery not full at landing. These are what-ifs, not probabilities.</p>
+      </div>
+      <p class="sureScore"><span class="sureNum" id="sureNum"></span><span class="sureWord" id="sureWord"></span></p>
+    </div>
+    <div class="sureGrid" id="sureGrid"></div>
+    <p class="hint">Each square is the same mission under one mix of assumptions; the outlined square is the answer above. The number is the lowest the battery gets, or the day it runs out.</p>
+  </section>
+
   <section class="watch" aria-label="Watch the mission">
     <div class="head">
       <div>
@@ -85,6 +99,16 @@
     <p class="say" id="slipSay"></p>
     <div class="slipRow" id="slip"></div>
     <p class="hint">Each square is the same mission, landing one day later. Tap one to try it.</p>
+  </section>
+
+  <section class="ridge" aria-label="Which hill hid the Sun">
+    <p class="tag">Terrain forensics · NASA LOLA</p>
+    <h2>Which hill hid the Sun?</h2>
+    <p class="say" id="ridgeSay"></p>
+    <div class="ridgeSpells" id="ridgeSpells" aria-label="Longest dark spells of this mission"></div>
+    <canvas id="ridgeCut" class="ridgeCut" role="img" aria-label="Side view of the ground from the lander to the hill that blocks the Sun"></canvas>
+    <p class="hint" id="ridgeCap"></p>
+    <p class="hint">Pick one of the longest dark spells, or tap anywhere on the sky view to look in that direction.</p>
   </section>
 
   <section class="cal" aria-label="Compare the six places">
@@ -151,6 +175,7 @@
 <script src="data/dGR201.js"></script>
 <script src="data/HW06.js"></script>
 <script src="data/SP07.js"></script>
+<script src="data/ridges.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
