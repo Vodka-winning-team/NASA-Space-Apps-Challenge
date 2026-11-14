@@ -8,10 +8,10 @@
   var RATE = 3;                      // energy made per hour in full Sun; the lander uses 1 per hour
   var DAY_CHOICES = [7, 14, 30, 60];
   var MAST_CHOICES = ["0.5", "2", "10"];   // solar panel height above the ground, metres
-  var C = { bg: "#0e1014", text: "#ece8dc", t2: "#b4b0a4", t3: "#8b887e", t4: "#5f5d57",
-            sun: "#f2b544", earth: "#6ea8e6", live: "#58d08a", close: "#c9c14a", dead: "#e8573f",
+  var C = { bg: "#0e1014", text: "#ece8dc", t2: "#b9b5a9", t3: "#918e84",
+            sun: "#f2b544", earth: "#6ea8e6", live: "#58d08a", close: "#c9c14a", dead: "#ec6049",
             line: "rgba(232,228,216,0.10)", line2: "rgba(232,228,216,0.22)" };
-  var MONO = '"JetBrains Mono", ui-monospace, Consolas, monospace';
+  var MONO = '"Archivo", system-ui, "Segoe UI", sans-serif';   // chart labels use the same face as the page
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -91,7 +91,7 @@
     ctx.clearRect(0, 0, w, h);
     return { ctx: ctx, w: w, h: h };
   }
-  function gut() { return Math.max(16, Math.min(56, window.innerWidth * 0.04)); }
+  function gut() { return parseFloat(getComputedStyle(document.querySelector(".slip")).paddingLeft) || 16; }
 
   /* ---------- controls ---------- */
 
@@ -104,7 +104,7 @@
     });
     DAY_CHOICES.forEach(function (n) {
       var b = document.createElement("button");
-      b.type = "button"; b.setAttribute("role", "radio"); b.dataset.n = n; b.textContent = n + " d";
+      b.type = "button"; b.setAttribute("role", "radio"); b.dataset.n = n; b.textContent = n + " days";
       b.setAttribute("aria-label", n + " days");
       b.onclick = function () { state.days = n; clampStart(); state.hour = 0; refresh(); };
       $("days").appendChild(b);
@@ -136,8 +136,8 @@
     $("batt").value = state.batt;
     var d = Math.floor(state.batt / 24), h = state.batt % 24;
     $("battOut").textContent = (d ? d + (d === 1 ? " day" : " days") : "") + (d && h ? " " : "") + (h ? h + " h" : "");
-    var s = DATA[state.site];
-    $("coords").textContent = Math.abs(s.lat).toFixed(2) + "° S  " + Math.abs(s.lon).toFixed(2) + "° " + (s.lon < 0 ? "W" : "E") + "  ·  " + Math.round(s.ground_m) + " m";
+    $("setSum").textContent = state.days + "-day mission · battery lasts " + $("battOut").textContent +
+      " without Sun · panel " + state.mast + " m high";
   }
 
   /* ---------- verdict ---------- */
@@ -145,30 +145,23 @@
   var run;   // result of the current mission, with the battery series
 
   function drawVerdict() {
-    var hours = hoursTotal(), v = $("verdict");
-    $("vLabel").textContent = state.days + "-day mission · " + DATA[state.site].name + " · lands " + fmtDate(state.start);
+    var v = $("verdict");
+    $("vLabel").textContent = DATA[state.site].name + " · landing " + fmtDate(state.start) + " · " + state.days + "-day mission";
     v.classList.toggle("dead", !run.alive);
     if (run.alive) {
       $("vText").textContent = "Survived.";
       $("vWhy").textContent = run.longestDark === 0
-        ? "The Sun never dropped behind the hills for long enough to drain the battery."
+        ? "The Sun never stayed behind the hills long enough to drain the battery."
         : "The longest stretch without enough Sun was " + run.longestDark + " hours. The battery lasts " + state.batt + ".";
     } else {
       var day = Math.floor((run.died - 1) / 24) + 1;
-      $("vText").textContent = "Died on day " + day + ".";
+      $("vText").textContent = "Lost on day " + day + ".";
       $("vWhy").textContent = "The hills hid the Sun for too long. The battery was last full " +
         (run.lastFull === 0 ? "at landing" : "on day " + (Math.floor(run.lastFull / 24) + 1)) +
         " and ran out " + (run.died - run.lastFull) + " hours later.";
     }
-    var facts = [
-      ["Sun in view", Math.round(run.sun * 100), "%"],
-      ["Longest dark", run.longestDark, "h"],
-      ["Earth in view", Math.round(run.earth * 100), "%"],
-      ["Lowest battery", Math.round(run.min * 100), "%"]
-    ];
-    $("facts").innerHTML = facts.map(function (f) {
-      return "<div><dt>" + f[0] + "</dt><dd>" + f[1] + "<small>" + f[2] + "</small></dd></div>";
-    }).join("");
+    $("vFacts").innerHTML = "Over these " + state.days + " days, the Sun is above the hills <b>" + Math.round(run.sun * 100) +
+      "%</b> of the time and Earth is in view <b>" + Math.round(run.earth * 100) + "%</b> of the time.";
   }
 
   /* ---------- the view from the lander ---------- */
@@ -192,11 +185,11 @@
     // level line and compass
     ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.setLineDash([2, 6]);
     ctx.beginPath(); ctx.moveTo(0, Y(0)); ctx.lineTo(W, Y(0)); ctx.stroke(); ctx.setLineDash([]);
-    ctx.font = "500 11px " + MONO; ctx.fillStyle = C.t4; ctx.textBaseline = "top";
+    ctx.font = "500 12px " + MONO; ctx.fillStyle = C.t3; ctx.textBaseline = "top";
     [["S", -180], ["W", -90], ["N", 0], ["E", 90]].forEach(function (c) {
       var x = X(c[1]); ctx.textAlign = c[0] === "S" ? "left" : "center";
       ctx.fillText(c[0], c[0] === "S" ? gut() : x, 12);
-      if (c[0] !== "S") { ctx.fillStyle = C.line2; ctx.fillRect(x, 28, 1, 6); ctx.fillStyle = C.t4; }
+      if (c[0] !== "S") { ctx.fillStyle = C.line2; ctx.fillRect(x, 28, 1, 6); ctx.fillStyle = C.t3; }
     });
 
     // where the Sun and Earth go during the mission
@@ -230,7 +223,7 @@
     ctx.strokeStyle = P.sun[i] > 0 ? "rgba(255,236,196,0.55)" : "rgba(232,228,216,0.22)"; ctx.lineWidth = 1.25; ctx.stroke();
 
     // labels
-    ctx.font = "600 11px " + MONO; ctx.textBaseline = "middle";
+    ctx.font = "600 12px " + MONO; ctx.textBaseline = "middle";
     var label = function (txt, x, y, r, col, side) {
       var tw = ctx.measureText(txt).width;
       var right = side ? side > 0 : x + r + 10 + tw < W - 8;
@@ -246,14 +239,13 @@
 
     // status
     var hr = Math.round(state.hour), day = Math.floor(hr / 24) + 1;
-    $("now").textContent = "Day " + day + " · " + fmtDate(state.start + hr) + " · " + pad((state.start + hr) % 24) + ":00 UTC";
+    $("now").textContent = "Day " + day + " of " + state.days + " · " + fmtDate(state.start + hr) + ", " + pad((state.start + hr) % 24) + ":00 UTC";
     var sunPct = Math.round(P.sun[i] * 100), charge = Math.round(run.series[Math.min(hr, hours)] / state.batt * 100);
     var lost = !run.alive && hr >= run.died, mUp = MORIS.up.charAt(i) === "1";
     $("chips").innerHTML =
-      '<span class="' + (sunPct ? "" : "off") + '"><i style="background:' + C.sun + '"></i>' + (sunPct ? "Sun <b>" + sunPct + "% in view</b>" : "Sun <b>behind the hills</b>") + "</span>" +
-      '<span class="' + (P.earth[i] ? "" : "off") + '"><i style="background:' + C.earth + '"></i>' + (P.earth[i] ? "Earth <b>in view</b>, contact possible" : "Earth <b>behind the hills</b>, no contact") + "</span>" +
-      '<span><i style="background:' + (lost ? C.dead : C.live) + '"></i>' + (lost ? "<b>Lander lost</b>" : "Battery <b>" + charge + "%</b>") + "</span>" +
-      (P.earth[i] && mUp ? '<span><i style="background:' + C.text + '"></i><b>Mauritius moment</b>: Moon is up over Port Louis</span>' : "");
+      '<span class="' + (sunPct ? "" : "off") + '"><i style="background:' + C.sun + '"></i>' + (sunPct >= 99 ? "<b>Sun is out</b>" : sunPct ? "<b>Sun is " + sunPct + "% out</b>" : "<b>Sun is hidden</b>") + "</span>" +
+      '<span class="' + (P.earth[i] ? "" : "off") + '"><i style="background:' + C.earth + '"></i>' + (P.earth[i] ? "<b>Earth in view</b>, can talk home" : "<b>Earth is hidden</b>, no contact") + "</span>" +
+      '<span><i style="background:' + (lost ? C.dead : C.live) + '"></i>' + (lost ? "<b>Lander lost</b>" : "Battery <b>" + charge + "%</b>") + "</span>";
   }
 
   /* ---------- mission timeline ---------- */
@@ -263,7 +255,7 @@
   function drawTime() {
     var P = prep(state.site), o = fit($("time")), ctx = o.ctx, W = o.w, H = o.h;
     var hours = hoursTotal(), L = gut(), Rr = W - gut(), pw = Rr - L;
-    var top = 14, stripH = 12, gap = 17, strips = 3;
+    var top = 22, stripH = 14, gap = 26, strips = 2;
     var chartB = H - 22 - strips * (stripH + gap) - 4, ch = chartB - top;
     var X = function (h) { return L + h / hours * pw; };
     timeGeom = { L: L, pw: pw, hours: hours };
@@ -271,8 +263,9 @@
     // battery frame
     ctx.strokeStyle = C.line; ctx.lineWidth = 1;
     [0, 0.5, 1].forEach(function (f) { var y = Math.round(chartB - f * ch) + 0.5; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(Rr, y); ctx.stroke(); });
-    ctx.font = "500 10px " + MONO; ctx.fillStyle = C.t4; ctx.textAlign = "left"; ctx.textBaseline = "bottom";
-    ctx.fillText("BATTERY 100%", L, top - 2);
+    ctx.font = "500 12px " + MONO; ctx.fillStyle = C.t3; ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+    ctx.fillText("Battery full", L, top - 4);
+    ctx.textBaseline = "bottom"; ctx.fillText("Empty", L, chartB - 4);
 
     // battery curve
     var endH = run.alive ? hours : run.died, h;
@@ -290,23 +283,21 @@
       var dx = X(run.died);
       ctx.fillStyle = "rgba(232,87,63,0.07)"; ctx.fillRect(dx, top, Rr - dx, chartB - top);
       ctx.strokeStyle = C.dead; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(dx, top); ctx.lineTo(dx, chartB); ctx.stroke();
-      ctx.fillStyle = C.dead; ctx.font = "600 11px " + MONO; ctx.textBaseline = "top";
-      var txt = "BATTERY EMPTY"; var right = dx + 8 + ctx.measureText(txt).width < Rr;
+      ctx.fillStyle = C.dead; ctx.font = "600 12px " + MONO; ctx.textBaseline = "top";
+      var txt = "Battery empty: lander lost"; var right = dx + 8 + ctx.measureText(txt).width < Rr;
       ctx.textAlign = right ? "left" : "right"; ctx.fillText(txt, right ? dx + 8 : dx - 8, top + 4);
     }
 
     // strips: Sun, Earth, Mauritius moment
-    var y0 = chartB + gap + 2, names = ["SUN", "EARTH IN VIEW", "MAURITIUS MOMENT"], s, x0, x1;
+    var y0 = chartB + gap + 2, names = ["Sun on the panels", "Earth in view (can talk home)"], s, x0, x1;
     for (s = 0; s < strips; s++) {
       var sy = y0 + s * (stripH + gap);
-      ctx.font = "500 10px " + MONO; ctx.fillStyle = C.t4; ctx.textAlign = "left"; ctx.textBaseline = "bottom";
-      ctx.fillText(names[s], L, sy - 3);
+      ctx.font = "500 12px " + MONO; ctx.fillStyle = C.t3; ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+      ctx.fillText(names[s], L, sy - 4);
       ctx.fillStyle = "rgba(232,228,216,0.05)"; ctx.fillRect(L, sy, pw, stripH);
       for (h = 0; h < hours; h++) {
         var idx = state.start + h, a = 0;
-        if (s === 0) a = P.sun[idx];
-        else if (s === 1) a = P.earth[idx];
-        else a = P.earth[idx] && MORIS.up.charAt(idx) === "1" ? 1 : 0;
+        a = s === 0 ? P.sun[idx] : P.earth[idx];
         if (a <= 0) continue;
         x0 = X(h); x1 = X(h + 1);
         ctx.globalAlpha = s === 0 ? 0.25 + 0.75 * a : 1;
@@ -318,14 +309,14 @@
 
     // day ticks
     var every = 1, nice = [1, 2, 5, 7, 10, 15, 20, 30];
-    for (var q = 0; q < nice.length; q++) { every = nice[q]; if (pw / state.days * every >= 62) break; }
-    ctx.font = "500 10px " + MONO; ctx.fillStyle = C.t3; ctx.textBaseline = "bottom";
+    for (var q = 0; q < nice.length; q++) { every = nice[q]; if (pw / state.days * every >= 70) break; }
+    ctx.font = "500 12px " + MONO; ctx.fillStyle = C.t3; ctx.textBaseline = "bottom";
     for (var dd = 0; dd <= state.days; dd += every) {
       if (dd !== 0 && dd !== state.days && state.days - dd < every * 0.9) continue;   // keep clear of the last label
       ctx.textAlign = dd === 0 ? "left" : dd === state.days ? "right" : "center";
-      ctx.fillText(dd === 0 ? "LANDING" : "DAY " + dd, X(dd * 24), H - 2);
+      ctx.fillText(dd === 0 ? "Landing" : "Day " + dd, X(dd * 24), H - 2);
     }
-    if (state.days % every) { ctx.textAlign = "right"; ctx.fillText("DAY " + state.days, X(hours), H - 2); }
+    if (state.days % every) { ctx.textAlign = "right"; ctx.fillText("Day " + state.days, X(hours), H - 2); }
 
     // cursor
     var cx = Math.round(X(state.hour)) + 0.5;
@@ -370,21 +361,39 @@
   /* ---------- what if we land late ---------- */
 
   function grade(r) { return !r.alive ? "dead" : r.min < 0.25 ? "close" : "live"; }
+  function shortDate(idx) { var t = new Date(T0 + idx * HOUR); return t.getUTCDate() + " " + MONTHS[t.getUTCMonth()]; }
+  function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
 
   function drawSlip() {
-    var P = prep(state.site), box = $("slip"), hours = hoursTotal(), html = "";
+    var P = prep(state.site), box = $("slip"), hours = hoursTotal(), html = "", res = [];
     for (var k = 0; k < 15; k++) {
       var st = state.start + k * 24;
       if (st > maxStart()) break;
       var r = sim(P, st, hours, state.batt, false), g = grade(r);
-      var say = fmtDate(st) + ": " + (r.alive ? "survives" : "dies on day " + (Math.floor((r.died - 1) / 24) + 1));
+      res.push(r);
+      var say = fmtDate(st) + ": " + (r.alive ? "lander survives" : "lander lost on day " + (Math.floor((r.died - 1) / 24) + 1));
+      // a symbol as well as a colour, so the answer does not depend on seeing red and green
       html += '<button type="button" class="' + g + '" data-k="' + k + '"' + (k === 0 ? ' aria-current="true"' : "") +
-              ' title="' + say + '" aria-label="' + say + '">' + (k === 0 ? "now" : "+" + k) + "</button>";
+              ' title="' + say + '" aria-label="' + say + '"><span class="sym">' + (g === "dead" ? "\u2715" : g === "close" ? "!" : "\u2713") +
+              '</span><span class="when">' + shortDate(st) + '</span><span class="plus">' + (k === 0 ? "chosen" : "+" + k + (k === 1 ? " day" : " days")) + "</span></button>";
     }
     box.innerHTML = html;
     [].forEach.call(box.children, function (b) {
       b.onclick = function () { state.start += (+b.dataset.k) * 24; clampStart(); state.hour = 0; refresh(); };
     });
+
+    // the takeaway, in one sentence
+    var flip = -1;
+    for (k = 1; k < res.length; k++) if (res[k].alive !== res[0].alive) { flip = k; break; }
+    var msg;
+    if (!res[0].alive) {
+      msg = flip > 0 ? "Wait <b>" + plural(flip, "day") + "</b>, land on " + shortDate(state.start + flip * 24) + ", and the lander <b>survives</b>."
+                     : "No landing date in the next two weeks works here. Try another place or a bigger battery.";
+    } else {
+      msg = flip > 0 ? "This date works. But slip by <b>" + plural(flip, "day") + "</b> and the lander <b>would be lost</b>."
+                     : "This date works, and so does every day for the next two weeks.";
+    }
+    $("slipSay").innerHTML = msg;
   }
 
   /* ---------- two-year calendar ---------- */
@@ -399,7 +408,7 @@
     calGeom = { nDays: nDays, axisH: axisH, pitch: pitch, W: W };
 
     // months
-    ctx.font = "500 10px " + MONO; ctx.textBaseline = "top"; ctx.textAlign = "left";
+    ctx.font = "500 12px " + MONO; ctx.textBaseline = "top"; ctx.textAlign = "left";
     for (var m = 0; m < 24; m++) {
       var day = (Date.UTC(2027, m, 1) - T0) / 86400000;
       if (day >= nDays) break;
@@ -407,17 +416,18 @@
       ctx.strokeStyle = m % 12 === 0 ? C.line2 : C.line; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
       var wide = W / 24 > 30;
       if (wide || m % 3 === 0) {
-        ctx.fillStyle = m % 12 === 0 ? C.t2 : C.t4;
-        ctx.fillText(m % 12 === 0 ? String(2027 + m / 12) : (wide ? MONTHS[m % 12].toUpperCase() : MONTHS[m % 12].charAt(0)), x + 4, 2);
+        ctx.fillStyle = m % 12 === 0 ? C.t2 : C.t3;
+        ctx.fillText(m % 12 === 0 ? String(2027 + m / 12) : (wide ? MONTHS[m % 12] : MONTHS[m % 12].charAt(0)), x + 4, 2);
       }
     }
 
+    var stats = [];
     SITES.forEach(function (s, row) {
       var P = prep(s.id), y = axisH + row * pitch + 18, sel = s.id === state.site;
       ctx.font = (sel ? "600" : "500") + " 11px " + MONO; ctx.fillStyle = sel ? C.text : C.t3;
       ctx.textBaseline = "bottom"; ctx.textAlign = "left";
-      ctx.fillStyle = C.bg; ctx.fillRect(0, y - 15, ctx.measureText(s.name.toUpperCase()).width + 8, 14);
-      ctx.fillStyle = sel ? C.text : C.t3; ctx.fillText(s.name.toUpperCase(), 0, y - 3);
+      ctx.fillStyle = C.bg; ctx.fillRect(0, y - 15, ctx.measureText(s.name).width + 8, 14);
+      ctx.fillStyle = sel ? C.text : C.t3; ctx.fillText(s.name, 0, y - 3);
       var alive = 0;
       for (var d = 0; d < nDays; d++) {
         var r = sim(P, d * 24, hours, state.batt, false), g = grade(r);
@@ -427,8 +437,9 @@
         ctx.fillRect(X(d), y, X(d + 1) - X(d) + 0.4, barH);
       }
       ctx.globalAlpha = 1;
-      var pct = Math.round(alive / nDays * 100) + "% OF DATES SAFE";
-      ctx.font = "500 11px " + MONO; ctx.textAlign = "right";
+      var share = Math.round(alive / nDays * 100), pct = share + "% of dates safe";
+      stats.push({ name: s.name, share: share });
+      ctx.font = "500 12px " + MONO; ctx.textAlign = "right";
       ctx.fillStyle = C.bg; ctx.fillRect(W - ctx.measureText(pct).width - 8, y - 15, ctx.measureText(pct).width + 8, 14);
       ctx.fillStyle = sel ? C.text : C.t3; ctx.fillText(pct, W, y - 3);
       if (sel) {
@@ -438,6 +449,10 @@
         ctx.fillStyle = run.alive ? (run.min < 0.25 ? C.close : C.live) : C.dead; ctx.fillRect(sx, y, sw, barH);
       }
     });
+    stats.sort(function (a, b) { return b.share - a.share; });
+    var best = stats[0], worst = stats[stats.length - 1];
+    $("calSay").innerHTML = "With these settings, <b>" + best.name + "</b> is the safest: the lander survives on " + best.share +
+      "% of landing dates. <b>" + worst.name + "</b> is the riskiest, at " + worst.share + "%.";
   }
 
   function bindCal() {
@@ -464,13 +479,13 @@
     }
     if (first >= 0 && firstEnd < 0) firstEnd = state.start + hours;
     if (total === 0) {
-      $("morisText").innerHTML = "On this mission, the lander never has Earth in view while the Moon is over Port Louis.";
+      $("morisText").innerHTML = "Not on this mission. The lander never has Earth in view while the Moon is over Port Louis.";
       $("morisSub").textContent = "Try another site or date.";
     } else {
-      $("morisText").innerHTML = "For <b>" + total + " hours</b> of this mission, the lander and Mauritius can look at each other.";
+      $("morisText").innerHTML = "Yes. For <b>" + total + " hours</b> of this mission, the lander can see Earth while the Moon is in the sky over Port Louis.";
       var t = new Date(T0 + (firstEnd + 4) * HOUR);
       $("morisSub").textContent = "The first time: " + morisTime(first) + " to " + pad(t.getUTCHours()) + ":00, Mauritius time. " +
-        "That is when Earth is above the hills at the landing site and the Moon is at least 10° above the horizon at Port Louis.";
+        "Go outside, look at the Moon, and the lander is looking back.";
     }
   }
 
