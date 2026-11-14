@@ -543,11 +543,9 @@
     }
     var single = FACTORS.map(function (f, b) { return { f: f, r: cells[1 << b].r }; });
     // smallest battery (in 12 h steps, up to 30 days) that survives the worst mix of all four
-    var worst = cells[15].r.alive ? state.batt : null, opts15 = {};
+    var worst = null, opts15 = {};
     FACTORS.forEach(function (f) { opts15[f.key] = f.on; });
-    if (worst === null) {
-      for (var b = state.batt + 12; b <= 720; b += 12) if (sim(P, state.start, hours, b, false, opts15).alive) { worst = b; break; }
-    }
+    for (var b = 12; b <= 720; b += 12) if (sim(P, state.start, hours, b, false, opts15).alive) { worst = b; break; }
     var first = Infinity;
     cells.forEach(function (c) { if (!c.r.alive && c.r.died < first) first = c.r.died; });
     sure = { cells: cells, lo: lo, hi: hi, single: single, need: worst, firstDeath: first,
@@ -577,8 +575,8 @@
     $("sureSay").innerHTML = msg;
 
     // rows = sunlight x panels, columns = power use x starting charge
-    var rowName = ["Sun as mapped<br>panels as planned", "Sun as mapped<br>weaker panels", "15% less Sun<br>panels as planned", "15% less Sun<br>weaker panels"];
-    var colName = ["Normal use<br>full battery", "Normal use<br>80% battery", "+20% use<br>full battery", "+20% use<br>80% battery"];
+    var rowName = ["Sun as mapped<br> panels as planned", "Sun as mapped<br> weaker panels", "15% less Sun<br> panels as planned", "15% less Sun<br> weaker panels"];
+    var colName = ["Normal use<br> full battery", "Normal use<br> 80% battery", "+20% use<br> full battery", "+20% use<br> 80% battery"];
     var html = '<div class="sureCorner" aria-hidden="true"></div>';
     colName.forEach(function (n) { html += '<div class="sureCol" aria-hidden="true">' + n + "</div>"; });
     for (var ri = 0; ri < 4; ri++) {
@@ -587,7 +585,7 @@
         var m = (ri >> 1) | ((ri & 1) << 1) | ((ci >> 1) << 2) | ((ci & 1) << 3);
         var c = sure.cells[m], r = c.r;
         var txt = r.alive ? "low " + Math.round(r.min * 100) + "%" : "day " + (Math.floor((r.died - 1) / 24) + 1);
-        var label = rowName[ri].replace("<br>", ", ") + ", " + colName[ci].replace("<br>", ", ") + ": " +
+        var label = rowName[ri].replace("<br> ", ", ") + ", " + colName[ci].replace("<br> ", ", ") + ": " +
                     (r.alive ? "survives, lowest charge " + Math.round(r.min * 100) + "%" : "lost on " + txt);
         html += '<div class="sureCell ' + c.g + (m === 0 ? " base" : "") + '" role="img" aria-label="' + label + '"><span class="sym">' +
                 (c.g === "dead" ? "✕" : c.g === "close" ? "!" : "✓") + '</span><span class="v">' + txt + "</span></div>";
@@ -617,9 +615,10 @@
   function ridgeAt(az) {
     var R = RIDGES[state.site];
     if (!R) return null;
-    var n = R.dist_km.length, i = Math.round((((az % 360) + 360) % 360) / R.step_deg) % n;
-    var pi = (Math.round(i / R.profile_every) * R.profile_every) % n;
-    return { dist: R.dist_km[i], rise: R.rise_m[i], el: prep(state.site).d.horizon[i], prof: R.profiles[String(pi)], profAz: pi * R.step_deg };
+    var H = R.by_height[state.mast], n = H.dist_km.length, every = R.profile_every;
+    // snap to the nearest direction that has a side view, so the words and the picture describe the same hill
+    var i = (Math.round((((az % 360) + 360) % 360) / R.step_deg / every) * every) % n;
+    return { dist: H.dist_km[i], rise: H.rise_m[i], el: prep(state.site).d.horizon[i], prof: R.profiles[String(i)], profAz: i * R.step_deg };
   }
 
   function drawRidge() {
@@ -631,10 +630,13 @@
       pick = killer || spells.slice().sort(function (a, b) { return b.len - a.len; })[0] || null;
       ridgePick = pick;
     }
-    var top = spells.slice().sort(function (a, b) { return b.len - a.len; }).slice(0, 5).sort(function (a, b) { return a.from - b.from; });
+    var isFatal = function (sp) { return !run.alive && sp.from < run.died && sp.from + sp.len >= run.died; };
+    var top = spells.slice().sort(function (a, b) { return b.len - a.len; }).slice(0, 5);
+    spells.forEach(function (sp) { if ((isFatal(sp) || (pick && pick.from === sp.from)) && top.indexOf(sp) < 0) top.push(sp); });
+    top.sort(function (a, b) { return a.from - b.from; });
     box.innerHTML = top.map(function (sp) {
       var on = !!pick && pick.from === sp.from;
-      var fatal = !run.alive && sp.from < run.died && sp.from + sp.len >= run.died;
+      var fatal = isFatal(sp);
       return '<button type="button" data-from="' + sp.from + '" aria-pressed="' + on + '"' + (fatal ? ' class="fatal"' : "") + "><b>" +
              plural(sp.len, "hour") + "</b><span>day " + (Math.floor(sp.from / 24) + 1) + " · Sun " + compass(sp.az) + (fatal ? " · fatal" : "") + "</span></button>";
     }).join("");
@@ -654,8 +656,8 @@
       : "Looking " + compass(pick.az) + " (" + Math.round(pick.az) + "°), the skyline is set by ";
     if (rg.dist < 0.5) msg += "the slope the lander stands on, only " + where + " away.";
     else msg += "a hill <b>" + where + "</b> away, its top <b>" + Math.abs(rg.rise) + " m " + (rg.rise >= 0 ? "above" : "below") + "</b> the lander.";
-    if (spell && sunEl < 0 && sunEl < rg.el) msg += " The Sun was " + Math.abs(sunEl).toFixed(1) + "° below level, so even flat ground would have hidden it.";
-    else if (spell) msg += " The Sun was " + sunEl.toFixed(1) + "° up; that hill reaches " + rg.el.toFixed(1) + "°.";
+    if (spell && sunEl + d.sun_width_deg / 2 < 0) msg += " The Sun was " + Math.abs(sunEl).toFixed(1) + "° below level, so even flat ground would have hidden all of it.";
+    else if (spell) msg += " The Sun was " + (sunEl < 0 ? Math.abs(sunEl).toFixed(1) + "° below level" : sunEl.toFixed(1) + "° up") + "; that hill reaches " + rg.el.toFixed(1) + "°.";
     $("ridgeSay").innerHTML = msg;
     drawSection(rg, sunEl);
   }
@@ -664,7 +666,7 @@
   function drawSection(rg, sunEl) {
     var o = fit($("ridgeCut")), ctx = o.ctx, W = o.w, H = o.h, L = gut(), Rr = W - gut(), pw = Rr - L;
     if (!rg || !rg.prof) { $("ridgeCap").textContent = ""; return; }
-    var z = rg.prof.z, endM = rg.prof.end_km * 1000, n = z.length, k, eye = 2;
+    var z = rg.prof.z, endM = rg.prof.end_km * 1000, n = z.length, k, eye = parseFloat(state.mast);
     var zs = z.filter(function (v) { return v !== null; }).concat([0, eye]);
     var skyEnd = eye + Math.tan(rg.el * Math.PI / 180) * endM;
     zs.push(skyEnd);

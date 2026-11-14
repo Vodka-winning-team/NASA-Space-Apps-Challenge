@@ -231,7 +231,9 @@
   $("plannerAuto").onclick = function () {
     if (!api) return;
     tasks = greedy(api);
-    notice = "Auto-plan replaced the previous plan: " + tasks.length + " of 4 tasks placed with more than 25% battery throughout the mission" +
+    if (!api.run.alive) notice = "No safe plan: the lander runs out of power on this mission even without any science, so Auto-plan placed " + tasks.length + " task" + (tasks.length === 1 ? "" : "s") + ".";
+    else if (!tasks.length) notice = "No safe plan: no task fits while keeping the battery above 25%.";
+    else notice = "Auto-plan replaced the previous plan: " + tasks.length + " of 4 tasks placed with more than 25% battery throughout the mission" +
       (tasks.length < 4 ? "; no safe slot was found for the remaining tasks." : ".");
     render();
   };
