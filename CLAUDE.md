@@ -29,6 +29,8 @@ python build_ridges.py         # must run AFTER build_sites: it asserts its hill
 python build_terrain.py        # 3D ground tiles
 python build_map.py            # docs/map.jpg
 python validate.py             # needs NASA PGDA AVGVISIB .IMG files in data_raw/pgda/; writes docs/data/validation.js
+python build_custom.py         # docs/data/dem/: 640 m coarse map + 80 m tiles (128 px) within ~170 km of the pole
+node check_custom.mjs          # rebuilds the six sites the "custom place" way and compares (horizon, Sun/Earth, verdicts)
 ```
 
 There is no test suite or linter. `validate.py` is the numeric check against NASA. For front-end changes, verify by opening the page.
@@ -51,6 +53,7 @@ Conventions: azimuth is clockwise from north (the Horizons convention), elevatio
 - `app.js` owns state (`site, start, days, batt, mast, hour`) and the science. `prep()` gives the fraction of the Sun's disc above the hills and whether Earth's centre is in view, per hour, cached per site|panel. `sim()` is the battery model: `RATE = 3` energy per hour in full Sun, load 1 per hour, battery measured in hours of load, dead lander never recovers. `refresh()` redraws everything and writes the state to the URL hash, which `readHash()` reads back.
 - Add-on modules (`planner.js`, `extras.js`, `rescue.js`, `terrain3d.js`) **must not edit app.js calculations**. They plug in through `window.LANDER_APP`: `onRefresh(f)`, `onHour(f)`, `get()`, `setHour`, `setStart`, `setSite`, and `set({site, start, days, batt, mast})` to change several at once. Script order in `index.html` matters: data first, then `app.js`, then the add-ons.
 - `mode.js` switches between **Simple** (the default) and **Mission planner**. Sections with class `pro` show only in planner mode. The choice is saved in `localStorage`, and `?mode=planner` / `?mode=simple` in the URL forces one. Hidden canvases have no size, so the switch fires `resize` to make charts redraw. New detailed sections should get `class="pro"`.
+- **Custom places** ("Somewhere else"): `customcalc.js` (pure maths, also runs in Node) reproduces the engine in the browser: horizon from 80 m tiles within 10 km + the 640 m coarse map out to 200 km, ridge profiles, a 3D terrain square, and Sun/Earth tracks rotated from the nearest prepared site's Horizons table (Earth parallax corrected). `custom.js` lazy-loads `data/dem/*.js` with script tags (works on file://), then pushes a 7th entry into `LANDER_SITES`/`LANDER_DATA`/`LANDER_RIDGES`/`LANDER_TERRAIN` so every section treats it like a prepared site. Its id encodes the coordinates (`P<lat>_<lon>`), so a shared link rebuilds it; `app.js` saves the opening hash in `window.LANDER_HASH0` for this. The dem files are deliberately NOT in `sw.js` FILES (41 MB); the fetch handler caches the ones a user actually loads.
 - `rescue.js` ("How do we save it?") appears only when the lander is lost. It tries five single changes (land later, bigger battery, higher panel, another site, shorter mission) using the same `sim()`, and each fix can be applied and undone.
 - `planner.js` reimplements the sim to add science-task loads. Keep it consistent with `app.js` `sim()` if the battery model changes.
 

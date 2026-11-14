@@ -1,0 +1,36 @@
+/* "Somewhere else": choose any place south of 85° S. Written with AI assistance (Claude). */
+.custom { margin-top: 10px; }
+.customOpen {
+  background: transparent; border: 1px dashed var(--line-2); color: var(--text-2);
+  min-height: 44px; padding: 8px 16px; border-radius: 999px; cursor: pointer; font-size: 16px; line-height: 1.2;
+}
+.customOpen[aria-expanded="true"] { border-style: solid; border-color: var(--text-2); color: var(--text); }
+@media (hover: hover) { .customOpen:hover { border-color: var(--text-2); color: var(--text); } }
+.customForm { margin-top: 12px; }
+.customForm .hint { margin-top: 0; }
+.customRow { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: flex-end; margin-top: 12px; }
+.customRow label { display: flex; flex-direction: column; gap: 4px; font: 600 15px/1.2 var(--sans); flex: 1 1 140px; min-width: 0; }
+.customRow label span { font-weight: 400; font-size: 13px; color: var(--text-3); }
+.customRow input {
+  min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line-2);
+  background: var(--bg-2); color: var(--text); font: 500 16px/1.2 var(--mono); width: 100%;
+}
+.customGo {
+  min-height: 44px; padding: 8px 20px; border-radius: 999px; border: 0; cursor: pointer;
+  background: var(--sun); color: #1a1405; font: 700 16px/1.2 var(--sans); flex: 0 0 auto;
+}
+.customForm.busy .customGo { opacity: 0.5; cursor: progress; }
+.customMsg { font-size: 14px; color: var(--text-2); margin-top: 10px; min-height: 1.4em; max-width: 70ch; }
+.customMsg.bad { color: var(--dead); }
+.customMsg.good { color: var(--text-2); }
+
+/* the 85° S limit on the map, and the custom place's dot */
+.ring85 {
+  position: absolute; left: 50%; top: 50%; width: 70.56%; height: 70.56%; transform: translate(-50%, -50%);
+  border-radius: 50%; border: 1px dashed rgba(236, 232, 220, 0.35); pointer-events: none; display: none;
+}
+.ring85 span { position: absolute; left: 50%; top: 0; transform: translate(-50%, -120%); font: 600 11px/1 var(--sans); color: var(--text-2); text-shadow: 0 0 6px #000, 0 0 2px #000; }
+.moonDisc.picking .ring85 { display: block; }
+.moonDisc.picking { cursor: crosshair; }
+.dotCustom::before { border-style: dashed; }
+@media (max-width: 560px) { .customGo { flex: 1 1 100%; } }

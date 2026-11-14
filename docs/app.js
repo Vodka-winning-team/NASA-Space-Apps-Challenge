@@ -4,6 +4,7 @@
   "use strict";
 
   var SITES = window.LANDER_SITES, DATA = window.LANDER_DATA, MORIS = window.LANDER_MORIS;
+  window.LANDER_HASH0 = location.hash;   // the link as opened; custom.js rebuilds a custom place from it
   var T0 = Date.UTC(2027, 0, 1), HOUR = 3600000;
   var RATE = 3;                      // energy made per hour in full Sun; the lander uses 1 per hour
   var DAY_CHOICES = [7, 14, 30, 60];

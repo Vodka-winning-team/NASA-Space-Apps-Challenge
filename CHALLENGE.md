@@ -30,7 +30,7 @@ Do not claim Quickmap or Moon Trek in the submission unless someone on the team 
 | What the challenge suggests | Where we stand |
 |---|---|
 | Choose from a curated list of notable landing sites | Yes: six candidate south pole sites |
-| Input custom lunar coordinates | **Missing** |
+| Input custom lunar coordinates | Yes: "Somewhere else": type coordinates or tap the map, anywhere south of 85° S. The horizon is worked out in the browser from NASA LOLA (80 m near the lander, 640 m beyond 10 km). Tested against the six prepared sites: same verdict on 97 to 100% of landing days (`node engine/check_custom.mjs`) |
 | Side-by-side or sequential comparison of sites | Yes: "How does another place compare?" shows two places on the same date, plus the two-year stripes for all six |
 | Select landing dates, explore lunar days and seasons | Yes |
 | Show Sun and Earth relative to the horizon | Yes: the view from the lander |
@@ -51,7 +51,7 @@ Done on 14 Nov, 23:40: sunset and Earthset countdown, Sun's and Earth's height, 
 
 Still open:
 
-1. **Custom coordinates** (land anywhere). Large, and the answers would be rougher than for the six prepared sites.
+1. ~~Custom coordinates~~: done on 15 Nov (`docs/custom.js`, `docs/customcalc.js`).
 2. **Detailed numbers or an export for planners.**
 3. ~~A 3D surface view~~: done (`docs/terrain3d.js`).
 

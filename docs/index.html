@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="extras.css">
 <link rel="stylesheet" href="mode.css">
 <link rel="stylesheet" href="rescue.css">
+<link rel="stylesheet" href="custom.css">
 </head>
 <body class="mode-simple">
 
@@ -38,6 +39,18 @@
         <fieldset class="field field-sites">
           <legend>Where do we land?</legend>
           <div class="sites" id="sites" role="radiogroup"></div>
+          <div class="custom">
+            <button type="button" class="customOpen" id="customOpen" aria-expanded="false" aria-controls="customForm">Somewhere else…</button>
+            <form class="customForm" id="customForm" hidden novalidate>
+              <p class="hint">Tap anywhere inside the dashed circle on the map, or type a place south of 85° S. The page works out its hills from NASA's height map.</p>
+              <div class="customRow">
+                <label>Latitude <span>degrees south</span><input id="customLat" type="text" inputmode="decimal" autocomplete="off" placeholder="86.10"></label>
+                <label>Longitude <span>degrees east (west is minus)</span><input id="customLon" type="text" inputmode="decimal" autocomplete="off" placeholder="12.30"></label>
+                <button type="submit" class="customGo">Land here</button>
+              </div>
+              <p class="customMsg" id="customMsg" role="status" aria-live="polite"></p>
+            </form>
+          </div>
         </fieldset>
         <label class="field field-date">
           <span class="legend">When?</span>
@@ -67,6 +80,7 @@
           <span class="toEarth">Toward Earth</span>
           <span class="pole" aria-hidden="true"></span>
           <span class="poleName">South Pole</span>
+          <span class="ring85" aria-hidden="true"><span>85° S</span></span>
         </div>
         <figcaption>The Moon's south pole from above, about 430 km across. Each dot is a landing place. Drawn from NASA's height map.</figcaption>
       </figure>
@@ -226,6 +240,7 @@
           <li><b>The Sun and Earth.</b> NASA/JPL Horizons gives their direction in the sky of each place for every hour of 2027 and 2028.</li>
           <li><b>The places.</b> Six candidate landing sites published by Wueller et al. (2026, JGR Planets), inside regions NASA has named as candidates for Artemis landings.</li>
           <li><b>Mauritius.</b> NASA/JPL Horizons again: the hours when the Moon is at least 10 degrees above the horizon at Port Louis.</li>
+          <li><b>Your own place ("Somewhere else").</b> Worked out in your browser, with the same method. The page loads NASA's 80 m height map for the ground within about 18 km and a 640 m copy for hills further away. The Sun and Earth are taken from the nearest prepared place's NASA/JPL Horizons table and turned to your place's sky. We tested it by rebuilding each of the six prepared places this way: the hill line stayed within 0.24 degrees, the Sun and Earth within 0.02 degrees, and the answer (survived or lost) matched on 97 to 100 percent of landing days. It works south of 85 degrees. The first time you choose a new area it needs the internet.</li>
         </ul>
         <h3>How close are we to NASA's own maps?</h3>
         <p>NASA Goddard publishes maps of how often the Sun and the Earth are visible at the south pole (Mazarico et al. 2011, averaged over 18.6 years). We compared them with our numbers for 2027 and 2028 at the six places.</p>
@@ -272,6 +287,8 @@
 <script src="planner.js"></script>
 <script src="extras.js"></script>
 <script src="rescue.js"></script>
+<script src="customcalc.js"></script>
+<script src="custom.js"></script>
 <script src="vendor/three.min.js"></script>
 <script src="vendor/OrbitControls.js"></script>
 <script src="terrain3d.js"></script>
