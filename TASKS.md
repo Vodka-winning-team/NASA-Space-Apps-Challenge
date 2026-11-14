@@ -30,17 +30,18 @@ Status: `open`, `doing (name)`, `done`. Take any open task. Edit this file and p
 | W8 | "About and limits" panel: data sources, assumptions, what the tool does not do | done |
 | W9 | Public link that opens without a login | done (Suresh): https://vodka-winning-team.github.io/NASA-Space-Apps-Challenge/ (GitHub Pages from `main`, `/docs`; updates about a minute after each push) |
 | W10 | Test on 2 phones and 2 browsers; list bugs here | doing (Suresh): headless Firefox passed at 1366, 390 and 360 px (see notes); real phones still to do |
+| W11 | Mission planner figures, daily table and hourly CSV export | done: includes custom places, UTC times, NASA sources and simple-model limits |
 
 ## Story (lead Paveesh, backup Suresh)
 
 | # | Task | Status |
 |---|---|---|
-| S1 | Paste the Resources tab from the official challenge page into `docs/RESOURCES.md` | open |
-| S2 | Slide outline, 7 slides (structure is in the Presentation Guidelines PDF) | open |
-| S3 | Draft the NASA submission text: summary (50 to 200 words), project details, NASA data, references, AI use | open |
-| S4 | Pitch script for 4 minutes; decide who speaks | open |
+| S1 | Paste the Resources tab from the official challenge page into `docs/RESOURCES.md` | done (Suresh, with AI): `docs/RESOURCES.md`, every resource with links and what we used it for |
+| S2 | Slide outline, 7 slides (structure is in the Presentation Guidelines PDF) | draft done (Suresh, with AI): `pitch/SLIDES.md`; Paveesh to turn into slides |
+| S3 | Draft the NASA submission text: summary (50 to 200 words), project details, NASA data, references, AI use | draft done (Suresh, with AI): `pitch/SUBMISSION.md` (summary 160 words); team to check the team list |
+| S4 | Pitch script for 4 minutes; decide who speaks | draft done (Suresh, with AI): `pitch/PITCH_SCRIPT.md` (544 words, timed to 4:00, demo clicks, fallback, judge Q&A); team to decide who drives the laptop |
 | S5 | Screenshots of every screen, for slides and as backup | done (Suresh): `pitch/screenshots/`, desktop and phone (true 390 px), both modes |
-| S6 | 30-second backup screen recording | open |
+| S6 | 30-second backup screen recording | done (Suresh): `pitch/backup-demo.mp4` (32 s, captions, recorded from the real site) |
 | S7 | QR code to the public link for the last slide | done (Suresh): `pitch/qr-code.png` (black on white) and `pitch/qr-code-dark.png` (for the dark slides); scan it once with a phone to be sure |
 | S8 | Make the repo public; test every link in a private browser window | done (Suresh): repo is public; live site tested in a fresh browser with no login; every link in README, CHALLENGE and VALIDATION opens, except spaceappschallenge.org, which did not answer our script, so check it by hand |
 | S9 | Fill the NASA page and click Submit for Judging | open |

@@ -39,7 +39,7 @@ Do not claim Quickmap or Moon Trek in the submission unless someone on the team 
 | Duration of sunlight, Earth visibility windows | Yes: percentages and the strips under the battery chart |
 | 2D maps, 3D surface views | Yes: 2D view, a 2D map, and a 3D view of the ground (NASA LOLA) lit by the Sun at the chosen hour |
 | Animations or timelines over lunar days | Yes: Play the mission |
-| Serve planners and the public alike | Public: yes. Planners: no detailed numbers or export yet |
+| Serve planners and the public alike | Yes: Simple mode for the public; Mission planner mode adds the details, and "The numbers, hour by hour" gives key figures, a day-by-day table and a CSV of every hour |
 | Help when launch delays force a new date | Yes: this is our strongest section |
 | Real topography for the horizon | Yes: LOLA, 80 m per pixel |
 | No atmosphere, so no bending of light at the horizon | Yes: requested from Horizons as airless |
@@ -52,7 +52,7 @@ Done on 14 Nov, 23:40: sunset and Earthset countdown, Sun's and Earth's height, 
 Still open:
 
 1. ~~Custom coordinates~~: done on 15 Nov (`docs/custom.js`, `docs/customcalc.js`).
-2. **Detailed numbers or an export for planners.**
+2. ~~Detailed numbers or an export for planners~~: done on 15 Nov (`docs/export.js`).
 3. ~~A 3D surface view~~: done (`docs/terrain3d.js`).
 
 ---

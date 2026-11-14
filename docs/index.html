@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="mode.css">
 <link rel="stylesheet" href="rescue.css">
 <link rel="stylesheet" href="custom.css">
+<link rel="stylesheet" href="export.css">
 </head>
 <body class="mode-simple">
 
@@ -210,6 +211,22 @@
     <p class="hint">Every stripe is one landing date, from January 2027 to December 2028. Tap anywhere to load that place and date.</p>
   </section>
 
+  <section class="numbers pro" id="exportSection" aria-label="The numbers">
+    <h2>The numbers, hour by hour.</h2>
+    <p class="lede">Check each day of your mission or download every hour.</p>
+    <dl class="exportFigures" id="exportFigures"></dl>
+    <div class="exportScroll" tabindex="0" role="region" aria-label="Daily mission numbers, scroll sideways for all columns">
+      <table class="exportTable">
+        <caption>Each mission day, starting at the landing time. Dates are UTC.</caption>
+        <thead><tr><th scope="col">Date (UTC)</th><th scope="col">Sun (hours)</th><th scope="col">Earth in view (hours)</th><th scope="col">Battery at day end (%)</th><th scope="col">Lowest battery (%)</th></tr></thead>
+        <tbody id="exportDays"></tbody>
+      </table>
+    </div>
+    <p class="hint">Sun hours add up the visible fraction of the Sun’s disc. Both in view means any Sun and Earth’s centre above the hills. Earth in view means line of sight only. Battery values are from a simple model, not mission-grade data. The CSV gives battery charge at the end of each hour.</p>
+    <button class="exportDownload" id="exportDownload" type="button">Download every hour (CSV)</button>
+    <p class="hint" id="exportStatus" role="status"></p>
+  </section>
+
   <section class="moris" aria-label="Mauritius">
     <h2>Can Mauritius see it?</h2>
     <p class="say" id="morisText"></p>
@@ -289,6 +306,7 @@
 <script src="rescue.js"></script>
 <script src="customcalc.js"></script>
 <script src="custom.js"></script>
+<script src="export.js"></script>
 <script src="vendor/three.min.js"></script>
 <script src="vendor/OrbitControls.js"></script>
 <script src="terrain3d.js"></script>

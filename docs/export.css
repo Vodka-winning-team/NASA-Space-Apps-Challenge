@@ -1,0 +1,23 @@
+/* Mission numbers. Written with AI assistance (OpenAI Codex, Claude). */
+.numbers { min-width: 0; padding-inline: var(--gut); }
+.exportFigures { display: grid; grid-template-columns: minmax(0, 1fr); margin: 24px 0; }
+.exportFigures > div { padding: 12px 0; border-top: 1px solid var(--line); min-width: 0; }
+.exportFigures dt { color: var(--text-2); font-size: 14px; }
+.exportFigures dd { margin: 4px 0 0; color: var(--text); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.exportFigures .exportLive { color: var(--live); }
+.exportFigures .exportDead { color: var(--dead); }
+.exportScroll { overflow-x: auto; max-width: 100%; border-block: 1px solid var(--line-2); }
+.exportTable { width: 100%; border-collapse: collapse; font: 400 14px/1.5 var(--mono); font-variant-numeric: tabular-nums; }
+.exportTable caption { text-align: left; color: var(--text-3); font: 400 14px/1.5 var(--sans); padding: 12px 0; }
+.exportTable th, .exportTable td { padding: 12px; text-align: right; border-top: 1px solid var(--line); }
+.exportTable thead th { color: var(--text-2); font: 600 14px/1.4 var(--sans); min-width: 125px; }
+.exportTable th:first-child { text-align: left; white-space: nowrap; }
+.exportTable tbody th { font-weight: 400; }
+.exportDownload { margin-top: 18px; min-height: 44px; max-width: 100%; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; color: var(--text); cursor: pointer; }
+.exportDownload:disabled { color: var(--text-3); cursor: default; }
+@media (min-width: 640px) {
+  .exportFigures { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
+}
+@media (min-width: 1100px) {
+  .exportFigures { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

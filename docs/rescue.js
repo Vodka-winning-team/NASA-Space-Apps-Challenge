@@ -127,7 +127,7 @@
         $("rescueTitle").textContent = "Saved.";
         $("rescueSay").innerHTML = "One change did it: <b>" + applied.done + "</b>. Everything else is as before.";
         $("rescueList").innerHTML = '<button type="button" class="rescueUndo" id="rescueUndo">Put it back the way it was</button>';
-        $("rescueUndo").onclick = function () { var b = applied.before; applied = null; APP.set(b); };
+        $("rescueUndo").onclick = function () { if (!applied) return; var b = applied.before; applied = null; APP.set(b); };   // a double tap must not throw
       } else { applied = null; box.hidden = true; }
       return;
     }

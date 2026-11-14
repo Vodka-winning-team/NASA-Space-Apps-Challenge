@@ -236,11 +236,20 @@
   };
 
   // build only when the section comes into view, so the page stays quick to open
+  function webgl() {             // ask before three.js does, so a browser without WebGL gets a clean message
+    try { var c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl") || c.getContext("experimental-webgl")); }
+    catch (e) { return false; }
+  }
+  function begin() {
+    if (!webgl()) { $("t3dNote").textContent = "This browser cannot show 3D graphics."; return; }
+    try { init(); } catch (e) { $("t3dNote").textContent = "This browser cannot show 3D graphics."; return; }
+    started = true; sync();
+  }
+  if (!("IntersectionObserver" in window)) { begin(); return; }      // very old browsers: build straight away
   var io = new IntersectionObserver(function (es) {
     if (!es.some(function (e) { return e.isIntersecting; })) return;
     io.disconnect();
-    try { init(); } catch (e) { $("t3dNote").textContent = "This browser cannot show 3D graphics."; return; }
-    started = true; sync();
+    begin();
   }, { rootMargin: "300px" });
   io.observe(section);
 })();

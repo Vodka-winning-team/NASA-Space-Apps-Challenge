@@ -818,7 +818,8 @@
     if (+p.batt >= 24 && +p.batt <= 240) state.batt = Math.round(+p.batt / 12) * 12;
     if (MAST_CHOICES.indexOf(p.panel) >= 0) state.mast = p.panel;
     var t = Date.parse((p.date || "2027-07-28") + "T00:00:00Z");
-    state.start = isNaN(t) ? 0 : Math.round((t - T0) / HOUR);
+    if (isNaN(t)) t = Date.parse("2027-07-28T00:00:00Z");      // a broken date in a link: use the usual first date
+    state.start = Math.round((t - T0) / HOUR);
     clampStart();
   }
 

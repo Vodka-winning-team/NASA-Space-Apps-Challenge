@@ -52,4 +52,4 @@ This is a hackathon project. It is not a NASA product and is not endorsed by NAS
 
 ## Use of AI
 
-Code, data scripts and text in this repo were written with AI assistance (Claude). No NASA logos or branding are used.
+Code, data scripts and text in this repo were written with AI assistance (Claude, and OpenAI Codex for a code review and the hour-by-hour numbers section). All science comes from NASA data and published papers, listed above. No NASA logos or branding are used.
