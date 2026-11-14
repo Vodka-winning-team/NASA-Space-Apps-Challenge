@@ -149,10 +149,11 @@
     $("vLabel").textContent = DATA[state.site].name + " · landing " + fmtDate(state.start) + " · " + state.days + "-day mission";
     v.classList.toggle("dead", !run.alive);
     if (run.alive) {
-      $("vText").textContent = "Survived.";
-      $("vWhy").textContent = run.longestDark === 0
+      var low = run.min < 0.25;
+      $("vText").textContent = low ? "Survived, just." : "Survived.";
+      $("vWhy").textContent = (low ? "The battery fell to " + Math.round(run.min * 100) + "%, so there is little room for error. " : "") + (run.longestDark === 0
         ? "The Sun never stayed behind the hills long enough to drain the battery."
-        : "The longest stretch without enough Sun was " + run.longestDark + " hours. The battery lasts " + state.batt + ".";
+        : "The longest stretch without enough Sun was " + run.longestDark + " hours. The battery lasts " + state.batt + " hours.");
     } else {
       var day = Math.floor((run.died - 1) / 24) + 1;
       $("vText").textContent = "Lost on day " + day + ".";
@@ -239,12 +240,12 @@
 
     // status
     var hr = Math.round(state.hour), day = Math.floor(hr / 24) + 1;
-    $("now").textContent = "Day " + day + " of " + state.days + " · " + fmtDate(state.start + hr) + ", " + pad((state.start + hr) % 24) + ":00 UTC";
+    $("now").textContent = (hr >= hours ? "End of mission" : "Day " + day + " of " + state.days) + " · " + fmtDate(state.start + hr) + ", " + pad((state.start + hr) % 24) + ":00 UTC";
     var sunPct = Math.round(P.sun[i] * 100), charge = Math.round(run.series[Math.min(hr, hours)] / state.batt * 100);
     var lost = !run.alive && hr >= run.died, mUp = MORIS.up.charAt(i) === "1";
     $("chips").innerHTML =
       '<span class="' + (sunPct ? "" : "off") + '"><i style="background:' + C.sun + '"></i>' + (sunPct >= 99 ? "<b>Sun is out</b>" : sunPct ? "<b>Sun is " + sunPct + "% out</b>" : "<b>Sun is hidden</b>") + "</span>" +
-      '<span class="' + (P.earth[i] ? "" : "off") + '"><i style="background:' + C.earth + '"></i>' + (P.earth[i] ? "<b>Earth in view</b>, can talk home" : "<b>Earth is hidden</b>, no contact") + "</span>" +
+      '<span class="' + (P.earth[i] ? "" : "off") + '"><i style="background:' + C.earth + '"></i>' + (lost ? "<b>No contact</b>, lander lost" : P.earth[i] ? "<b>Earth in view</b>, can talk home" : "<b>Earth is hidden</b>, no contact") + "</span>" +
       '<span><i style="background:' + (lost ? C.dead : C.live) + '"></i>' + (lost ? "<b>Lander lost</b>" : "Battery <b>" + charge + "%</b>") + "</span>";
   }
 
@@ -371,7 +372,7 @@
       if (st > maxStart()) break;
       var r = sim(P, st, hours, state.batt, false), g = grade(r);
       res.push(r);
-      var say = fmtDate(st) + ": " + (r.alive ? "lander survives" : "lander lost on day " + (Math.floor((r.died - 1) / 24) + 1));
+      var say = fmtDate(st) + ": " + (r.alive ? (g === "close" ? "lander survives, battery drops below 25%" : "lander survives") : "lander lost on day " + (Math.floor((r.died - 1) / 24) + 1));
       // a symbol as well as a colour, so the answer does not depend on seeing red and green
       html += '<button type="button" class="' + g + '" data-k="' + k + '"' + (k === 0 ? ' aria-current="true"' : "") +
               ' title="' + say + '" aria-label="' + say + '"><span class="sym">' + (g === "dead" ? "\u2715" : g === "close" ? "!" : "\u2713") +
@@ -388,11 +389,14 @@
     var msg;
     if (!res[0].alive) {
       msg = flip > 0 ? "Wait <b>" + plural(flip, "day") + "</b>, land on " + shortDate(state.start + flip * 24) + ", and the lander <b>survives</b>."
-                     : "No landing date in the next two weeks works here. Try another place or a bigger battery.";
+                     : (res.length < 15 ? "No later landing date we have data for works here." : "No landing date in the next two weeks works here.") + " Try another place or a bigger battery.";
     } else {
       msg = flip > 0 ? "This date works. But slip by <b>" + plural(flip, "day") + "</b> and the lander <b>would be lost</b>."
+                     : res.length < 15 ? "This date works, and so does every later date we have data for (" + plural(res.length - 1, "more day") + ")."
                      : "This date works, and so does every day for the next two weeks.";
+      if (res[0].min < 0.25) msg += " But the battery drops below 25%, so it is close.";
     }
+    if (res.length < 15 && !(res[0].alive && flip < 0)) msg += " Our data ends after " + shortDate(state.start + (res.length - 1) * 24) + ".";
     $("slipSay").innerHTML = msg;
   }
 
@@ -472,19 +476,21 @@
 
   function drawMoris() {
     var P = prep(state.site), hours = hoursTotal(), total = 0, first = -1, firstEnd = -1;
-    for (var h = 0; h < hours; h++) {
+    var alive = run.alive ? hours : run.died;   // no contact after the lander is lost
+    for (var h = 0; h < alive; h++) {
       var idx = state.start + h, on = P.earth[idx] && MORIS.up.charAt(idx) === "1";
       if (on) { total++; if (first < 0) first = idx; }
       else if (first >= 0 && firstEnd < 0) firstEnd = idx;
     }
-    if (first >= 0 && firstEnd < 0) firstEnd = state.start + hours;
+    if (first >= 0 && firstEnd < 0) firstEnd = state.start + alive;
     if (total === 0) {
-      $("morisText").innerHTML = "Not on this mission. The lander never has Earth in view while the Moon is over Port Louis.";
+      $("morisText").innerHTML = (run.alive ? "Not on this mission." : "Not before the lander is lost.") + " The lander never has Earth in view while the Moon is over Port Louis.";
       $("morisSub").textContent = "Try another site or date.";
     } else {
       $("morisText").innerHTML = "Yes. For <b>" + total + " hours</b> of this mission, the lander can see Earth while the Moon is in the sky over Port Louis.";
-      var t = new Date(T0 + (firstEnd + 4) * HOUR);
-      $("morisSub").textContent = "The first time: " + morisTime(first) + " to " + pad(t.getUTCHours()) + ":00, Mauritius time. " +
+      var t = new Date(T0 + (firstEnd + 4) * HOUR), t0 = new Date(T0 + (first + 4) * HOUR);
+      var endTxt = t.getUTCDate() === t0.getUTCDate() ? pad(t.getUTCHours()) + ":00" : morisTime(firstEnd);
+      $("morisSub").textContent = "The first time: " + morisTime(first) + " to " + endTxt + ", Mauritius time. " +
         "Go outside, look at the Moon, and the lander is looking back.";
     }
   }
@@ -502,8 +508,9 @@
 
   function readHash() {
     var p = {};
-    location.hash.replace(/^#/, "").split("&").forEach(function (kv) { var a = kv.split("="); if (a[1]) p[a[0]] = decodeURIComponent(a[1]); });
-    if (p.site && DATA[p.site]) state.site = p.site;
+    location.hash.replace(/^#/, "").split("&").forEach(function (kv) { var a = kv.split("="); if (!a[1]) return;
+      try { p[a[0]] = decodeURIComponent(a[1]); } catch (e) { /* bad encoding: ignore this value */ } });
+    if (p.site && Object.prototype.hasOwnProperty.call(DATA, p.site)) state.site = p.site;
     if (DAY_CHOICES.indexOf(+p.days) >= 0) state.days = +p.days;
     if (+p.batt >= 24 && +p.batt <= 240) state.batt = Math.round(+p.batt / 12) * 12;
     if (MAST_CHOICES.indexOf(p.panel) >= 0) state.mast = p.panel;
@@ -526,6 +533,7 @@
   function start() {
     drawValidation();
     buildControls(); bindTime(); bindCal(); readHash(); refresh();
+    window.addEventListener("hashchange", function () { readHash(); state.hour = 0; refresh(); });
     var again = null;
     window.addEventListener("resize", function () {
       clearTimeout(again); again = setTimeout(function () { drawPano(); drawTime(); drawCal(); }, 80);
