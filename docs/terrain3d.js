@@ -181,9 +181,9 @@
     }
     landerMat.color.set(dead ? 0xec6049 : f * 3 >= 1 ? 0x58d08a : 0xf2b544);
     var el = d.sun_el[idx];
-    $("t3dNow").innerHTML = "Sun <b>" + (el >= 0 ? el.toFixed(1) + "° up" : Math.abs(el).toFixed(1) + "° below level") +
+    $("t3dNow").innerHTML = "Sun <b>" + (el >= 0 ? el.toFixed(1) + "° above level ground" : Math.abs(el).toFixed(1) + "° below level ground") +
       "</b> in the " + COMPASS[Math.round(((d.sun_az[idx] % 360) + 360) % 360 / 45) % 8] + " · " +
-      (f >= 0.99 ? "fully out" : f > 0 ? Math.round(f * 100) + "% above the hills" : "hidden by the hills") +
+      (f >= 0.99 ? "fully out" : f > 0 ? Math.round(f * 100) + "% of it above the hills" : "hidden by the hills") +
       " · lander " + (dead ? "lost" : f * 3 >= 1 ? "charging" : "on battery");
     render();
   }

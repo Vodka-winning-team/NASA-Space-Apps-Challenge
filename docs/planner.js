@@ -4,10 +4,10 @@
 
   // Edit the illustrative instrument assumptions here. Conditions apply every hour.
   var TYPES = [
-    { name: "Drill sample", load: 1.5, duration: 6, condition: "any", rule: "Sun-independent" },
-    { name: "Camera panorama", load: 0.5, duration: 2, condition: "sun", rule: "Needs Sun above hills" },
-    { name: "Send data home", load: 1.0, duration: 3, condition: "earth", rule: "Needs Earth in view" },
-    { name: "Spectrometer", load: 0.8, duration: 4, condition: "any", rule: "No visibility requirement" }
+    { name: "Drill into the ground", load: 1.5, duration: 6, condition: "any", rule: "works any time" },
+    { name: "Take photos all around", load: 0.5, duration: 2, condition: "sun", rule: "needs the Sun out" },
+    { name: "Send results to Earth", load: 1.0, duration: 3, condition: "earth", rule: "needs Earth in view" },
+    { name: "Study the rocks", load: 0.8, duration: 4, condition: "any", rule: "works any time" }
   ];
   var api, key, tasks = [], selected = 0, cursor = 0, result, baseline, geom, drag;
   var notice = "", $ = function (id) { return document.getElementById(id); };
@@ -71,7 +71,7 @@
     [].forEach.call($("plannerTypes").children, function (b, n) { b.setAttribute("aria-pressed", String(n === i)); });
     $("plannerHour").max = api ? api.hours - TYPES[i].duration : 0;
     if (api) { cursor = clamp(cursor, i); $("plannerHour").value = cursor; }
-    $("plannerAdd").textContent = "Place " + TYPES[i].name.toLowerCase();
+    $("plannerAdd").textContent = "Add this job";
   }
   function place(h) {
     var existing = tasks.filter(function (task) { return task.type === selected; })[0];
@@ -81,7 +81,7 @@
     notice = ""; render();
   }
   function remove(task, focusChart) {
-    tasks.splice(tasks.indexOf(task), 1); notice = TYPES[task.type].name + " removed.";
+    tasks.splice(tasks.indexOf(task), 1); notice = "Removed: " + TYPES[task.type].name.toLowerCase() + ".";
     render(); if (focusChart) canvas.focus();
   }
   function failure(outcome, task) {
@@ -90,7 +90,7 @@
     return "Done";
   }
   function takeaway() {
-    if (!tasks.length) return "Pick a task and place it on the timeline, or try Auto-plan to find hours with power to spare.";
+    if (!tasks.length) return "Pick a job and tap the chart to place it, or press \u201cPlan it for me\u201d.";
     var bad = result.outcomes.findIndex(function (o) { return !o.done; });
     if (bad >= 0) {
       var task = tasks[bad], type = TYPES[task.type], out = result.outcomes[bad];
@@ -100,12 +100,12 @@
         var check = simulate(api, trial);
         if (check.outcomes[bad].done && check.min > 0.25) { alternative = h; break; }
       }
-      var reason = !out.powered ? "cannot finish before the battery empties" : type.condition === "sun" ? "has no lighting for part of its run" : "loses sight of Earth during its run";
-      return "The " + type.name.toLowerCase() + " on " + when(task.start) + " " + reason + "; " +
-        (alternative >= 0 ? "move it to " + when(alternative) + " for a safer run." : "try a bigger battery or another landing date.");
+      var reason = !out.powered ? "cannot finish before the battery runs out" : type.condition === "sun" ? "does not have the Sun for all of it" : "loses sight of Earth partway through";
+      return "\u201c" + type.name + "\u201d on " + when(task.start) + " " + reason + ". " +
+        (alternative >= 0 ? "Move it to " + when(alternative) + " and it works." : "Try a bigger battery or another landing date.");
     }
-    if (result.died >= 0) return "The scheduled science finishes, but the lander runs out of power on " + when(result.died) + "; remove a task or try another landing date.";
-    return "The plan completes " + tasks.length + " of 4 tasks and leaves a minimum battery reserve of " + Math.round(result.min * 100) + "%" + (result.min <= 0.25 ? "; move or remove a task to keep more than 25%." : " through the mission.");
+    if (result.died >= 0) return "The jobs get done, but the lander runs out of power on " + when(result.died) + ". Remove a job or try another landing date.";
+    return "This plan gets " + tasks.length + " of 4 jobs done, and the battery never drops below " + Math.round(result.min * 100) + "%." + (result.min <= 0.25 ? " That is cutting it close: move or remove a job to stay above 25%." : "");
   }
 
   function render() {
@@ -125,7 +125,7 @@
       b.dataset.failed = String(!result.outcomes[i].done);
       var name = document.createElement("strong"), detail = document.createElement("span");
       name.textContent = t.name;
-      detail.textContent = "H" + task.start + "–" + (task.start + t.duration) + " / " + failure(result.outcomes[i], task);
+      detail.textContent = "Hour " + task.start + " to " + (task.start + t.duration) + " \u00b7 " + failure(result.outcomes[i], task);
       b.appendChild(name); b.appendChild(detail);
       b.setAttribute("aria-label", t.name + ", " + when(task.start) + ", " + t.duration + " hours. " + failure(result.outcomes[i], task) + ". Click to remove; arrows move; Delete removes.");
       b.onclick = function () { remove(task, true); };
@@ -153,7 +153,7 @@
     function text(txt, x, y, col) { ctx.fillStyle = col || C.t3; ctx.fillText(txt, x, y); }
     function line(x, y, xx, yy, col) { ctx.strokeStyle = col; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(xx, yy); ctx.stroke(); }
     // Hour axis and ticks remain readable on narrow screens and 60-day missions.
-    text("MISSION HOURS", L, 14);
+    text("Hours since landing", L, 14);
     var ticks = W < 600 ? 4 : 8;
     for (var j = 0; j <= ticks; j++) {
       var hour = Math.round(j / ticks * api.hours), x = X(hour);
@@ -161,7 +161,7 @@
       text(String(hour), x, 32); line(x, 36, x, 41, C.t3);
     }
     ctx.textAlign = "left";
-    ["SUN ABOVE HILLS", "EARTH IN VIEW"].forEach(function (label, row) {
+    ["Sun is out", "Earth in view"].forEach(function (label, row) {
       var y = 60 + row * 36; text(label, L, y - 3);
       ctx.fillStyle = C.line; ctx.fillRect(L, y, pw, 10);
       for (var h = 0; h < api.hours; h++) {
@@ -178,7 +178,7 @@
       line(L, y + 26, R, y + 26, C.line);
       text(String(row + 1), 10, y + 19);
       var index = tasks.findIndex(function (t) { return t.type === row; });
-      if (index < 0) { text(type.name + " / not placed", L, y - 3); return; }
+      if (index < 0) { text(type.name + ": not placed yet", L, y - 3); return; }
       var task = tasks[index], x = X(task.start), end = X(task.start + type.duration);
       // True duration is the solid bar; wider outlined target allows touch at long scales.
       var width = Math.max(28, end - x), bx = Math.min(x, R - width), failed = !result.outcomes[index].done;
@@ -191,7 +191,7 @@
       geom.blocks.push({ x: bx, y: y, w: width, h: 26, task: task });
     });
     var top = 338, bottom = 446, height = bottom - top;
-    text("BATTERY / %", L, top - 10);
+    text("Battery %", L, top - 10);
     [0, 0.25, 1].forEach(function (f) {
       var y = bottom - f * height;
       ctx.textAlign = "right"; text(String(f * 100), L - 5, y + 4); ctx.textAlign = "left";
@@ -221,7 +221,7 @@
     var b = document.createElement("button"); b.type = "button";
     var name = document.createElement("strong"), detail = document.createElement("span");
     name.textContent = type.name;
-    detail.textContent = "+" + type.load.toFixed(1) + " units/h / " + type.duration + " h / " + type.rule;
+    detail.textContent = type.duration + " hours \u00b7 uses " + (1 + type.load).toFixed(1) + "\u00d7 the normal power \u00b7 " + type.rule;
     b.appendChild(name); b.appendChild(detail); b.onclick = function () { select(i); };
     $("plannerTypes").appendChild(b);
   });
@@ -231,13 +231,13 @@
   $("plannerAuto").onclick = function () {
     if (!api) return;
     tasks = greedy(api);
-    if (!api.run.alive) notice = "No safe plan: the lander runs out of power on this mission even without any science, so Auto-plan placed " + tasks.length + " task" + (tasks.length === 1 ? "" : "s") + ".";
-    else if (!tasks.length) notice = "No safe plan: no task fits while keeping the battery above 25%.";
-    else notice = "Auto-plan replaced the previous plan: " + tasks.length + " of 4 tasks placed with more than 25% battery throughout the mission" +
-      (tasks.length < 4 ? "; no safe slot was found for the remaining tasks." : ".");
+    if (!api.run.alive) notice = "No safe plan: the lander runs out of power on this mission even with no jobs at all, so only " + tasks.length + " job" + (tasks.length === 1 ? " was" : "s were") + " placed.";
+    else if (!tasks.length) notice = "No safe plan: no job fits while keeping the battery above 25%.";
+    else notice = "We replaced your plan: " + tasks.length + " of 4 jobs placed, with the battery above 25% for the whole mission" +
+      (tasks.length < 4 ? ". No safe time was found for the others." : ".");
     render();
   };
-  $("plannerClear").onclick = function () { tasks = []; notice = "Plan cleared."; render(); };
+  $("plannerClear").onclick = function () { tasks = []; notice = "Plan cleared. Pick a job to start again."; render(); };
   canvas.onkeydown = function (e) {
     if (!api) return;
     if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].indexOf(e.key) >= 0) {
@@ -272,7 +272,7 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
   window.LANDER_APP.onRefresh(function (next) {
     var nextKey = [next.state.site, next.state.start, next.state.days].join("|");
-    if (key !== undefined && key !== nextKey) { tasks = []; cursor = 0; notice = "Mission changed; plan cleared."; drag = null; }
+    if (key !== undefined && key !== nextKey) { tasks = []; cursor = 0; notice = "The mission changed, so the plan was cleared."; drag = null; }
     key = nextKey; api = next; select(selected); render();
   });
 })();
