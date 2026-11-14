@@ -11,6 +11,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="planner.css">
+<link rel="stylesheet" href="extras.css">
 </head>
 <body>
 
@@ -101,6 +102,7 @@
       <p class="now" id="now"></p>
       <div class="chips" id="chips"></div>
     </div>
+    <div class="nowGrid" id="nowGrid" aria-live="off"></div>
     <canvas id="time" class="time" role="img" aria-label="Battery level through the mission"></canvas>
     <p class="hint">Drag across the battery chart to move through the mission.</p>
   </section>
@@ -163,6 +165,19 @@
     <canvas id="ridgeCut" class="ridgeCut" role="img" aria-label="Side view of the ground from the lander to the hill that blocks the Sun"></canvas>
     <p class="hint" id="ridgeCap"></p>
     <p class="hint">Pick one of the longest dark spells, or tap anywhere on the sky view to look in that direction.</p>
+  </section>
+
+  <section class="vs" aria-label="Compare two places">
+    <h2>How does another place compare?</h2>
+    <p class="say" id="vsSay"></p>
+    <div class="vsPickRow">
+      <p>Compare with</p>
+      <div class="vsPick" id="vsPick" role="radiogroup" aria-label="Second place"></div>
+    </div>
+    <div class="vsCards" id="vsCards"></div>
+    <canvas id="vsChart" class="vsChart" role="img" aria-label="Battery level at both places through the mission"></canvas>
+    <button class="vsSwitch" id="vsSwitch" type="button"></button>
+    <p class="hint">Same landing date, same lander, two places. The dashed line is the second place.</p>
   </section>
 
   <section class="cal" aria-label="Compare the six places">
@@ -232,6 +247,7 @@
 <script src="data/ridges.js"></script>
 <script src="app.js"></script>
 <script src="planner.js"></script>
+<script src="extras.js"></script>
 <script src="vendor/three.min.js"></script>
 <script src="vendor/OrbitControls.js"></script>
 <script src="terrain3d.js"></script>

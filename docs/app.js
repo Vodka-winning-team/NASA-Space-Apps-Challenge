@@ -787,14 +787,16 @@
   var listeners = [], hourListeners = [];
   function api() {
     return { state: state, run: run, P: prep(state.site), hours: hoursTotal(), RATE: RATE, C: C,
-             sim: sim, fmtDate: fmtDate, shortDate: shortDate, plural: plural };
+             sim: sim, fmtDate: fmtDate, shortDate: shortDate, plural: plural,
+             prep: prep, sites: SITES, data: DATA };
   }
   window.LANDER_APP = {
     onRefresh: function (f) { listeners.push(f); if (run) f(api()); },
     get: api,
     onHour: function (f) { hourListeners.push(f); },   // f(dataIndex) whenever the shown hour changes
     setHour: function (h) { state.hour = Math.max(0, Math.min(hoursTotal(), h)); stopPlay(); drawPano(); drawTime(); },
-    setStart: function (idx) { state.start = idx; clampStart(); state.hour = 0; refresh(); }
+    setStart: function (idx) { state.start = idx; clampStart(); state.hour = 0; refresh(); },
+    setSite: function (id) { if (DATA[id]) { state.site = id; clampStart(); state.hour = 0; refresh(); } }
   };
 
   function readHash() {
