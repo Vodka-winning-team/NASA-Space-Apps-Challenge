@@ -1,6 +1,6 @@
 /* Offline support: keep a copy of every file. Written with AI assistance (Claude). */
-var CACHE = "lander-v3";
-var FILES = ["./", "index.html", "style.css", "app.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png",
+var CACHE = "lander-v4";
+var FILES = ["./", "index.html", "style.css", "app.js", "manifest.webmanifest", "icon.svg", "map.jpg", "icon-192.png", "icon-512.png",
   "fonts/archivo.woff2", "fonts/jbmono.woff2", "data/sites.js", "data/validation.js", "data/moris.js",
   "data/MMA_K2023.js", "data/MMO01.js", "data/NR101.js", "data/dGR201.js", "data/HW06.js", "data/SP07.js"];
 self.addEventListener("install", function (e) {
