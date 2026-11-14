@@ -504,7 +504,20 @@
     syncControls(); drawVerdict(); drawPano(); drawTime(); drawSlip(); drawCal(); drawMoris();
     var q = "site=" + state.site + "&date=" + iso(state.start) + "&days=" + state.days + "&batt=" + state.batt + "&panel=" + state.mast;
     try { history.replaceState(null, "", "#" + q); } catch (e) { /* opened from disk: fine */ }
+    listeners.forEach(function (f) { try { f(api()); } catch (e) { console.error(e); } });
   }
+
+  // Shared hook so add-on sections (e.g. planner.js) can read the mission without editing this file.
+  var listeners = [];
+  function api() {
+    return { state: state, run: run, P: prep(state.site), hours: hoursTotal(), RATE: RATE, C: C,
+             sim: sim, fmtDate: fmtDate, shortDate: shortDate, plural: plural };
+  }
+  window.LANDER_APP = {
+    onRefresh: function (f) { listeners.push(f); if (run) f(api()); },
+    get: api,
+    setStart: function (idx) { state.start = idx; clampStart(); state.hour = 0; refresh(); }
+  };
 
   function readHash() {
     var p = {};
