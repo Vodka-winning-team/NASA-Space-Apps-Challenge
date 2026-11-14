@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Will the lander survive?</title>
+<meta name="description" content="Pick a landing site near the Moon's south pole and a date. See the Sun and Earth against the real horizon, and whether your lander survives.">
+<meta name="theme-color" content="#0e1014">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <p class="mark">Lunar south pole <span>/</span> landing site navigator</p>
+  <p class="mark mark-right" id="coords"></p>
+</header>
+
+<main>
+
+  <section class="brief" aria-label="Mission setup">
+    <h1>Will the lander <em>survive?</em></h1>
+
+    <div class="setup">
+      <fieldset class="field field-sites">
+        <legend>Landing site</legend>
+        <div class="sites" id="sites" role="radiogroup"></div>
+      </fieldset>
+
+      <label class="field">
+        <span class="legend">Landing date <small>UTC</small></span>
+        <input type="date" id="date" min="2027-01-01" max="2028-11-30">
+      </label>
+
+      <fieldset class="field">
+        <legend>Mission length</legend>
+        <div class="seg" id="days" role="radiogroup"></div>
+      </fieldset>
+
+      <label class="field field-batt">
+        <span class="legend">Battery lasts <output id="battOut"></output> without Sun</span>
+        <input type="range" id="batt" min="24" max="240" step="12">
+      </label>
+    </div>
+  </section>
+
+  <section class="verdict" id="verdict" aria-live="polite">
+    <p class="eyebrow" id="vLabel"></p>
+    <p class="vText" id="vText"></p>
+    <p class="vWhy" id="vWhy"></p>
+    <dl class="facts" id="facts"></dl>
+  </section>
+
+  <section class="sky" aria-label="View from the lander">
+    <div class="skyHead">
+      <h2>The view from the lander</h2>
+      <p class="now" id="now"></p>
+    </div>
+    <canvas id="pano" class="pano"></canvas>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <section class="mission" aria-label="Mission timeline">
+    <div class="missionHead">
+      <h2>The mission, hour by hour</h2>
+      <button class="play" id="play" type="button">Play the mission</button>
+    </div>
+    <canvas id="time" class="time"></canvas>
+    <p class="hint">Drag across the chart to move through the mission.</p>
+  </section>
+
+  <section class="slip" aria-label="Launch delay">
+    <h2>What if we land late?</h2>
+    <p class="lede">Each square is the same mission, landing one day later. Tap one to try it.</p>
+    <div class="slipRow" id="slip"></div>
+  </section>
+
+  <section class="cal" aria-label="Two-year calendar">
+    <h2>Every landing date, every site</h2>
+    <p class="lede">Two years of landing dates for six candidate sites. Green: the lander lives through the whole mission. Red: it does not. Tap anywhere to load that site and date.</p>
+    <div class="calWrap"><canvas id="cal" class="calCanvas"></canvas></div>
+    <p class="key"><i class="k k-live"></i>survives <i class="k k-close"></i>survives, battery below 25% <i class="k k-dead"></i>dies</p>
+  </section>
+
+  <section class="moris" aria-label="Mauritius moment">
+    <h2>The Mauritius moment</h2>
+    <p class="morisText" id="morisText"></p>
+    <p class="lede" id="morisSub"></p>
+  </section>
+
+  <section class="about">
+    <details>
+      <summary>How this works, and what it does not do</summary>
+      <div class="aboutBody">
+        <h3>Where the numbers come from</h3>
+        <ul>
+          <li><b>The hills.</b> NASA's height map of the Moon's south pole, measured by the laser altimeter (LOLA) on the Lunar Reconnaissance Orbiter. Product LDEM_80S_80M, 80 metres per pixel, from the NASA PDS Geosciences Node. From each site we look out in 720 directions, up to 200 km, and keep the highest hill in each direction. The Moon's curve is included.</li>
+          <li><b>The Sun and Earth.</b> NASA/JPL Horizons gives their direction in the sky of each site for every hour of 2027 and 2028.</li>
+          <li><b>The sites.</b> Six candidate landing sites published by Wueller et al. (2026, JGR Planets), inside regions NASA has named as candidates for Artemis landings.</li>
+          <li><b>Mauritius.</b> NASA/JPL Horizons again: the hours when the Moon is at least 10 degrees above the horizon at Port Louis.</li>
+        </ul>
+        <h3>The battery is a simple model</h3>
+        <ul>
+          <li>The lander uses one unit of energy per hour, all the time.</li>
+          <li>In full Sun its panels make three units per hour. If hills cover part of the Sun, they make that share of it. The panels are assumed to follow the Sun.</li>
+          <li>The battery starts full. If it reaches empty, the lander is counted as lost.</li>
+          <li>No heat, cold, dust or ageing is included. Real landers are more complicated.</li>
+        </ul>
+        <h3>What this tool does not do</h3>
+        <ul>
+          <li>"Earth in view" means a clear line of sight. It is not a guaranteed radio link.</li>
+          <li>The height map has 80 m pixels, so rocks and small ridges are not seen. The panel is assumed to sit 2 m above the ground.</li>
+          <li>The map ends at 80 degrees south. Hills further north are not included.</li>
+          <li>It does not judge slopes, landing hazards or science value.</li>
+          <li>It is a fast first look for planners, teachers and the public. It does not replace NASA's mission tools. This is a NASA Space Apps Challenge 2026 project and is not a NASA product.</li>
+        </ul>
+        <p class="fine">Built with AI assistance (Claude) for code and text. Fonts: Archivo and JetBrains Mono, SIL Open Font License.</p>
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<script src="data/sites.js"></script>
+<script src="data/moris.js"></script>
+<script src="data/MMA_K2023.js"></script>
+<script src="data/MMO01.js"></script>
+<script src="data/NR101.js"></script>
+<script src="data/dGR201.js"></script>
+<script src="data/HW06.js"></script>
+<script src="data/SP07.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

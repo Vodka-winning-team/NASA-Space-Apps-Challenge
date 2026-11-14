@@ -20,14 +20,14 @@ Status: `open`, `doing (name)`, `done`. Take any open task. Edit this file and p
 
 | # | Task | Status |
 |---|---|---|
-| W1 | Page skeleton that loads the sample data file | doing (Jayesh + Claude) |
-| W2 | Lander view: hill line with the Sun and Earth moving along it | open |
-| W3 | Site picker and date picker | open |
-| W4 | Battery run and the survived / died verdict | open |
-| W5 | Launch-delay calendar (green and red dates) | open |
-| W6 | Phone layout; add-to-home-screen; works offline | open |
-| W7 | Mauritius moment | open |
-| W8 | "About and limits" panel: data sources, assumptions, what the tool does not do | open |
+| W1 | Page skeleton that loads the sample data file | done |
+| W2 | Lander view: hill line with the Sun and Earth moving along it | done |
+| W3 | Site picker and date picker | done |
+| W4 | Battery run and the survived / died verdict | done |
+| W5 | Launch-delay calendar (green and red dates) | done |
+| W6 | Phone layout; add-to-home-screen; works offline | done on headless Chrome; needs a test on real phones |
+| W7 | Mauritius moment | done |
+| W8 | "About and limits" panel: data sources, assumptions, what the tool does not do | done |
 | W9 | Public link that opens without a login | open |
 | W10 | Test on 2 phones and 2 browsers; list bugs here | open |
 
