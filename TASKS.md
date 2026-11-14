@@ -14,7 +14,7 @@ Status: `open`, `doing (name)`, `done`. Take any open task. Edit this file and p
 | E6 | Choose the 5 landing sites, with coordinates and a source for each | done (6 sites, from Wueller et al. 2026) |
 | E7 | Produce data files for all 5 sites | done |
 | E8 | Moon-over-Port-Louis times from NASA/JPL Horizons | done |
-| E9 | Check our sunlight numbers against NASA's published sunlight map | open |
+| E9 | Check our sunlight numbers against NASA's published sunlight map | done, see VALIDATION.md |
 
 ## Website (lead Suresh, backup Jayesh)
 

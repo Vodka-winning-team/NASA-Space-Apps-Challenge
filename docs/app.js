@@ -7,6 +7,7 @@
   var T0 = Date.UTC(2027, 0, 1), HOUR = 3600000;
   var RATE = 3;                      // energy made per hour in full Sun; the lander uses 1 per hour
   var DAY_CHOICES = [7, 14, 30, 60];
+  var MAST_CHOICES = ["0.5", "2", "10"];   // solar panel height above the ground, metres
   var C = { bg: "#0e1014", text: "#ece8dc", t2: "#b4b0a4", t3: "#8b887e", t4: "#5f5d57",
             sun: "#f2b544", earth: "#6ea8e6", live: "#58d08a", close: "#c9c14a", dead: "#e8573f",
             line: "rgba(232,228,216,0.10)", line2: "rgba(232,228,216,0.22)" };
@@ -15,7 +16,7 @@
   var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   var $ = function (id) { return document.getElementById(id); };
-  var state = { site: "HW06", start: 0, days: 14, batt: 96, hour: 0 };
+  var state = { site: "HW06", start: 0, days: 14, batt: 96, mast: "2", hour: 0 };
   var prepCache = {}, playing = null;
 
   /* ---------- the science ---------- */
@@ -29,15 +30,18 @@
   // For every hour: how much of the Sun's disc is above the hills (0 to 1),
   // and whether the centre of the Earth is above the hills.
   function prep(id) {
-    if (prepCache[id]) return prepCache[id];
-    var d = DATA[id], n = d.n, r = d.sun_width_deg / 2;
+    var key = id + "|" + state.mast;
+    if (prepCache[key]) return prepCache[key];
+    var d = Object.create(DATA[id]);            // same site, hill line for the chosen panel height
+    d.horizon = DATA[id].horizons[state.mast];
+    var n = d.n, r = d.sun_width_deg / 2;
     var sun = new Float32Array(n), earth = new Uint8Array(n);
     for (var i = 0; i < n; i++) {
       var f = (d.sun_el[i] + r - horizonAt(d, d.sun_az[i])) / (2 * r);
       sun[i] = f < 0 ? 0 : f > 1 ? 1 : f;
       earth[i] = d.earth_el[i] > horizonAt(d, d.earth_az[i]) ? 1 : 0;
     }
-    return (prepCache[id] = { d: d, sun: sun, earth: earth });
+    return (prepCache[key] = { d: d, sun: sun, earth: earth });
   }
 
   // Run the battery through a mission. Charge is in "hours of life without Sun".
@@ -105,6 +109,13 @@
       b.onclick = function () { state.days = n; clampStart(); state.hour = 0; refresh(); };
       $("days").appendChild(b);
     });
+    MAST_CHOICES.forEach(function (m) {
+      var b = document.createElement("button");
+      b.type = "button"; b.setAttribute("role", "radio"); b.dataset.m = m; b.textContent = m + " m";
+      b.setAttribute("aria-label", m + " metres");
+      b.onclick = function () { state.mast = m; refresh(); };
+      $("mast").appendChild(b);
+    });
     $("date").onchange = function () {
       var t = Date.parse(this.value + "T00:00:00Z");
       if (isNaN(t)) return;
@@ -119,6 +130,7 @@
   function syncControls() {
     [].forEach.call($("sites").children, function (b) { b.setAttribute("aria-checked", b.dataset.id === state.site); });
     [].forEach.call($("days").children, function (b) { b.setAttribute("aria-checked", +b.dataset.n === state.days); });
+    [].forEach.call($("mast").children, function (b) { b.setAttribute("aria-checked", b.dataset.m === state.mast); });
     $("date").value = iso(state.start);
     $("date").max = iso(maxStart());
     $("batt").value = state.batt;
@@ -469,7 +481,7 @@
     run = sim(prep(state.site), state.start, hoursTotal(), state.batt, true);
     state.hour = Math.max(0, Math.min(hoursTotal(), state.hour));
     syncControls(); drawVerdict(); drawPano(); drawTime(); drawSlip(); drawCal(); drawMoris();
-    var q = "site=" + state.site + "&date=" + iso(state.start) + "&days=" + state.days + "&batt=" + state.batt;
+    var q = "site=" + state.site + "&date=" + iso(state.start) + "&days=" + state.days + "&batt=" + state.batt + "&panel=" + state.mast;
     try { history.replaceState(null, "", "#" + q); } catch (e) { /* opened from disk: fine */ }
   }
 
@@ -479,12 +491,25 @@
     if (p.site && DATA[p.site]) state.site = p.site;
     if (DAY_CHOICES.indexOf(+p.days) >= 0) state.days = +p.days;
     if (+p.batt >= 24 && +p.batt <= 240) state.batt = Math.round(+p.batt / 12) * 12;
+    if (MAST_CHOICES.indexOf(p.panel) >= 0) state.mast = p.panel;
     var t = Date.parse((p.date || "2027-07-28") + "T00:00:00Z");
     state.start = isNaN(t) ? 0 : Math.round((t - T0) / HOUR);
     clampStart();
   }
 
+  function drawValidation() {
+    var rows = window.LANDER_VALIDATION, t = $("val");
+    if (!rows || !t) return;
+    var h = "<thead><tr><th>Site</th><th>Sun, ours 0.5 m</th><th>Sun, ours 2 m</th><th>Sun, NASA</th><th>Earth, ours 2 m</th><th>Earth, NASA</th></tr></thead><tbody>";
+    rows.forEach(function (r) {
+      h += "<tr><td>" + r.name + "</td><td>" + r["sun_0.5"].toFixed(0) + "%</td><td>" + r.sun_2.toFixed(0) + "%</td><td>" + r.nasa_sun.toFixed(0) +
+           "%</td><td>" + r.earth_2.toFixed(0) + "%</td><td>" + r.nasa_earth.toFixed(0) + "%</td></tr>";
+    });
+    t.innerHTML = h + "</tbody>";
+  }
+
   function start() {
+    drawValidation();
     buildControls(); bindTime(); bindCal(); readHash(); refresh();
     var again = null;
     window.addEventListener("resize", function () {

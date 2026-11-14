@@ -43,6 +43,11 @@
         <span class="legend">Battery lasts <output id="battOut"></output> without Sun</span>
         <input type="range" id="batt" min="24" max="240" step="12">
       </label>
+
+      <fieldset class="field">
+        <legend>Solar panel height</legend>
+        <div class="seg" id="mast" role="radiogroup"></div>
+      </fieldset>
     </div>
   </section>
 
@@ -101,6 +106,14 @@
           <li><b>The sites.</b> Six candidate landing sites published by Wueller et al. (2026, JGR Planets), inside regions NASA has named as candidates for Artemis landings.</li>
           <li><b>Mauritius.</b> NASA/JPL Horizons again: the hours when the Moon is at least 10 degrees above the horizon at Port Louis.</li>
         </ul>
+        <h3>How close are we to NASA's own maps?</h3>
+        <p>NASA Goddard publishes maps of how often the Sun and the Earth are visible at the south pole (Mazarico et al. 2011, averaged over 18.6 years). We compared them with our numbers for 2027 and 2028 at the six sites.</p>
+        <ul>
+          <li><b>Earth in view:</b> with the panel at 2 m we agree within 3 points at every site (average difference under 2).</li>
+          <li><b>Sunlight:</b> we are higher than NASA at every site: by 6 points on average with the panel at 0.5 m, and 11 points at 2 m. The largest gap is at Nobile Rim 1 (about 20 points).</li>
+          <li><b>What that means:</b> our sunlight is on the generous side, so a "Survived" by a small margin deserves caution. A "Died" is the safer signal. Panel height changes the answer a lot on ridge tops, which is where an 80 m map is weakest. Use the panel height control to see it.</li>
+        </ul>
+        <table class="val" id="val"></table>
         <h3>The battery is a simple model</h3>
         <ul>
           <li>The lander uses one unit of energy per hour, all the time.</li>
@@ -111,7 +124,7 @@
         <h3>What this tool does not do</h3>
         <ul>
           <li>"Earth in view" means a clear line of sight. It is not a guaranteed radio link.</li>
-          <li>The height map has 80 m pixels, so rocks and small ridges are not seen. The panel is assumed to sit 2 m above the ground.</li>
+          <li>The height map has 80 m pixels, so rocks and small ridges are not seen. The panel can be set to 0.5, 2 or 10 m above the ground.</li>
           <li>The map ends at 80 degrees south. Hills further north are not included.</li>
           <li>It does not judge slopes, landing hazards or science value.</li>
           <li>It is a fast first look for planners, teachers and the public. It does not replace NASA's mission tools. This is a NASA Space Apps Challenge 2026 project and is not a NASA product.</li>
@@ -123,6 +136,7 @@
 
 </main>
 
+<script src="data/validation.js"></script>
 <script src="data/sites.js"></script>
 <script src="data/moris.js"></script>
 <script src="data/MMA_K2023.js"></script>

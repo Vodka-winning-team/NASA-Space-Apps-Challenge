@@ -21,7 +21,8 @@ import moonmap
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "docs", "data")
 START, STOP = "2027-01-01", "2029-01-01"     # two full years, hourly, UTC
-OBSERVER_M = 2.0                             # solar panel / antenna height above ground
+OBSERVER_M = 2.0                             # default solar panel / antenna height above ground
+HEIGHTS_M = [0.5, 2.0, 10.0]                 # panel heights the website lets you compare
 
 
 def r2(values):
@@ -36,12 +37,16 @@ def build(site):
     t2, e_az, e_el, e_w = horizons.sky_track(horizons.EARTH, horizons.MOON, lon, lat, alt_km, START, STOP)
     if t != t2:
         raise RuntimeError("Sun and Earth tables do not line up")
+    by_height = {}
+    for hm in HEIGHTS_M:
+        by_height["%g" % hm] = r2(moonmap.horizon(lat, lon, observer_m=hm)[1])
     out = dict(site)
     out.update({
         "ground_m": round(z0, 1),
         "observer_m": OBSERVER_M,
         "horizon_step_deg": 360.0 / len(az),
         "horizon": r2(hor),
+        "horizons": by_height,
         "horizon_reach_km_min": round(float(reach.min()), 1),
         "t0": t[0].strftime("%Y-%m-%dT%H:%MZ"),
         "step_h": 1,
