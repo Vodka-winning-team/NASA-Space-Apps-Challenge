@@ -653,7 +653,7 @@
     var where = rg.dist < 1 ? Math.round(rg.dist * 1000) + " m" : rg.dist.toFixed(1) + " km";
     var msg = spell
       ? "For <b>" + plural(pick.len, "hour") + "</b> from day " + (Math.floor(pick.from / 24) + 1) + " the Sun was low in the " + compass(pick.az) + ", behind "
-      : "Looking " + compass(pick.az) + " (" + Math.round(pick.az) + "°), the skyline is set by ";
+      : "Looking " + compass(rg.profAz) + " (" + Math.round(rg.profAz) + "°), the skyline is set by ";
     if (rg.dist < 0.5) msg += "the slope the lander stands on, only " + where + " away.";
     else msg += "a hill <b>" + where + "</b> away, its top <b>" + Math.abs(rg.rise) + " m " + (rg.rise >= 0 ? "above" : "below") + "</b> the lander.";
     if (spell && sunEl + d.sun_width_deg / 2 < 0) msg += " The Sun was " + Math.abs(sunEl).toFixed(1) + "° below level, so even flat ground would have hidden all of it.";
@@ -666,8 +666,13 @@
   function drawSection(rg, sunEl) {
     var o = fit($("ridgeCut")), ctx = o.ctx, W = o.w, H = o.h, L = gut(), Rr = W - gut(), pw = Rr - L;
     if (!rg || !rg.prof) { $("ridgeCap").textContent = ""; return; }
-    var z = rg.prof.z, endM = rg.prof.end_km * 1000, n = z.length, k, eye = parseFloat(state.mast);
-    var zs = z.filter(function (v) { return v !== null; }).concat([0, eye]);
+    var endM = rg.prof.end_km * 1000, k, eye = parseFloat(state.mast);
+    // even samples plus the exact blocking summits, sorted by distance
+    var pts = [];
+    rg.prof.z.forEach(function (v, j) { if (v !== null) pts.push([endM * j / (rg.prof.z.length - 1), v]); });
+    (rg.prof.peaks || []).forEach(function (pk) { pts.push([pk[0] * 1000, pk[1]]); });
+    pts.sort(function (a, b) { return a[0] - b[0]; });
+    var zs = pts.map(function (q) { return q[1]; }).concat([0, eye]);
     var skyEnd = eye + Math.tan(rg.el * Math.PI / 180) * endM;
     zs.push(skyEnd);
     if (sunEl !== null) zs.push(eye + Math.tan(sunEl * Math.PI / 180) * endM);
@@ -688,14 +693,13 @@
     }
 
     ctx.beginPath(); ctx.moveTo(X(0), H - botPad);
-    for (k = 0; k < n; k++) if (z[k] !== null) ctx.lineTo(X(endM * k / (n - 1)), Y(z[k]));
+    for (k = 0; k < pts.length; k++) ctx.lineTo(X(pts[k][0]), Y(pts[k][1]));
     ctx.lineTo(X(endM), H - botPad); ctx.closePath();
     var g = ctx.createLinearGradient(0, topPad, 0, H - botPad);
     g.addColorStop(0, "#2b2e35"); g.addColorStop(1, "#16181d");
     ctx.fillStyle = g; ctx.fill();
     ctx.beginPath();
-    var started = false;
-    for (k = 0; k < n; k++) if (z[k] !== null) { var px = X(endM * k / (n - 1)), py = Y(z[k]); if (started) ctx.lineTo(px, py); else { ctx.moveTo(px, py); started = true; } }
+    for (k = 0; k < pts.length; k++) { if (k) ctx.lineTo(X(pts[k][0]), Y(pts[k][1])); else ctx.moveTo(X(pts[k][0]), Y(pts[k][1])); }
     ctx.strokeStyle = "rgba(232,228,216,0.45)"; ctx.lineWidth = 1.25; ctx.stroke();
 
     // straight lines stay straight when heights are stretched, so the sight lines are exact

@@ -52,6 +52,7 @@ def site_ridges(lat, lon):
         th = dd / R
         r2 = R + zz
         far = 0.0
+        peaks = []
         for hm in HEIGHTS_M:
             r1 = R + z0 + hm
             el = np.degrees(np.arctan2(r2 * np.cos(th) - r1, r2 * np.sin(th)))
@@ -62,6 +63,8 @@ def site_ridges(lat, lon):
             o["dist_km"].append(round(float(dd[k]) / 1000.0, 2))
             o["rise_m"].append(int(round(float(zz[k] - z0 - drop))))
             far = max(far, float(dd[k]))
+            # keep each blocking summit exactly, so the side view never misses it
+            peaks.append([round(float(dd[k]) / 1000.0, 3), int(round(float(zz[k] - z0 - drop)))])
         if i % PROFILE_EVERY == 0:
             # side view: from the lander to 1.3x the farthest blocking hill (at least 3 km)
             end = max(3000.0, far * 1.3)
@@ -70,7 +73,8 @@ def site_ridges(lat, lon):
             pz = moonmap.height(plat, plon)
             pz = pz - z0 - R * (1 - np.cos(x / R))     # relative to lander ground, curve included
             profiles[str(i)] = {"end_km": round(end / 1000.0, 2),
-                                "z": [None if np.isnan(v) else int(round(float(v))) for v in pz]}
+                                "z": [None if np.isnan(v) else int(round(float(v))) for v in pz],
+                                "peaks": peaks}
     return {"step_deg": 360.0 / N_AZ, "ground_m": round(z0, 1), "by_height": per,
             "profile_every": PROFILE_EVERY, "profiles": profiles}
 
