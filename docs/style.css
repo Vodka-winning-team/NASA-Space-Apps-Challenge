@@ -184,6 +184,23 @@ details[open] > summary > span:first-child::before { transform: rotate(45deg); }
 .ridgeCut { display: block; width: calc(100% + 2 * var(--gut)); margin: 20px calc(-1 * var(--gut)) 0; height: clamp(220px, 26vw, 320px); background: #0a0b0e; }
 #ridgeCap { font-family: var(--mono); font-size: 12px; letter-spacing: 0.02em; }
 
+/* ---------- 3D ground ---------- */
+.t3d { padding: 0; }
+.t3dCtl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; flex: none; }
+.t3dViews { min-width: 260px; }
+.t3dViews button[aria-pressed="true"], .t3dExag[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 600; }
+.t3dExag {
+  background: transparent; border: 1px solid var(--line-2); color: var(--text-2); border-radius: 999px;
+  min-height: 44px; padding: 8px 16px; font: 500 15px/1.2 var(--sans); cursor: pointer; white-space: nowrap;
+}
+.t3dCanvas { position: relative; margin-top: 24px; height: clamp(320px, 52vw, 640px); background: #05060a; touch-action: pan-y; cursor: grab; }
+.t3dCanvas:active { cursor: grabbing; }
+.t3dCanvas canvas { display: block; width: 100%; height: 100%; }
+.t3dNote { position: absolute; left: var(--gut); top: 16px; font: 500 13px/1.4 var(--mono); color: var(--text-3); pointer-events: none; }
+.t3dNow { padding: 14px var(--gut) 0; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.t3dNow b { color: var(--text); font-weight: 600; }
+.t3d > .hint { padding: 0 var(--gut); }
+
 /* ---------- watch ---------- */
 .watch { padding: 0; }
 .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px 32px; padding: 0 var(--gut); }

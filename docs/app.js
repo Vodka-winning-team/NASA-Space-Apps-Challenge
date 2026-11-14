@@ -280,6 +280,7 @@
     // status
     var hr = Math.round(state.hour), day = Math.floor(hr / 24) + 1;
     $("now").textContent = (hr >= hours ? "End of mission" : "Day " + day + " of " + state.days) + " · " + fmtDate(state.start + hr) + ", " + pad((state.start + hr) % 24) + ":00 UTC";
+    hourListeners.forEach(function (f) { try { f(i); } catch (e) { console.error(e); } });
     var sunPct = Math.round(P.sun[i] * 100), charge = Math.round(run.series[Math.min(hr, hours)] / state.batt * 100);
     var lost = !run.alive && hr >= run.died, mUp = MORIS.up.charAt(i) === "1";
     $("chips").innerHTML =
@@ -783,7 +784,7 @@
   }
 
   // Shared hook so add-on sections (e.g. planner.js) can read the mission without editing this file.
-  var listeners = [];
+  var listeners = [], hourListeners = [];
   function api() {
     return { state: state, run: run, P: prep(state.site), hours: hoursTotal(), RATE: RATE, C: C,
              sim: sim, fmtDate: fmtDate, shortDate: shortDate, plural: plural };
@@ -791,6 +792,8 @@
   window.LANDER_APP = {
     onRefresh: function (f) { listeners.push(f); if (run) f(api()); },
     get: api,
+    onHour: function (f) { hourListeners.push(f); },   // f(dataIndex) whenever the shown hour changes
+    setHour: function (h) { state.hour = Math.max(0, Math.min(hoursTotal(), h)); stopPlay(); drawPano(); drawTime(); },
     setStart: function (idx) { state.start = idx; clampStart(); state.hour = 0; refresh(); }
   };
 

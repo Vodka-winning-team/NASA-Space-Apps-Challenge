@@ -105,6 +105,26 @@
     <p class="hint">Drag across the battery chart to move through the mission.</p>
   </section>
 
+  <section class="t3d" id="terrain3d" aria-label="The ground in 3D">
+    <div class="head">
+      <div>
+        <p class="tag">3D · NASA LOLA · 25.6 km across</p>
+        <h2>Stand on the ground.</h2>
+        <p class="lede">The real ground around the lander, lit by the Sun at the hour shown above. Drag to turn, scroll to zoom. Play the mission or drag the battery chart and the shadows move with it.</p>
+      </div>
+      <div class="t3dCtl">
+        <div class="seg t3dViews" id="t3dViews" role="group" aria-label="Camera">
+          <button type="button" data-v="overview" aria-pressed="true">From above</button>
+          <button type="button" data-v="lander" aria-pressed="false">Lander's eye</button>
+        </div>
+        <button type="button" class="t3dExag" id="t3dExag" aria-pressed="false">Stretch heights ×3</button>
+      </div>
+    </div>
+    <div class="t3dCanvas" id="t3dCanvas"><p class="t3dNote" id="t3dNote"></p></div>
+    <p class="t3dNow" id="t3dNow" aria-live="polite"></p>
+    <p class="hint">The beacon marks the lander (green: charging, yellow: on battery, red: lost); a real lander would be too small to see. In the lander’s-eye view, hills further away are drawn as a ring using the same skyline as the sky view. Shadows on the ground shown are computed live; when the far hills hide the Sun, the whole scene goes dark. Heights are true scale unless stretched.</p>
+  </section>
+
   <section class="planner" id="planner" aria-label="Plan the science">
     <h2>Can it do science too?</h2>
     <p class="lede">Give the lander a job, then see what it costs in power. Pick a task and tap the timeline to place it. There is one slot for each task.</p>
@@ -193,7 +213,7 @@
           <li>It does not judge slopes, landing hazards or science value.</li>
           <li>It is a fast first look for planners, teachers and the public. It does not replace NASA's mission tools. This is a NASA Space Apps Challenge 2026 project and is not a NASA product.</li>
         </ul>
-        <p class="fine">Built with AI assistance (Claude) for code and text. Fonts: Archivo and JetBrains Mono, SIL Open Font License.</p>
+        <p class="fine">Built with AI assistance (Claude) for code and text. Fonts: Archivo and JetBrains Mono, SIL Open Font License. 3D: three.js r147, MIT License.</p>
       </div>
     </details>
   </section>
@@ -212,5 +232,8 @@
 <script src="data/ridges.js"></script>
 <script src="app.js"></script>
 <script src="planner.js"></script>
+<script src="vendor/three.min.js"></script>
+<script src="vendor/OrbitControls.js"></script>
+<script src="terrain3d.js"></script>
 </body>
 </html>
