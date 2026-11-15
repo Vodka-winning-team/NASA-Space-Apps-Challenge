@@ -237,7 +237,7 @@
       controls.target.copy(camera.position).add(dir(az, el)); controls.update(); render();
     });
 
-    renderer.domElement.addEventListener("webglcontextlost", function (e) { e.preventDefault(); if (looking) lookEnd("gl", false); note("3D paused: the graphics card was reset. It comes back by itself."); });
+    renderer.domElement.addEventListener("webglcontextlost", function (e) { e.preventDefault(); if (looking) { lookEnd("gl", false); if ($("flatView")) $("flatView").open = true; } note("3D paused: the graphics card was reset. It comes back by itself."); });
     renderer.domElement.addEventListener("webglcontextrestored", function () { note(""); renderer.shadowMap.needsUpdate = true; render(); });
     new ResizeObserver(resize).observe(host);
     resize();
