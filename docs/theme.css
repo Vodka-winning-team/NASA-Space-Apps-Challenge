@@ -1,1 +1,81 @@
-/* light and dark theme */
+/* The original styles remain the dark theme. Text accents below meet 4.5:1
+   against both light surfaces; bright signal fills keep their original ink. */
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f7f6f2;
+  --bg-2: #eeede7;
+  --line: rgba(25, 31, 40, 0.16);
+  --line-2: rgba(25, 31, 40, 0.32);
+  --text: #191f28;
+  --text-2: #444b55;
+  --text-3: #5b6069;
+  --sun: #805300;
+  --earth: #245d98;
+  --live: #176b3b;
+  --close: #655c00;
+  --dead: #ae3424;
+}
+
+/* Only the page surface cross-fades; chart pixels and space stay unchanged. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-theme] body { transition: background-color 200ms, color 200ms; }
+}
+
+html[data-theme="light"] input { color-scheme: light; }
+html[data-theme="light"] input::placeholder { color: var(--text-3); opacity: 1; }
+html[data-theme="light"] #batt::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, var(--sun) 0 var(--fill), #b7b9ba var(--fill) 100%);
+}
+html[data-theme="light"] #batt::-moz-range-track { background: #b7b9ba; }
+
+/* Bright status fills are deliberately distinct from text accents. */
+html[data-theme="light"] :is(.sureCell, .slipRow button) {
+  --live: #58d08a;
+  --close: #c9c14a;
+  --dead: #ec6049;
+}
+html[data-theme="light"] :is(.play, .customGo, .vsPick button[aria-checked="true"]) {
+  background: #f2b544;
+  border-color: #805300;
+}
+html[data-theme="light"] .rescueCard button { background: #58d08a; }
+/* planner.js writes its dark-theme line colour inline on every redraw. */
+html[data-theme="light"] .planner-plan { color: var(--live) !important; }
+html[data-theme="light"] .planner-plan[style*="236, 96, 73"] { color: var(--dead) !important; }
+html[data-theme="light"] .vsName i { box-shadow: 0 0 0 1px var(--text-3); }
+html[data-theme="light"] .vsCard dl div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+html[data-theme="light"] .vsCard dd { white-space: normal; overflow-wrap: anywhere; text-align: right; }
+
+/* No padding: the drawing and pointer coordinates use the canvas border box. */
+html[data-theme="light"] :is(#pano, #time, #cal, #ridgeCut, #plannerChart, #vsChart) {
+  background: #0e1014;
+  border-radius: 8px;
+}
+
+/* Keep the map and 3D overlays in their native dark palette. Scoped variables
+   cover labels, HUD, focus rings, selected controls and phone look-around. */
+html[data-theme="light"] :is(.moonDisc, .t3dCanvas) {
+  --bg: #0e1014;
+  --bg-2: #171a20;
+  --line: rgba(232, 228, 216, 0.10);
+  --line-2: rgba(232, 228, 216, 0.35);
+  --text: #ece8dc;
+  --text-2: #b9b5a9;
+  --text-3: #b9b5a9;
+  --sun: #f2b544;
+  --earth: #6ea8e6;
+  --live: #58d08a;
+  --close: #c9c14a;
+  --dead: #ec6049;
+}
+html[data-theme="light"] .t3dNote {
+  background: rgba(14, 16, 20, 0.88);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+html[data-theme="light"] .t3dNote:empty { display: none; }
+html[data-theme="light"] .lookSay.bad { color: var(--dead); }
+html[data-theme="light"] .mlCard { box-shadow: inset 0 0 0 1px var(--line-2), 0 24px 60px rgba(25, 31, 40, 0.22); }
