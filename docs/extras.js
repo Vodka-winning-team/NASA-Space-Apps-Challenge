@@ -64,7 +64,12 @@
   function dayOf(r) { return Math.floor((r.died - 1) / 24) + 1; }
   function verdict(r) { return r.alive ? "Survived" : "Lost on day " + dayOf(r); }
 
-  function windowText(w) { return w ? w.hours + " hours, " + w.startUTC + " to " + w.endUTC : "None within this interval"; }
+  function windowText(w) {
+    if (!w) return "None within this interval";
+    var M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    var f = function (iso) { var t = new Date(iso); return t.getUTCDate() + " " + M[t.getUTCMonth()] + " " + ("0" + t.getUTCHours()).slice(-2) + ":00"; };
+    return w.hours + (w.hours === 1 ? " hour" : " hours") + ", " + f(w.startUTC) + " to " + f(w.endUTC) + " UTC";
+  }
 
   function card(name, r, colour, isMain) {
     return '<div class="vsCard ' + (r.alive ? "live" : "dead") + '">' +

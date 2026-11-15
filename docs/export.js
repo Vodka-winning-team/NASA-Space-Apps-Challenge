@@ -84,7 +84,12 @@
       figure("Full-sun-equivalent hours", r.fullSunHours.toFixed(1) + " hours");
       figure("Partly sunlit hours", r.sunHours + " hours");
       figure("Earth centre above hills", percent(r.earth, 1) + "%");
-      function windowText(w) { return w ? w.hours + " hours; " + w.startUTC + " to " + w.endUTC : "None within this interval"; }
+      function windowText(w) {
+    if (!w) return "None within this interval";
+    var M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    var f = function (iso) { var t = new Date(iso); return t.getUTCDate() + " " + M[t.getUTCMonth()] + " " + ("0" + t.getUTCHours()).slice(-2) + ":00"; };
+    return w.hours + (w.hours === 1 ? " hour" : " hours") + "; " + f(w.startUTC) + " to " + f(w.endUTC) + " UTC";
+  }
       figure("Longest Earth-centre outage (full mission)", windowText(r.earthWindows.longestHidden));
       figure("Next Earth-centre visible interval (full mission)", windowText(r.earthWindows.nextVisible));
       figure("Longest Earth-centre outage (before depletion / mission end)", windowText(r.poweredEarthWindows.longestHidden));
