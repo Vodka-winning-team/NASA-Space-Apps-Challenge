@@ -53,11 +53,50 @@
     }
     var b = e.target.closest ? e.target.closest("[data-mode]") : null;
     if (!b) return;
-    apply(b.getAttribute("data-mode"), true);
-    var to = b.getAttribute("data-scroll");
-    if (to && document.querySelector(to)) {
-      var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      document.querySelector(to).scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
-    }
+    var want = b.getAttribute("data-mode");
+    if (document.body.classList.contains("mode-" + want)) return;     // already there
+    switchTo(want, b.getAttribute("data-scroll"));
   });
+
+  // A short "opening the planner" moment, then the new sections rise in one after another.
+  // Going back to Simple is quicker: exits should be faster than entrances.
+  var busy = false;
+  function loader() {
+    var el = document.getElementById("modeLoader");
+    if (el) return el;
+    el = document.createElement("div");
+    el.id = "modeLoader"; el.className = "modeLoader"; el.setAttribute("aria-hidden", "true");
+    el.innerHTML = '<div class="mlCard"><div class="mlOrbit"><span class="mlMoon"></span><span class="mlRing"></span><span class="mlCraft"></span></div>' +
+      '<p class="mlText"></p><span class="mlBar"><i></i></span></div>';
+    document.body.appendChild(el);
+    return el;
+  }
+  function switchTo(mode, scrollTo) {
+    if (busy) return;
+    var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var toPlanner = mode === "planner", wait = calm ? 0 : toPlanner ? 520 : 200;
+    var el = loader();
+    el.querySelector(".mlText").textContent = toPlanner ? "Opening the mission planner…" : "Back to the simple view…";
+    el.classList.toggle("toSimple", !toPlanner);
+    busy = true;
+    document.body.classList.add("modeSwitching");
+    el.classList.remove("out"); el.classList.add("on");
+    setTimeout(function () {
+      apply(mode, true);
+      if (toPlanner) {
+        // stagger the newly shown sections (capped, so the last one is in within half a second)
+        [].forEach.call(document.querySelectorAll("main > .pro"), function (sec, i) {
+          sec.style.setProperty("--rise-delay", Math.min(i * 70, 420) + "ms");
+          sec.classList.remove("rise"); void sec.offsetWidth; sec.classList.add("rise");
+          setTimeout(function () { sec.classList.remove("rise"); }, 1200);
+        });
+      }
+      el.classList.add("out");
+      setTimeout(function () { el.classList.remove("on", "out"); document.body.classList.remove("modeSwitching"); busy = false; }, calm ? 0 : 260);
+      if (scrollTo && document.querySelector(scrollTo)) {
+        document.querySelector(scrollTo).scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+      }
+    }, wait);
+  }
+
 })();

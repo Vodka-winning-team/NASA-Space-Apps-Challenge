@@ -192,7 +192,12 @@
     return (d ? d + (d === 1 ? " day" : " days") : "") + (d && h ? " " : "") + (h ? h + " h" : "");
   }
   function showBatt() {
-    $("battOut").textContent = battText(state.batt);
+    var out = $("battOut"), txt = battText(state.batt), r = $("batt");
+    r.style.setProperty("--fill", ((state.batt - r.min) / (r.max - r.min) * 100) + "%");
+    if (out.textContent !== txt) {             // a small pop when the number changes
+      out.textContent = txt;
+      out.classList.remove("pop"); void out.offsetWidth; out.classList.add("pop");
+    }
     $("setSum").textContent = state.days + "-day mission · battery lasts " + battText(state.batt) +
       " without Sun · panel " + state.mast + " m high";
   }

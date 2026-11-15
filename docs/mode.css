@@ -30,3 +30,54 @@ body.mode-planner .simple-only { display: none !important; }
   .moreView ul { grid-template-columns: minmax(0, 1fr); }
   .moreView button { width: 100%; }
 }
+
+/* ---------- switching views: a small lander orbits the Moon while the planner opens ---------- */
+.modeLoader {
+  position: fixed; inset: 0; z-index: 50; display: none; place-items: center;
+  background: rgba(8, 9, 12, 0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity 180ms var(--ease);
+}
+.modeLoader.on { display: grid; animation: mlIn 200ms var(--ease) forwards; }
+.modeLoader.out { opacity: 0 !important; animation: none; transition: opacity 220ms var(--ease); }
+@keyframes mlIn { from { opacity: 0; } to { opacity: 1; } }
+.mlCard {
+  display: grid; justify-items: center; gap: 14px; padding: 26px 34px 22px; border-radius: 20px;
+  background: var(--bg-2); box-shadow: inset 0 0 0 1px var(--line-2), 0 24px 60px rgba(0, 0, 0, 0.5);
+  transform: translateY(6px) scale(0.98); animation: mlCard 420ms var(--ease) forwards;
+}
+@keyframes mlCard { to { transform: none; } }
+.mlOrbit { position: relative; width: 64px; height: 64px; }
+.mlMoon {
+  position: absolute; inset: 18px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #d9d4c8, #8e8a80 55%, #4a4844);
+  box-shadow: inset -4px -5px 8px rgba(0, 0, 0, 0.45);
+}
+.mlRing { position: absolute; inset: 2px; border-radius: 50%; border: 1px dashed var(--line-2); }
+.mlCraft {
+  position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px; border-radius: 2px;
+  background: var(--sun); box-shadow: 0 0 10px 2px rgba(242, 181, 68, 0.7);
+  animation: mlOrbit 900ms linear infinite;
+}
+@keyframes mlOrbit { from { transform: rotate(0deg) translateX(29px) rotate(0deg); } to { transform: rotate(360deg) translateX(29px) rotate(-360deg); } }
+.mlText { font: 600 15px/1.2 var(--sans); color: var(--text); white-space: nowrap; }
+.mlBar { display: block; width: 168px; height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.mlBar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--sun), #ffe3a3); transform-origin: left; transform: scaleX(0); animation: mlBar 520ms var(--ease) forwards; }
+.modeLoader.toSimple .mlBar i { animation-duration: 200ms; }
+@keyframes mlBar { to { transform: scaleX(1); } }
+
+/* newly shown planner sections rise into place one after another */
+main > .pro.rise { animation: proRise 520ms var(--ease) both; animation-delay: var(--rise-delay, 0ms); }
+@keyframes proRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+/* the line under the switch: a soft glow on the words, not a block */
+.modeSay { width: fit-content; max-width: 100%; }
+.modeSay.flash { animation: modeGlow 1.4s var(--ease); background: none; }
+@keyframes modeGlow { 0% { color: var(--sun); text-shadow: 0 0 14px rgba(242, 181, 68, 0.55); } 100% { color: var(--text-2); text-shadow: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .modeLoader, .modeLoader.on, .mlCard, .mlBar i { animation: none; transition: none; }
+  .mlBar i { transform: none; }
+  .mlCraft { animation: none; transform: translateX(29px); }
+  main > .pro.rise { animation: none; }
+  .modeSay.flash { animation: none; color: var(--text); }
+}

@@ -112,6 +112,32 @@ input[type="date"] {
 }
 input[type="range"] { width: 100%; accent-color: var(--sun); margin: 4px 0 0; min-height: 44px; }
 
+/* the battery slider: a track that fills up to the value, a glowing thumb, and focus shown on the thumb only */
+#batt { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; --fill: 50%; }
+#batt:focus-visible { outline: none; }
+#batt::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 6px;
+  background: linear-gradient(90deg, var(--sun) 0 var(--fill), rgba(232, 228, 216, 0.14) var(--fill) 100%);
+}
+#batt::-moz-range-track { height: 6px; border-radius: 6px; background: rgba(232, 228, 216, 0.14); }
+#batt::-moz-range-progress { height: 6px; border-radius: 6px; background: var(--sun); }
+#batt::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 22px; height: 22px; margin-top: -8px; border-radius: 50%;
+  background: #fff3d0; border: 3px solid var(--sun); box-shadow: 0 0 0 0 rgba(242, 181, 68, 0.35), 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: box-shadow 200ms var(--ease), transform 150ms var(--ease);
+}
+#batt::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%; background: #fff3d0; border: 3px solid var(--sun);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); transition: box-shadow 200ms var(--ease);
+}
+#batt:hover::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgba(242, 181, 68, 0.18), 0 2px 8px rgba(0, 0, 0, 0.5); }
+#batt:active::-webkit-slider-thumb { transform: scale(1.12); box-shadow: 0 0 0 10px rgba(242, 181, 68, 0.22), 0 2px 8px rgba(0, 0, 0, 0.5); }
+#batt:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px var(--sun); }
+#batt:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px var(--sun); }
+.battOut.pop { animation: battPop 260ms var(--ease); }
+@keyframes battPop { 0% { transform: translateY(3px); opacity: 0.4; } 100% { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .battOut.pop { animation: none; } }
+
 details > summary { list-style: none; cursor: pointer; }
 details > summary::-webkit-details-marker { display: none; }
 details > summary > span:first-child::before {
@@ -142,8 +168,6 @@ details[open] > summary > span:first-child::before { transform: rotate(45deg); }
 .slipNow b { color: var(--text); }
 .modeSay { flex-basis: 100%; font-size: 14px; color: var(--text-2); margin-top: 8px; min-height: 1.4em; }
 .modeSay a { color: var(--sun); font-weight: 600; margin-left: 4px; }
-.modeSay.flash { animation: modeFlash 1.2s var(--ease); }
-@keyframes modeFlash { from { color: var(--text); background: rgba(242, 181, 68, 0.16); } to { background: transparent; } }
 
 /* ---------- shared: small technical tag above a heading ---------- */
 .tag {
