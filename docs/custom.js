@@ -142,7 +142,10 @@
     disc.classList.toggle("picking", on);
     if (on && !noFocus) $("customLat").focus();
   }
-  open.onclick = function () { show(form.hidden); };
+  // On a touch screen, focusing the box would pop the keyboard up over the map people are told to tap,
+  // so only put the cursor in the box for a mouse, or when the button was pressed with the keyboard.
+  var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+  open.onclick = function (e) { show(form.hidden, coarse && !(e && e.detail === 0)); };
   function num(v) { v = String(v).trim().replace(",", ".").replace("−", "-"); return v === "" ? NaN : Number(v); }
   form.onsubmit = function (e) {
     e.preventDefault();
