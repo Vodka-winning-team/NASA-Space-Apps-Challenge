@@ -269,7 +269,7 @@
     lander.add(panelPivot);
     statusMat = new T.MeshBasicMaterial({ color: 0x58d08a });
     var lamp = new T.Mesh(new T.SphereGeometry(0.16, 12, 8), statusMat); lamp.position.set(-0.8, 2.05, -0.8); lander.add(lamp);
-    lander.scale.y = exag;
+    lander.scale.setScalar(exag);   // taller hills: the whole lander grows with them, so the panel stays at the drawn height
     lander.visible = view !== "eye";
     scene.add(lander);
   }
@@ -396,6 +396,7 @@
     if (lander) lander.visible = v !== "eye";
     var eye = parseFloat(api.state.mast) * exag;     // same height the skyline was computed for
     if (v === "eye") {
+      if (ground) ground.material.normalScale.setScalar(0.75);      // at ground level the soil grain shows
       var d = DATA()[api.state.site], look = dir(d.sun_az[idx], 0);
       camera.near = 0.5; camera.fov = 55;
       camera.position.set(0, eye, 0);
@@ -561,7 +562,7 @@
     var sp = shadowStrip.geometry.attributes.position, az = d.sun_az[idx] * D2R, ax = -Math.sin(az), azz = Math.cos(az);
     var len = Math.min(34, 3.3 / Math.tan(Math.max(d.sun_el[idx], 0.7) * D2R)), SEG = sp.count / 2 - 1;
     for (var k = 0; k <= SEG; k++) {
-      var s = 0.6 + len * k / SEG, wdt = 1.05 * (1 - 0.6 * k / SEG);
+      var s = 0.6 + len * k / SEG, wdt = 0.8 * (1 - 0.6 * k / SEG);
       for (var q = 0; q < 2; q++) {
         var x = ax * s + (q ? 1 : -1) * azz * wdt, z = azz * s - (q ? 1 : -1) * ax * wdt, g = groundAt(t, x, z) || 0;
         sp.setXYZ(k * 2 + q, x, g * exag + 0.07, z);
@@ -678,7 +679,7 @@
     this.setAttribute("aria-pressed", exag === 3);
     // keep the camera as it was: where you look from, which way, how far out, the lens
     var off = camera.position.clone().sub(controls.target), tg = controls.target.clone(), fov = camera.fov;
-    buildGround(siteShown); buildFar(siteShown); buildRing(siteShown, api.state.mast); lander.scale.y = exag; setView(view, true);
+    buildGround(siteShown); buildFar(siteShown); buildRing(siteShown, api.state.mast); lander.scale.setScalar(exag);   // taller hills: the whole lander grows with them, so the panel stays at the drawn height setView(view, true);
     if (view === "eye") { controls.target.copy(camera.position).sub(off.normalize()); camera.fov = fov; camera.updateProjectionMatrix(); }
     else {
       var gt = groundAt(heights(siteShown), tg.x, tg.z);      // the ground under the spot you looked at, at the new height

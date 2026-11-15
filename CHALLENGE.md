@@ -33,11 +33,11 @@ Do not claim Quickmap or Moon Trek in the submission unless someone on the team 
 | Input custom lunar coordinates | Yes: "Somewhere else": type coordinates or tap the map, anywhere south of 85° S. The horizon is worked out in the browser from NASA LOLA (80 m near the lander, 640 m beyond 10 km). Tested against the six prepared sites: same verdict on 97 to 100% of landing days (`node engine/check_custom.mjs`) |
 | Side-by-side or sequential comparison of sites | Yes: "How does another place compare?" shows two places on the same date, plus the two-year stripes for all six |
 | Select landing dates, explore lunar days and seasons | Yes |
-| Show Sun and Earth relative to the horizon | Yes: the view from the lander |
+| Show Sun and Earth relative to the horizon | Yes: the 3D mission replay (ground-level view with the Sun and Earth over the real horizon) and the flat 360° view |
 | **Time remaining before sunset or Earthset** (mentioned twice) | Yes: shown under the view, and it updates as the mission plays |
 | **Solar elevation angle, shown prominently** | Yes: "Sun's height" under the view, with how far it clears the hills |
 | Duration of sunlight, Earth visibility windows | Yes: percentages and the strips under the battery chart |
-| 2D maps, 3D surface views | Yes: 2D view, a 2D map, and a 3D view of the ground (NASA LOLA) lit by the Sun at the chosen hour |
+| 2D maps, 3D surface views | Yes: a 2D map to pick the place, a flat 360° view, and a 3D view of the real ground (NASA LOLA) from ground level out to the whole region, lit by the Sun at the chosen hour |
 | Animations or timelines over lunar days | Yes: Play the mission |
 | Serve planners and the public alike | Yes: Simple mode for the public; Mission planner mode adds the details, and "The numbers, hour by hour" gives key figures, a day-by-day table and a CSV of every hour |
 | Help when launch delays force a new date | Yes: this is our strongest section |

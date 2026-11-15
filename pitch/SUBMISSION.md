@@ -28,17 +28,17 @@ Will the lander survive? is a simple website for planning a landing near the Moo
 
 You pick a place near the Moon's south pole and a landing date. The website answers one question: will the lander survive?
 
-- **The view from the lander.** The real hill line around the site, with the Sun and Earth moving along it hour by hour.
+- **Watch the mission in 3D.** The real ground around the lander, from NASA's LOLA height map, with the lander on it, lit by the Sun at each hour. The Earth hangs over the horizon where NASA/JPL Horizons puts it, and shows its real phase. A line from the lander to the Sun turns red when a ridge blocks it, and the ridge is marked. You can look around, and zoom from ground level out over the whole region.
 - **The verdict.** A battery fills in sunlight and drains in the dark. The answer is in big letters: "Survived." or "Lost on day 9."
 - **How sure is this answer?** The same mission run 16 times with bad luck added: less sunlight, weaker panels, more power use, a battery not full at landing.
-- **Play the mission.** Watch the Sun go behind the hills and the battery run down.
+- **Play the mission.** Watch the Sun skim the horizon, go behind the hills, and the battery run down.
 - **How do we save it?** When the lander is lost, the website tries five single changes: land later, carry a bigger battery, raise the solar panel, land at another place, or plan a shorter mission. It shows which ones work. Each can be applied with one click and undone.
 - **Sunset and Earthset countdown,** and the height of the Sun and Earth above the ground and above the hills.
 - **What if we land a few days later?** The same mission for each of the next 14 days, in green and red. This is for launch delays, which the challenge stresses.
 - **Which place is safest?** Two years of landing dates (2027 and 2028) for all six places, as coloured stripes.
 - **Compare two places** on the same date with the same lander.
 - **Which hill hid the Sun?** A side view of the hill that blocked the Sun, and how far away it is.
-- **Stand on the ground.** A 3D view of the real ground around the lander, lit by the Sun at the hour shown.
+- **The flat 360° view.** The exact hill line around the site, with the Sun and Earth moving along it hour by hour.
 - **Can it do science too?** A task planner: place jobs like drilling or sending results home, and see what the battery can afford.
 - **Can Mauritius see it?** The hours when the lander can see Earth while the Moon is in the sky over Port Louis.
 - **Somewhere else: land anywhere south of 85° S.** Type coordinates or tap the map. The browser works out the hills from the NASA LOLA height map (80 m detail near the lander, 640 m for far hills) and turns the NASA/JPL Horizons Sun and Earth positions of the nearest prepared site to the new place. Tested by rebuilding the six prepared sites this way: the same survived/lost answer on 97 to 100% of landing days.
@@ -90,6 +90,7 @@ A fast first look for mission planners, teachers and the public, before they ope
 - **NASA/JPL Horizons System** (from the challenge's Resources tab): https://ssd.jpl.nasa.gov/horizons/ . Sun and Earth positions in the sky of each site, every hour of 2027 and 2028, airless, libration included. Also the Moon's position from Port Louis, Mauritius.
 - **NASA LRO LOLA gridded elevation LDEM_80S_80M** (LOLA topography is named in the challenge text), NASA PDS Geosciences Node: https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ . The horizon around each site, the side view of the blocking hill, the 3D ground and the map picture.
 - **NASA GSFC Planetary Geodesy Data Archive, LOLA-derived polar illumination maps** (files AVGVISIB_85S_060M_201608 and AVGVISIB_85S_060M_201608_EARTH): https://pgda.gsfc.nasa.gov/products/69 . Used to check our sunlight and Earth numbers.
+- **NASA SVS, The Blue Marble**: https://svs.gsfc.nasa.gov/2915 . The picture of the Earth in the 3D view.
 
 We did not use Quickmap or Moon Trek.
 
