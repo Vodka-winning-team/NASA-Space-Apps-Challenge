@@ -187,19 +187,23 @@
     lo = ((lo + 180) % 360 + 360) % 360 - 180;
     la = Math.round(la * 1e4) / 1e4; lo = Math.round(lo * 1e4) / 1e4;
     if (current && Math.abs(current.lat - la) < 1e-5 && Math.abs(current.lon - lo) < 1e-5) {
-      var id = current.id;
+      var id = current.id; linkSeq++;               // this link also replaces any link still waiting
       setTimeout(function () { APP.setSite(id); }, 0);      // after app.js has read the link's date and settings
-      return;
-    }
-    if (busy) {                                   // another place is still being worked out: do this one next
-      var want = location.hash;
-      setTimeout(function () { if (location.hash === want) fromLink(); }, 400);
       return;
     }
     window.LANDER_HASH0 = location.hash;          // so a failed load puts this link back
     $("customLat").value = Math.abs(la); $("customLon").value = lo;
-    land(la, lo, true);
+    // Start after app.js has read the link (its date and settings), so that reading is not taken for a later choice.
+    // If another place is still being worked out, wait for it; a newer link replaces this one.
+    var mine = ++linkSeq;
+    var go = function () {
+      if (mine !== linkSeq) return;
+      if (busy) { setTimeout(go, 300); return; }
+      land(la, lo, true);
+    };
+    setTimeout(go, 0);
   }
+  var linkSeq = 0;
   window.addEventListener("hashchange", fromLink, true);   // capture: always before app.js's own handler
 
   // a shared link to a custom place: site=P<lat>_<lon>

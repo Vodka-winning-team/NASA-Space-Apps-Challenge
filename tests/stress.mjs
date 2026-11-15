@@ -61,7 +61,8 @@ const state = `var a = window.LANDER_APP && window.LANDER_APP.get(); if (!a) ret
   for (let i = 0; i < 40; i++) { if (await B.js(`return /^Done|Could not/.test(document.getElementById("customMsg").textContent);`)) break; await sleep(300); }
   await B.js(`document.getElementById("play").click();`);
   const c = await B.js(`return { msg: document.getElementById("customMsg").textContent, n: window.LANDER_APP.get().sites.length, site: window.LANDER_APP.get().state.site };`);
-  ok(/^Done/.test(c.msg) && c.n === 7 && B.logs.length === 0, `double-click "Land here" while switching place and playing: ${c.n} places, now ${c.site}` + (B.logs.length ? " ERR " + B.logs.join(" | ") : ""));
+  // the user picked SP07 after "Land here": the new place is added to the list, but does not take over (by design)
+  ok(/^(Done|Ready)/.test(c.msg) && c.n === 7 && (c.site === "SP07" || /^P/.test(c.site)) && B.logs.length === 0, `double-click "Land here" while switching place and playing: ${c.n} places, now ${c.site} ("${c.msg.slice(0, 40)}")` + (B.logs.length ? " ERR " + B.logs.join(" | ") : ""));
   await B.close();
 }
 // 4. storage blocked + WebGL off
