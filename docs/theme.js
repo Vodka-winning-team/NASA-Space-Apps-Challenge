@@ -20,9 +20,11 @@
     root.dataset.theme = theme;
     var next = theme === "dark" ? "light" : "dark";
     if (button) {
-      // a small sun or moon, plus the word (the word is hidden on narrow screens; the label stays for screen readers)
-      button.innerHTML = '<i class="themeIcon" aria-hidden="true"></i><span>' + (next === "light" ? "Light" : "Dark") + "</span>";
-      button.className = "themeBtn to-" + next;
+      // a sliding switch: sun on the left for light, moon on the right for dark (the word stays for screen readers)
+      button.innerHTML = '<span class="tsTrack" aria-hidden="true"><i class="tsStar s1"></i><i class="tsStar s2"></i><i class="tsStar s3"></i><i class="tsKnob"></i></span>' +
+        '<span class="tsText">' + (next === "light" ? "Light" : "Dark") + "</span>";
+      button.className = "themeBtn is-" + theme;
+      button.setAttribute("role", "switch"); button.setAttribute("aria-checked", theme === "dark");
       button.setAttribute("aria-label", "Switch to " + next + " mode");
     }
     var meta = document.querySelector('meta[name="theme-color"]');
