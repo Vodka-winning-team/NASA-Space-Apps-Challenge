@@ -80,3 +80,9 @@ main > .pro.rise { animation: proRise 520ms var(--ease) both; animation-delay: v
   main > .pro.rise { animation: none; }
   .modeSay.flash { animation: none; color: var(--text); }
 }
+
+/* display and language switches (theme.js, i18n.js add their buttons here) */
+.prefs { display: flex; gap: 6px; align-items: center; }
+.prefs button { min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; color: var(--text-2); font: 600 14px/1 var(--sans); cursor: pointer; white-space: nowrap; }
+.prefs button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+@media (max-width: 560px) { .prefs button { min-height: 40px; } }
