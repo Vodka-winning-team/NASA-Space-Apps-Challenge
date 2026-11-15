@@ -2,3 +2,8 @@ data_raw/
 __pycache__/
 *.pyc
 .DS_Store
+
+# shared by the organisers, not ours to publish
+Global Offers From NASA Space Apps Challenge.pdf
+# notes for the AI coding assistant, kept local only
+CLAUDE.md
