@@ -315,3 +315,26 @@ details[open] > summary > span:first-child::before { transform: rotate(45deg); }
   * { transition: none !important; }
   .modeSay.flash { animation: none; }
 }
+
+/* ---------- recalculating after the battery slider moves ---------- */
+main > section:not(.intro):not(.choose) { transition: opacity 250ms var(--ease), filter 250ms var(--ease); }
+body.recalc main > section:not(.intro):not(.choose) { opacity: 0.28; filter: blur(1.5px); pointer-events: none; }
+.verdict { position: relative; }
+body.recalc .verdict::before {
+  content: "Working it out…"; position: absolute; top: clamp(24px, 3vw, 36px); left: 0; z-index: 2;
+  display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 36px; border-radius: 999px;
+  background: var(--bg-2); color: var(--text); font: 600 14px/1 var(--sans);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+body.recalc .verdict::after {
+  content: ""; position: absolute; top: calc(clamp(24px, 3vw, 36px) + 8px); left: 14px; z-index: 3;
+  width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line-2); border-top-color: var(--sun);
+  animation: recalcSpin 700ms linear infinite;
+}
+body.recalc .verdict { opacity: 1 !important; filter: none !important; }
+body.recalc .verdict > * { opacity: 0.28; filter: blur(1.5px); transition: opacity 250ms var(--ease), filter 250ms var(--ease); }
+@keyframes recalcSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  main > section, body.recalc .verdict > * { transition: none; }
+  body.recalc .verdict::after { animation: none; border-top-color: var(--line-2); }
+}

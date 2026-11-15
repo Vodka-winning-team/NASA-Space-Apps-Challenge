@@ -164,14 +164,21 @@
       if (isNaN(t)) return;
       state.start = Math.round((t - T0) / HOUR); clampStart(); state.hour = 0; refresh();
     };
-    // 17. show the new duration at once; do the heavy redraw once per frame, always with the last value
-    var battQueued = false;
+    // While the battery slider moves: show the new duration at once, dim the results with a small
+    // "working it out" spinner, and recalculate once the slider settles (or is let go), always with the last value.
+    var battTimer = null;
+    var battApply = function () {
+      clearTimeout(battTimer); battTimer = null;
+      state.batt = +$("batt").value; state.hour = Math.min(state.hour, hoursTotal());
+      refresh();
+      document.body.classList.remove("recalc");
+    };
     $("batt").oninput = function () {
       state.batt = +this.value; showBatt();
-      if (battQueued) return;
-      battQueued = true;
-      requestAnimationFrame(function () { battQueued = false; state.batt = +$("batt").value; state.hour = Math.min(state.hour, hoursTotal()); refresh(); });
+      document.body.classList.add("recalc");
+      clearTimeout(battTimer); battTimer = setTimeout(battApply, 250);
     };
+    $("batt").onchange = battApply;
     $("play").onclick = function () { var was = !!playing; togglePlay(); if (!was) centreReplay(); };
     radioKeys($("sites")); radioKeys($("days")); radioKeys($("mast"));
     $("sites").addEventListener("scroll", edgeCue, { passive: true });
