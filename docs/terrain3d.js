@@ -354,7 +354,7 @@
   /* ---------- the camera ---------- */
 
   var CAM = { ground: { dist: 24, el: 6 }, above: { dist: 19000, el: 38 } };
-  function camAz() { var d = DATA()[api.state.site]; return d.sun_az[idx] + 180 + 28; }      // behind the lander, a little to one side, Sun ahead
+  function camAz() { var d = DATA()[api.state.site]; return d.sun_az[idx] + 180 + 38; }      // behind the lander, a little to one side, Sun ahead
   function setOrbit(dist, el, az) {
     camera.position.copy(dir(az, el)).multiplyScalar(dist).add(controls.target);
   }
@@ -515,9 +515,9 @@
 
     // the lander's shadow, laid over the ground away from the Sun
     var sp = shadowStrip.geometry.attributes.position, az = d.sun_az[idx] * D2R, ax = -Math.sin(az), azz = Math.cos(az);
-    var len = Math.min(70, 3.3 / Math.tan(Math.max(d.sun_el[idx], 0.7) * D2R)), SEG = sp.count / 2 - 1;
+    var len = Math.min(34, 3.3 / Math.tan(Math.max(d.sun_el[idx], 0.7) * D2R)), SEG = sp.count / 2 - 1;
     for (var k = 0; k <= SEG; k++) {
-      var s = 0.6 + len * k / SEG, wdt = 1.15 * (1 - 0.5 * k / SEG);
+      var s = 0.6 + len * k / SEG, wdt = 1.05 * (1 - 0.6 * k / SEG);
       for (var q = 0; q < 2; q++) {
         var x = ax * s + (q ? 1 : -1) * azz * wdt, z = azz * s - (q ? 1 : -1) * ax * wdt, g = groundAt(t, x, z) || 0;
         sp.setXYZ(k * 2 + q, x, g * exag + 0.07, z);
