@@ -77,6 +77,18 @@ for (const site of ["MMA_K2023", "MMO01", "NR101", "dGR201", "SP07", "HW06"]) {
 }
 ok(!!found, found ? `a nearby ridge is found and labelled: ${found.site}, hour ${found.h}: "${found.label}"` : "no hour with a nearby blocking ridge found (only far hills)");
 if (OUT && found) { await sleep(800); const el = await call("POST", S + "/element", { using: "css selector", value: "#t3dCanvas" }); fs.writeFileSync(`${OUT}/replay-near-ridge.png`, Buffer.from(await call("GET", `${S}/element/${el[Object.keys(el)[0]]}/screenshot`), "base64")); }
+// the label on what blocks the Sun stays wholly on the picture, even when the Sun is at the edge of the view
+await js(`window.LANDER_APP.set({ site: "HW06", start: 4992, days: 14 })`); await sleep(1500);
+await js(`document.querySelector('#t3dViews [data-v="ground"]').click(); window.LANDER_APP.setHour(104);`); await sleep(900);
+const lab = await js(`var e = document.querySelector(".t3dLabel-block"), r = e.getBoundingClientRect(), c = document.getElementById("t3dCanvas").getBoundingClientRect();
+  return { shown: e.style.display === "block", inside: r.left >= c.left && r.right <= c.right && r.top >= c.top, text: e.textContent };`);
+ok(lab.shown && lab.inside, `the blocking-hill label stays inside the 3D view ("${lab.text}")`);
+// the Earth turns smoothly: no jump from one hour to the next beyond its normal turn (about 14.5 degrees an hour)
+const spin = await js(`var m = 0; for (var i = 1; i < 17000; i++) { var d = ((window.LANDER_T3D.earthLon(i) - window.LANDER_T3D.earthLon(i - 1)) % 360 + 540) % 360 - 180; m = Math.max(m, Math.abs(d)); } return m;`);
+ok(spin < 16, `the Earth turns evenly hour by hour (largest step ${spin.toFixed(1)} degrees)`);
+// each place's ground file is asked for once, however many changes are made while it loads
+const tags = await js(`var n = {}; [].forEach.call(document.scripts, function (s) { if (/terrain_/.test(s.src)) n[s.src] = (n[s.src] || 0) + 1; }); return Object.keys(n).filter(function (k) { return n[k] > 1; });`);
+ok(tags.length === 0, "each ground file is loaded once" + (tags.length ? ": twice: " + tags.join(", ") : ""));
 // the flat view still works, folded away
 await js(`document.getElementById("flatView").open = true`); await sleep(800);
 const pano = await js(`var c = document.getElementById("pano"); return [c.width, c.height];`);

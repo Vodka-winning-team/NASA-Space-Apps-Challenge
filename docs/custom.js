@@ -21,7 +21,7 @@
 
   function say(text, kind) {
     msg.textContent = text; msg.className = "customMsg" + (kind ? " " + kind : "");
-    // the 3D globe shows the same progress next to itself
+    // other parts of the page can show the same progress
     try { window.dispatchEvent(new CustomEvent("lander-custom-msg", { detail: { text: text, kind: kind || "" } })); } catch (e) { /* very old browser */ }
   }
   function fmt(lat, lon) { return Math.abs(lat).toFixed(2) + "° S, " + Math.abs(lon).toFixed(2) + "° " + (lon < 0 ? "W" : "E"); }
@@ -179,6 +179,6 @@
       land(la0, lo0, true);
     }
   }
-  // for the 3D globe: land at a place picked on it (stays where it is, no scrolling)
+  // land at a place from script (stays where it is, no scrolling); the tests use it
   window.LANDER_CUSTOM = { land: function (lat, lon) { land(lat, lon, false, true); }, check: CALC.check };
 })();

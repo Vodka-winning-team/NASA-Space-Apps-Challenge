@@ -46,12 +46,15 @@
     g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
     return new T.CanvasTexture(c);
   }
+  var loading = {};               // files on their way, so a change made while one loads does not ask for it again
   function loadTerrain(id, done) {
     if (window.LANDER_TERRAIN && window.LANDER_TERRAIN[id]) return done();
+    if (loading[id]) { loading[id] = done; return; }
+    loading[id] = done;
     var s = document.createElement("script");
     s.src = "data/terrain_" + id + ".js";
-    s.onload = done;
-    s.onerror = function () { note("Could not load the ground data for this place."); };
+    s.onload = function () { var f = loading[id]; delete loading[id]; if (window.LANDER_TERRAIN && window.LANDER_TERRAIN[id]) f(); else note("Could not load the ground data for this place."); };
+    s.onerror = function () { delete loading[id]; note("Could not load the ground data for this place."); };
     document.head.appendChild(s);
   }
   function b64i16(b64) {
@@ -450,7 +453,8 @@
       b.sunBelow = el + d.sun_width_deg / 2 < 0;       // even flat ground would hide it
       end = b.pos.clone(); colour = 0xec6049;
     }
-    sight.geometry.setFromPoints([eye, end]);
+    var sp = sight.geometry.attributes.position;        // move the two ends in place (a new buffer every hour would pile up)
+    sp.setXYZ(0, eye.x, eye.y, eye.z); sp.setXYZ(1, end.x, end.y, end.z); sp.needsUpdate = true;
     sight.material.color.set(colour);
     sight.visible = view !== "eye" || !!b;              // from the lander's eye, a line straight at the Sun is only a dot
     blockMark.visible = !!b;
@@ -482,7 +486,10 @@
     if (!transits.length) return -i * rate;
     var lo = 0, hi = transits.length - 1;
     while (hi - lo > 1) { var mid = (lo + hi) >> 1; if (transits[mid] <= i) lo = mid; else hi = mid; }
-    var m = Math.abs(transits[lo] - i) < Math.abs(transits[hi] - i) ? transits[lo] : transits[hi];
+    // between two transits the Earth turns once (relative to the Moon) at an even pace, so it never jumps
+    var a = transits[lo], b = transits[hi];
+    if (i >= a && i <= b && b - a > 20 && b - a < 30) return 57.5 - (i - a) / (b - a) * 360;
+    var m = Math.abs(a - i) < Math.abs(b - i) ? a : b;
     return 57.5 - (i - m) * rate;
   }
 
@@ -585,7 +592,10 @@
       var p = obj.position.clone().project(camera);
       if (p.z > 1 || p.x < -1.05 || p.x > 1.05 || p.y < -1.05 || p.y > 1.05) { el.style.display = "none"; return; }
       if (text !== undefined) el.textContent = text;
-      el.style.display = "block"; el.style.left = ((p.x + 1) / 2 * w) + "px"; el.style.top = ((1 - p.y) / 2 * h) + "px";
+      el.style.display = "block";
+      // keep the whole label on the picture, even when what it points at is near an edge
+      var x = (p.x + 1) / 2 * w, y = (1 - p.y) / 2 * h, half = el.offsetWidth / 2 + 6;
+      el.style.left = (half * 2 < w ? clamp(x, half, w - half) : x) + "px"; el.style.top = Math.max(y, el.offsetHeight + 20) + "px";
     }
     put(labels.sun, sunSprite, undefined, true);
     // the Earth's name sits above the ball, not on it
@@ -655,7 +665,7 @@
     started = true; sync();
   }
   window.LANDER_T3D = { view: function () { return view; }, block: function () { return block; }, follow: function () { return follow; },
-    lookAt: lookAt,
+    lookAt: lookAt, earthLon: earthLon,
     cam: function () { return camera && controls ? { dist: camera.position.distanceTo(controls.target), y: camera.position.y, fov: camera.fov, ratio: ratio } : null; },
     ready: function () { return !!ground && !!lander && siteShown === (api && api.state.site); } };   // for tests
   if (!("IntersectionObserver" in window)) { begin(); return; }      // very old browsers: build straight away
