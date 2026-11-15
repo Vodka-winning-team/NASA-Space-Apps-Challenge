@@ -139,7 +139,7 @@
     renderer.outputEncoding = T.sRGBEncoding;
     host.insertBefore(renderer.domElement, host.firstChild);
     renderer.domElement.setAttribute("role", "img");
-    renderer.domElement.setAttribute("aria-label", "3D view of the real ground around the lander, lit by the Sun at the hour shown. A line from the lander to the Sun turns red when a ridge blocks it. Arrow keys move the view, Shift and arrow keys turn it.");
+    renderer.domElement.setAttribute("aria-label", "3D view of the real ground around the lander, lit by the Sun at the hour shown. A line from the lander to the Sun turns red when a ridge blocks it. Arrow keys move the view (in the lander's eye they turn it), Shift and arrow keys turn it.");
 
     scene = new T.Scene();
     scene.background = new T.Color(0x020306);
@@ -226,6 +226,16 @@
     renderer.domElement.style.touchAction = "pan-y";       // on phones the page still scrolls past
     renderer.domElement.tabIndex = 0;                      // keyboard: arrow keys move, Shift + arrows turn
     controls.listenToKeyEvents(renderer.domElement);
+    renderer.domElement.addEventListener("keydown", function (e) {
+      var k = e.key;
+      if (k !== "ArrowLeft" && k !== "ArrowRight" && k !== "ArrowUp" && k !== "ArrowDown") return;
+      follow = false;                                      // you are steering now
+      if (view !== "eye") return;                          // the other views: the controls move the view
+      e.preventDefault();                                  // the lander's eye: arrow keys turn your head
+      var f = controls.target.clone().sub(camera.position).normalize(), az = Math.atan2(f.x, -f.z) / D2R, el = Math.asin(clamp(f.y, -1, 1)) / D2R;
+      if (k === "ArrowLeft") az -= 5; else if (k === "ArrowRight") az += 5; else if (k === "ArrowUp") el = Math.min(el + 4, 70); else el = Math.max(el - 4, -54);
+      controls.target.copy(camera.position).add(dir(az, el)); controls.update(); render();
+    });
 
     renderer.domElement.addEventListener("webglcontextlost", function (e) { e.preventDefault(); note("3D paused: the graphics card was reset. It comes back by itself."); });
     renderer.domElement.addEventListener("webglcontextrestored", function () { note(""); renderer.shadowMap.needsUpdate = true; render(); });
@@ -670,7 +680,10 @@
     var off = camera.position.clone().sub(controls.target), tg = controls.target.clone(), fov = camera.fov;
     buildGround(siteShown); buildFar(siteShown); buildRing(siteShown, api.state.mast); lander.scale.y = exag; setView(view, true);
     if (view === "eye") { controls.target.copy(camera.position).sub(off.normalize()); camera.fov = fov; camera.updateProjectionMatrix(); }
-    else { controls.target.set(tg.x, controls.target.y, tg.z); camera.position.copy(controls.target).add(off); }
+    else {
+      var gt = groundAt(heights(siteShown), tg.x, tg.z);      // the ground under the spot you looked at, at the new height
+      controls.target.set(tg.x, ((gt === null ? 0 : gt) + 1.6) * exag, tg.z); camera.position.copy(controls.target).add(off);
+    }
     controls.update(); onMove(); place();
   };
   if ($("t3dReset")) $("t3dReset").onclick = function () { setView(view); };

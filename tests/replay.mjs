@@ -67,6 +67,10 @@ await mouse([{ type: "pointerMove", x: Math.round(r.x + r.w * 0.5), y: Math.roun
 await sleep(300);
 const lk = await js(`var a = window.LANDER_T3D.cam(); window.LANDER_APP.setHour(window.LANDER_APP.get().state.hour + 1); var b = window.LANDER_T3D.cam(); return [a.look, b.look, b.y];`);
 ok(Math.abs(lk[0].az - lk[1].az) < 0.5 && Math.abs(lk[0].el - lk[1].el) < 0.5 && Math.abs(lk[2] - 2) < 0.01, `in the lander's eye, a drag turns the view on the spot and the next hour keeps it (${lk[0].az.toFixed(1)}° -> ${lk[1].az.toFixed(1)}°)`);
+// keyboard: from the lander's eye the arrow keys turn the view
+const kb = await js(`var c = document.querySelector("#t3dCanvas canvas"), a = window.LANDER_T3D.cam().look.az; c.focus();
+  c.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", code: "ArrowRight", bubbles: true, cancelable: true })); return [a, window.LANDER_T3D.cam().look.az, document.activeElement === c];`);
+ok(kb[2] && Math.abs(((kb[1] - kb[0]) + 540) % 360 - 180 - 5) < 0.5, `the 3D view takes keyboard focus; in the lander's eye the right arrow turns 5° (${kb[0].toFixed(1)}° -> ${kb[1].toFixed(1)}°)`);
 // with the hills (and the sky) 3x taller, 'Look at Earth' still finds the Earth high in the sky, also zoomed in
 const ee = await js(`document.getElementById("t3dExag").click(); document.getElementById("t3dIn").click(); document.getElementById("t3dIn").click(); document.getElementById("t3dEarth").click();
   var a = window.LANDER_APP.get(), d = a.data[a.state.site], i = a.state.start + Math.round(a.state.hour); return { el: d.earth_el[i], look: window.LANDER_T3D.cam().look };`);
