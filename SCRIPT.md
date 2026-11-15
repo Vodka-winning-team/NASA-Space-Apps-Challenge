@@ -14,7 +14,7 @@ Everything for the pitch in one place, matched to the deck (`pitch/Will_the_land
 | 6 | Built on NASA data, checked against NASA | 0:40 | 3:30 | Validity |
 | 7 | Mauritius can see it. So can you. | 0:30 | 4:00 | Impact, Presentation |
 
-About 480 spoken words: an easy pace, with room for the demo clicks. If the demo runs long, drop the sentence in brackets on slide 5.
+About 510 spoken words, roughly 130 a minute: a calm pace, with the demo clicks in between. If the demo runs long, drop the sentence in brackets on slide 5.
 
 ## Before the pitch
 
