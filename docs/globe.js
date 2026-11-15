@@ -13,7 +13,7 @@
 
   var R = G.radius_m, EXAG = 5, D = Math.PI / 180;
   var renderer, scene, camera, controls, moon, sunLight, earth, ring85, markers = {}, labels = {}, api = null, idx = 0, shownSite = null;
-  var orbitWhole, orbitPole, mode = "whole", tween = null, touched = false;
+  var orbitWhole, orbitPole, mode = "whole", tween = null, touched = false, glideId = 0;
   var POLE = new T.Vector3(0, 0, 1);              // the south pole, in the scene (the Moon is turned so it faces +z)
   var msgBox = $("globeMsg"), labelBox = $("globeLabels");
 
@@ -28,6 +28,15 @@
     for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
     return new Int16Array(buf);
   })();
+  // heights are shown relative to the polar area's own average, so the 5x relief sits level with the globe around it
+  var hMean = (function () {
+    var n = G.n, keep = (n - 1) / 2, sum = 0, k = 0, cut = 2 * R * Math.tan(Math.PI / 4 - 80.8 * D / 2);
+    for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) {
+      var x = (c - keep) / keep * G.half_m, y = (keep - r) / keep * G.half_m;
+      if (x * x + y * y < cut * cut) { sum += zgrid[r * n + c]; k++; }
+    }
+    return k ? sum / k : 0;
+  })();
   function stereo(lat, lon) {           // metres on the polar stereographic plane, y toward longitude 0
     var r = 2 * R * Math.tan(Math.PI / 4 + lat * D / 2);
     return [r * Math.sin(lon * D), r * Math.cos(lon * D)];
@@ -39,7 +48,7 @@
     if (c < 0 || r < 0 || c > n - 1 || r > n - 1) return 0;
     var c0 = Math.min(Math.floor(c), n - 2), r0 = Math.min(Math.floor(r), n - 2), fc = c - c0, fr = r - r0;
     return zgrid[r0 * n + c0] * (1 - fr) * (1 - fc) + zgrid[r0 * n + c0 + 1] * (1 - fr) * fc +
-           zgrid[(r0 + 1) * n + c0] * fr * (1 - fc) + zgrid[(r0 + 1) * n + c0 + 1] * fr * fc;
+           zgrid[(r0 + 1) * n + c0] * fr * (1 - fc) + zgrid[(r0 + 1) * n + c0 + 1] * fr * fc - hMean;
   }
   function surface(lat, lon, lift) { return m2v(lat, lon, 1 + (EXAG * heightAt(lat, lon) + (lift || 0)) / R); }
 
@@ -61,13 +70,15 @@
   function buildCap() {
     var n = G.n, H = G.half_m, keep = (n - 1) / 2, pos = [], uv = [], col = [], index = [], id = new Int32Array(n * n).fill(-1);
     var fadeIn = 2 * R * Math.tan(Math.PI / 4 - 80.6 * D / 2), edge = H * 0.995;        // fully opaque inside 80.6 S
+    var cut = 2 * R * Math.tan(Math.PI / 4 - 80.8 * D / 2), inner = 0.72 * H;            // the sphere stops at 80.8 S
     for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) {
       var x = (c - keep) / keep * H, y = (keep - r) / keep * H, rr = Math.sqrt(x * x + y * y);
       if (rr > edge) continue;
       var lat = -90 + 2 * Math.atan(rr / (2 * R)) / D, lon = Math.atan2(x, y) / D;
-      // full relief inside 82 S, easing to none at the edge, so the cap meets the globe without a step
-      var taper = rr < 0.72 * H ? 1 : Math.max(0, (edge - rr) / (edge - 0.72 * H)), tz = taper * taper * (3 - 2 * taper);
-      var v = m2v(lat, lon, 1 + (EXAG * zgrid[r * n + c] * tz + 300) / R);
+      // full relief inside about 82 S, easing to none by 80.8 S where the sphere stops, so the two meet without a step;
+      // beyond that the cap lies flat just above the sphere (which is drawn a touch inside its true radius) and fades out
+      var taper = rr < inner ? 1 : Math.max(0, (cut - rr) / (cut - inner)), tz = taper * taper * (3 - 2 * taper);
+      var v = m2v(lat, lon, 1 + (EXAG * (zgrid[r * n + c] - hMean) * tz + 120 + 180 * tz) / R);
       id[r * n + c] = pos.length / 3;
       pos.push(v.x, v.y, v.z);
       uv.push((x + H) / (2 * H), (y + H) / (2 * H));
@@ -106,8 +117,13 @@
     moon = new T.Group();
     moon.setRotationFromMatrix(new T.Matrix4().makeBasis(new T.Vector3(0, 1, 0), new T.Vector3(0, 0, -1), new T.Vector3(-1, 0, 0)));
     scene.add(moon);
-    var sphere = new T.Mesh(new T.SphereGeometry(1, 128, 64, 0, Math.PI * 2, 0, (90 + 80.8) * D),      // stops at 80.8 S; the cap (solid from 80.6 S) takes over
-      new T.MeshStandardMaterial({ map: texture("data/globe/moon.jpg"), roughness: 1, metalness: 0 }));
+    // a whole sphere keeps the picture's latitudes right; then drop the triangles south of 80.8 S, where the cap takes over
+    var sg = new T.SphereGeometry(1, 128, 64), sp = sg.attributes.position, si = sg.index.array, keepTri = [], yCut = -Math.sin(80.8 * D);
+    for (var q = 0; q < si.length; q += 3) {
+      if (sp.getY(si[q]) >= yCut || sp.getY(si[q + 1]) >= yCut || sp.getY(si[q + 2]) >= yCut) keepTri.push(si[q], si[q + 1], si[q + 2]);
+    }
+    sg.setIndex(keepTri);
+    var sphere = new T.Mesh(sg, new T.MeshStandardMaterial({ map: texture("data/globe/moon.jpg"), roughness: 1, metalness: 0 }));
     sphere.name = "moon";
     moon.add(sphere);
     var cap = buildCap(); cap.name = "cap"; moon.add(cap);
@@ -145,6 +161,8 @@
       });
     });
     setMode("whole", false);
+    renderer.domElement.addEventListener("webglcontextlost", function (e) { e.preventDefault(); say("3D paused: the graphics card was reset. It comes back by itself."); });
+    renderer.domElement.addEventListener("webglcontextrestored", function () { say(""); render(); });
     new ResizeObserver(resize).observe(host);
     resize();
     bindPick();
@@ -161,14 +179,16 @@
     [].forEach.call(document.querySelectorAll("#globeViews [data-v]"), function (b) { b.setAttribute("aria-pressed", b.dataset.v === m); });
     var to = home(m), from = { pos: camera.position.clone(), target: (controls ? controls.target : new T.Vector3()).clone(), up: camera.up.clone() };
     orbitPole.enabled = false; orbitWhole.enabled = false;     // no dragging while the camera glides
-    controls = m === "pole" ? orbitPole : orbitWhole;
+    var ctl = controls = m === "pole" ? orbitPole : orbitWhole, mine = ++glideId;   // a newer glide makes this one stop
     var finish = function () {
-      camera.up.copy(to.up); camera.position.copy(to.pos); controls.target.copy(to.target);
-      controls.enabled = true; controls.update(); render();
+      if (mine !== glideId) return;
+      camera.up.copy(to.up); camera.position.copy(to.pos); ctl.target.copy(to.target);
+      ctl.enabled = true; ctl.update(); render();
     };
-    if (!animate) { finish(); return; }
+    if (!animate) { tween = null; finish(); return; }
     var t0 = performance.now(), dur = 1400;
     tween = function (t) {
+      if (mine !== glideId) return;
       var k = Math.min(1, (t - t0) / dur), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
       camera.up.copy(from.up).lerp(to.up, e).normalize();
       camera.position.copy(from.pos).lerp(to.pos, e);
@@ -183,12 +203,13 @@
 
   /* ---------- the six places and the custom one ---------- */
 
+  function drop(m) { moon.remove(m); m.geometry.dispose(); m.material.dispose(); }
   function syncMarkers() {
     var sites = api.sites, seen = {};
     sites.forEach(function (s) {
       seen[s.id] = true;
       if (markers[s.id] && markers[s.id].userData.lat === s.lat && markers[s.id].userData.lon === s.lon) return;
-      if (markers[s.id]) { moon.remove(markers[s.id]); }
+      if (markers[s.id]) { drop(markers[s.id]); }
       var m = new T.Mesh(new T.SphereGeometry(1, 16, 12), new T.MeshBasicMaterial({ color: 0xffffff }));
       m.position.copy(surface(s.lat, s.lon, 3000));
       m.userData = { id: s.id, lat: s.lat, lon: s.lon, custom: !!s.custom };
@@ -198,7 +219,7 @@
     });
     Object.keys(markers).forEach(function (id) {
       if (seen[id]) return;
-      moon.remove(markers[id]); delete markers[id];
+      drop(markers[id]); delete markers[id];
       if (labels[id]) { labels[id].parentNode.removeChild(labels[id]); delete labels[id]; }
     });
   }
@@ -266,15 +287,26 @@
 
   function say(text, kind) { msgBox.textContent = text; msgBox.className = "globeMsg" + (kind ? " " + kind : ""); }
   function bindPick() {
-    var el = renderer.domElement, down = null;
-    el.addEventListener("pointerdown", function (e) { touched = true; down = { x: e.clientX, y: e.clientY, t: Date.now() }; });
-    el.addEventListener("pointerup", function (e) {
-      if (!down) return;
-      var moved = Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y), quick = Date.now() - down.t < 700;
-      down = null;
-      if (moved > 8 || !quick) return;
-      choose(e.clientX, e.clientY);
+    var el = renderer.domElement, down = null, active = {}, count = 0;
+    el.addEventListener("pointerdown", function (e) {
+      touched = true;
+      if (!active[e.pointerId]) { active[e.pointerId] = true; count++; }
+      down = count === 1 ? { id: e.pointerId, x: e.clientX, y: e.clientY, t: Date.now(), moved: 0 } : null;   // two fingers: a pinch, never a tap
     });
+    el.addEventListener("pointermove", function (e) {
+      if (down && e.pointerId === down.id) down.moved = Math.max(down.moved, Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y));
+    });
+    var lift = function (e, cancel) {
+      if (active[e.pointerId]) { delete active[e.pointerId]; count = Math.max(0, count - 1); }
+      if (!down || e.pointerId !== down.id) return;
+      var d = down; down = null;
+      if (cancel) return;
+      var moved = Math.max(d.moved, Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y));
+      if (moved > 8 || Date.now() - d.t > 700) return;
+      choose(e.clientX, e.clientY);
+    };
+    el.addEventListener("pointerup", function (e) { lift(e, false); });
+    el.addEventListener("pointercancel", function (e) { lift(e, true); });
   }
   function choose(cx, cy) {
     var rect = renderer.domElement.getBoundingClientRect(), x = cx - rect.left, y = cy - rect.top;

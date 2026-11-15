@@ -28,6 +28,8 @@
     var a = az * Math.PI / 180, e = el * Math.PI / 180;
     return new T.Vector3(Math.sin(a) * Math.cos(e), Math.sin(e), -Math.cos(a) * Math.cos(e));
   }
+  // the same direction as drawn: when the hills are stretched upward, the sky is stretched the same way
+  function sky(az, el) { var v = dir(az, el); v.y *= exag; return v.normalize(); }
   function glowTexture(inner, outer) {
     var c = document.createElement("canvas"); c.width = c.height = 128;
     var g = c.getContext("2d"), gr = g.createRadialGradient(64, 64, 4, 64, 64, 64);
@@ -122,6 +124,8 @@
     controls.addEventListener("change", render);
     controls.addEventListener("start", function () { if (view === "lander") follow = false; });
 
+    renderer.domElement.addEventListener("webglcontextlost", function (e) { e.preventDefault(); note("3D paused: the graphics card was reset. It comes back by itself."); });
+    renderer.domElement.addEventListener("webglcontextrestored", function () { note(""); render(); });
     new ResizeObserver(resize).observe(host);
     resize();
   }
@@ -220,7 +224,7 @@
   }
   function sightLine(d) {
     var t = heights(api.state.site), mast = parseFloat(api.state.mast), eye = new T.Vector3(0, mast * exag, 0);
-    var az = d.sun_az[idx], el = d.sun_el[idx], f = api.P.sun[idx], sun = dir(az, el), end, colour = 0xf2b544, b = null;
+    var az = d.sun_az[idx], el = d.sun_el[idx], f = api.P.sun[idx], sun = sky(az, el), end, colour = 0xf2b544, b = null;
     if (f > 0) {
       end = eye.clone().add(sun.clone().multiplyScalar(view === "lander" ? 4000 : 11000));
     } else {
@@ -255,8 +259,8 @@
   }
 
   function place() {
-    if (!api || !ground) return;
-    var d = DATA()[api.state.site], P = api.P, sun = dir(d.sun_az[idx], d.sun_el[idx]), earth = dir(d.earth_az[idx], d.earth_el[idx]);
+    if (!api || !ground || siteShown !== api.state.site || !window.LANDER_TERRAIN || !window.LANDER_TERRAIN[api.state.site]) return;
+    var d = DATA()[api.state.site], P = api.P, sun = sky(d.sun_az[idx], d.sun_el[idx]), earth = sky(d.earth_az[idx], d.earth_el[idx]);
     var f = P.sun[idx];
     sunLight.position.copy(sun).multiplyScalar(60000);
     sunLight.intensity = 2.6 * f;                         // dims as the far hills cover the Sun
