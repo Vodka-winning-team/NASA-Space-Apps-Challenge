@@ -3,7 +3,7 @@
 NASA product: LOLA-derived polar illumination maps, NASA GSFC Planetary Geodesy
 Data Archive (https://pgda.gsfc.nasa.gov/products/69), Mazarico et al. 2011.
   AVGVISIB_85S_060M_201608        share of time any part of the Sun is visible
-  AVGVISIB_85S_060M_201608_EARTH  share of time the Earth is visible
+  AVGVISIB_85S_060M_201608_EARTH  share of time any part of Earth's disc is visible
 Both averaged over 18.6 years at 60 m per pixel. Put the two .IMG files in
 data_raw/pgda/ before running.
 
@@ -54,7 +54,8 @@ for s in json.load(open(os.path.join(HERE, "sites.json"))):
            "nasa_sun": round(float(sun[i, j]) * 100, 1), "nasa_earth": round(float(earth[i, j]) * 100, 1),
            "nasa_sun_nearby": [round(float(sun[i-1:i+2, j-1:j+2].min()) * 100, 1), round(float(sun[i-1:i+2, j-1:j+2].max()) * 100, 1)]}
     for h in ("0.5", "2", "10"):
-        # same definition as NASA: Sun counts if any part of its disc shows; Earth by its centre
+        # Sun counts any visible disc, as NASA does; Earth uses its centre, unlike NASA any-disc visibility.
+        # Different periods, heights and terrain resolution: descriptive cross-check, not prediction accuracy.
         row["sun_%s" % h] = round(share_above(d["horizons"][h], d["sun_az"], d["sun_el"], r), 1)
         row["earth_%s" % h] = round(share_above(d["horizons"][h], d["earth_az"], d["earth_el"], 0.0), 1)
     rows.append(row)

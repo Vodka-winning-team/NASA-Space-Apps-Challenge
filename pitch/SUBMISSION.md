@@ -52,7 +52,7 @@ Two modes: **Simple** (the default, for the public) and **Mission planner** (eve
 2. **The Sun and Earth.** NASA/JPL Horizons gives their direction in the sky of each site for every hour of 2027 and 2028, with no atmosphere. Earth's wobble in the sky (libration) is included.
 3. **Each hour** we work out how much of the Sun's disc is above the hills, and whether the centre of the Earth is above them.
 4. **The battery.** The lander uses 1 unit of energy per hour. In full Sun its panels make 3 units per hour, less if hills cover part of the Sun. The battery size is set in hours it lasts without Sun. If it reaches empty, the lander is lost.
-5. **The check.** We compared our numbers with NASA Goddard's illumination maps at all six sites. Earth in view agrees within 3 points everywhere (panel at 2 m; average difference 1.7 points). Our sunlight is higher than NASA's at every site (6.0 points on average at 0.5 m, 10.9 points at 2 m). So a narrow "survived" deserves caution, and "lost" is the safer signal. The website says this openly.
+5. **The check.** We cross-checked against NASA's long-term visibility maps. The comparison uses different time periods, terrain resolutions, observer heights and Earth-visibility definitions; it is not a measurement of prediction accuracy. Our Earth metric uses its centre; NASA counts any visible part of Earth's disc. Numerical differences are descriptive, not an accuracy guarantee. See VALIDATION.md.
 
 Python scripts turn the NASA data into small data files. The website reads those files directly, so it needs no server of its own and no internet once loaded.
 

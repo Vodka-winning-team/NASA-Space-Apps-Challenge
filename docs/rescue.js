@@ -22,8 +22,7 @@
     var d = APP.get().data[id], hor = d.horizons[mast], step = d.horizon_step_deg, r = d.sun_width_deg / 2;
     var sun = new Float32Array(d.n), earth = new Uint8Array(d.n);
     for (var i = 0; i < d.n; i++) {
-      var f = (d.sun_el[i] + r - horizonAt(hor, step, d.sun_az[i])) / (2 * r);
-      sun[i] = f < 0 ? 0 : f > 1 ? 1 : f;
+      sun[i] = window.LANDER_SCIENCE.visibleDiscFraction(d.sun_el[i], horizonAt(hor, step, d.sun_az[i]), r);
       earth[i] = d.earth_el[i] > horizonAt(hor, step, d.earth_az[i]) ? 1 : 0;
     }
     return (cache[key] = { sun: sun, earth: earth });

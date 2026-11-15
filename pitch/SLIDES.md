@@ -101,17 +101,17 @@ The challenge stresses launch delays. Each square is the same mission, landing o
 - Sites: Wueller et al. 2026.
 - Checked against NASA Goddard's sunlight maps (PGDA):
 
-| | Average difference from NASA | Largest |
+| | Descriptive difference from NASA | Largest |
 |---|---|---|
-| Earth in view (panel 2 m) | 1.7 points | 2.8 points |
+| Earth centre (ours) vs any disc (NASA), panel 2 m | 1.7 points | 2.8 points |
 | Sunlight (panel 0.5 m) | 6.0 points higher | 18.9 points |
 
-- Honest limits: our sunlight runs high, so "lost" is the safer signal. The battery is a simple model. Earth in view is line of sight, not a radio link.
+- We cross-checked against NASA's long-term visibility maps. The comparison uses different time periods, terrain resolutions, observer heights and Earth-visibility definitions; it is not a measurement of prediction accuracy. Our Earth metric uses its centre; NASA counts any visible part of Earth's disc. The battery is a simple model. Earth in view is line of sight, not a radio link.
 - Small picture: `desktop-lost-planner-10-which-hill-hid-the-sun.jpg` (the real hill, 91.8 km away, that hid the Sun).
 
 **Speaker notes**
 
-Every hill and every Sun position is NASA data. We then checked ourselves against NASA's own maps. Earth agrees within 3 points everywhere. Our sunlight runs high, so we say so on the page: a narrow "survived" needs caution, and "lost" is the safer signal.
+We cross-checked against NASA's long-term visibility maps. The comparison uses different time periods, terrain resolutions, observer heights and Earth-visibility definitions; it is not a measurement of prediction accuracy. Our Earth metric uses its centre; NASA counts any visible part of Earth's disc.
 
 ---
 

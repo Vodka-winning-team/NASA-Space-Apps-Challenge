@@ -64,13 +64,21 @@
   function dayOf(r) { return Math.floor((r.died - 1) / 24) + 1; }
   function verdict(r) { return r.alive ? "Survived" : "Lost on day " + dayOf(r); }
 
+  function windowText(w) { return w ? w.hours + " hours, " + w.startUTC + " to " + w.endUTC : "None within this interval"; }
+
   function card(name, r, colour, isMain) {
     return '<div class="vsCard ' + (r.alive ? "live" : "dead") + '">' +
       '<p class="vsName"><i style="background:' + colour + '"></i>' + name + (isMain ? " <span>chosen</span>" : "") + "</p>" +
       '<p class="vsVerdict">' + verdict(r) + ".</p>" +
-      '<dl><div><dt>Sun above the hills</dt><dd>' + Math.round(r.sun * 100) + "%</dd></div>" +
-      "<div><dt>Earth in view</dt><dd>" + Math.round(r.earth * 100) + "%</dd></div>" +
+      '<dl><div><dt>Full-sun-equivalent hours</dt><dd>' + r.fullSunHours.toFixed(1) + " hours</dd></div>" +
+      "<div><dt>Partly sunlit hours</dt><dd>" + r.sunHours + " hours</dd></div>" +
+      "<div><dt>Earth centre above hills</dt><dd>" + Math.round(r.earth * 100) + "%</dd></div>" +
       "<div><dt>Longest stretch without enough Sun</dt><dd>" + span(r.longestDark) + "</dd></div>" +
+      "<div><dt>Longest Earth-centre outage (full mission)</dt><dd>" + windowText(r.earthWindows.longestHidden) + "</dd></div>" +
+      "<div><dt>Next Earth-centre visible interval (full mission)</dt><dd>" + windowText(r.earthWindows.nextVisible) + "</dd></div>" +
+      "<div><dt>Longest Earth-centre outage (before depletion / mission end)</dt><dd>" + windowText(r.poweredEarthWindows.longestHidden) + "</dd></div>" +
+      "<div><dt>Next Earth-centre visible interval (before depletion / mission end)</dt><dd>" + windowText(r.poweredEarthWindows.nextVisible) + "</dd></div>" +
+      "<div><dt>Earth-centre visible hours before depletion / mission end</dt><dd>" + r.poweredEarthWindows.visibleHours + " hours; geometry only, no radio link model</dd></div>" +
       "<div><dt>Lowest battery</dt><dd>" + Math.round(r.min * 100) + "%</dd></div></dl></div>";
   }
 

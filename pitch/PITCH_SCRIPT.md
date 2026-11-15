@@ -60,7 +60,7 @@ And which place is safest? Two years of landing dates for all six places. With t
 
 Is it real? Every hill comes from NASA's LOLA laser altimeter on the Lunar Reconnaissance Orbiter, with the Moon's curve included. Every Sun and Earth position comes from NASA JPL Horizons, every hour of 2027 and 2028.
 
-Then we checked ourselves against NASA Goddard's sunlight maps. Earth in view: within three points at every site. Sunlight: we run high, six points on average. So we say it on the page: a narrow "survived" needs caution, and "lost" is the safer signal. The battery is a simple model, and Earth in view means line of sight, not a radio link.
+We cross-checked against NASA's long-term visibility maps. The comparison uses different time periods, terrain resolutions, observer heights and Earth-visibility definitions; it is not a measurement of prediction accuracy. Our Earth metric uses its centre; NASA counts any visible part of Earth's disc. The battery is a simple model, and Earth visibility does not establish a radio link.
 
 ### Slide 7 (0:30)
 
@@ -109,7 +109,7 @@ Keep talking from the script. Do not try to fix the laptop during the pitch.
 ## Likely questions from the judges
 
 **1. Why does your sunlight differ from NASA's maps?**
-Our sunlight is higher than NASA's at all six sites: 6.0 points on average with the panel at 0.5 m, 10.9 at 2 m. The largest gap is Nobile Rim 1. We have not proven the cause. Likely reasons: NASA's map is for the ground on a 60 m grid, while ours puts a panel above an 80 m grid, which smooths the ground near the lander. NASA averages 18.6 years; we cover two. And on ridge tops, neighbouring NASA pixels differ by 20 points or more. That is why we tell users that "lost" is the safer signal. Earth in view agrees within 3 points everywhere, with the panel at 2 m.
+We cross-checked against NASA's long-term visibility maps. The comparison uses different time periods, terrain resolutions, observer heights and Earth-visibility definitions; it is not a measurement of prediction accuracy. Our Earth metric uses its centre; NASA counts any visible part of Earth's disc. Our sunlight-duration differences are 6.0 points on average at 0.5 m and 10.9 at 2 m. The cause has not been isolated.
 
 **2. Is "Earth in view" the same as a radio link?**
 No. It means the centre of the Earth is above the hills, so there is a clear line of sight. It does not include the antenna, the ground stations, their schedules or relay satellites. We say this on the page.
