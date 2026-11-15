@@ -76,6 +76,7 @@
 
   function drawVs() {
     var a = APP.get(), s = a.state, sites = a.sites;
+    if (!a.run) return;          // a resize (e.g. a phone's address bar sliding away) can arrive before the first answer exists
     if (!other || other === s.site || !sites.some(function (x) { return x.id === other; })) other = sites.filter(function (x) { return x.id !== s.site; })[0].id;
 
     var box = $("vsPick"), html = "";
