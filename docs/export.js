@@ -29,13 +29,15 @@
       "# Place: " + comment(d.name) + "; id: " + comment(s.site) + "; lat: " + d.lat + "; lon: " + d.lon,
       "# Panel height: " + s.mast + " m; battery: " + s.batt + " hours without Sun",
       "# battery: charges 3 units per hour in full Sun, uses 1 per hour; simple model, not mission-grade",
+      "# Geometry sampled at interval start; battery at interval end; initial battery is 100%",
+      "# Full-sun-equivalent hours: " + a.run.fullSunHours + "; partly sunlit hours: " + a.run.sunHours,
       "# Sources: NASA/JPL Horizons; NASA LRO LOLA LDEM_80S_80M",
-      "utc_time,mission_hour,sun_azimuth_deg,sun_elevation_deg,hills_at_sun_azimuth_deg,sun_disc_visible_fraction,earth_azimuth_deg,earth_elevation_deg,hills_at_earth_azimuth_deg,earth_in_view,battery_percent"
+      "interval_start_utc,interval_end_utc,mission_hour,sun_azimuth_deg,sun_elevation_deg,hills_at_sun_azimuth_deg,sun_disc_visible_fraction,earth_azimuth_deg,earth_elevation_deg,hills_at_earth_azimuth_deg,earth_centre_in_view,battery_at_interval_end_percent"
     ];
     for (var h = 0; h < a.hours; h++) {
       var i = s.start + h;
       lines.push([
-        utc(i), h, d.sun_az[i].toFixed(2), d.sun_el[i].toFixed(2),
+        utc(i), utc(i + 1), h, d.sun_az[i].toFixed(2), d.sun_el[i].toFixed(2),
         horizonAt(hills, d.sun_az[i]).toFixed(2), (+a.P.sun[i]).toFixed(3),
         d.earth_az[i].toFixed(2), d.earth_el[i].toFixed(2),
         horizonAt(hills, d.earth_az[i]).toFixed(2), a.P.earth[i],
@@ -79,8 +81,15 @@
       figure("Mission length", s.days + " days (" + a.hours + " hours)");
       figure("Panel height", s.mast + " m");
       figure("Battery size", s.batt + " hours without Sun");
-      figure("Sun above hills", percent(r.sun, 1) + "%");
-      figure("Earth in view", percent(r.earth, 1) + "%");
+      figure("Full-sun-equivalent hours", r.fullSunHours.toFixed(1) + " hours");
+      figure("Partly sunlit hours", r.sunHours + " hours");
+      figure("Earth centre above hills", percent(r.earth, 1) + "%");
+      function windowText(w) { return w ? w.hours + " hours; " + w.startUTC + " to " + w.endUTC : "None within this interval"; }
+      figure("Longest Earth-centre outage (full mission)", windowText(r.earthWindows.longestHidden));
+      figure("Next Earth-centre visible interval (full mission)", windowText(r.earthWindows.nextVisible));
+      figure("Longest Earth-centre outage (before depletion / mission end)", windowText(r.poweredEarthWindows.longestHidden));
+      figure("Next Earth-centre visible interval (before depletion / mission end)", windowText(r.poweredEarthWindows.nextVisible));
+      figure("Earth-centre visible hours before depletion / mission end", r.poweredEarthWindows.visibleHours + " hours; geometry only, no radio link model");
       figure("Longest stretch without enough Sun", r.longestDark + " hours");
       figure("Lowest battery", percent(r.min, 1) + "%");
       // Hour 24 is the end of day 1; hour 25 is hour 1 of day 2.
@@ -90,13 +99,13 @@
 
       for (var day = 0; days && day < s.days; day++) {
         var begin = day * 24, end = Math.min(begin + 24, a.hours);
-        var sun = 0, earth = 0, low = r.series[begin];
+        var sun = 0, sunHours = 0, earth = 0, low = r.series[begin];
         for (h = begin; h < end; h++) {
-          sun += a.P.sun[s.start + h]; earth += a.P.earth[s.start + h];
+          sun += a.P.sun[s.start + h]; if (a.P.sun[s.start + h] > 0) sunHours++; earth += a.P.earth[s.start + h];
           low = Math.min(low, r.series[h + 1]);
         }
         var tr = document.createElement("tr");
-        var values = [utc(s.start + begin).slice(0, 10), sun.toFixed(1), earth,
+        var values = [utc(s.start + begin).slice(0, 10), sun.toFixed(1), sunHours, earth,
           percent(r.series[end], s.batt), percent(low, s.batt)];
         for (var col = 0; col < values.length; col++) {
           var td = document.createElement(col === 0 ? "th" : "td");

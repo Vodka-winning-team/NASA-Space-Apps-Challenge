@@ -2,11 +2,11 @@
 
 We checked our numbers against maps published by NASA Goddard.
 
-**NASA's maps:** LOLA-derived polar illumination maps, NASA GSFC Planetary Geodesy Data Archive, https://pgda.gsfc.nasa.gov/products/69 (Mazarico et al. 2011, Icarus 211). Files `AVGVISIB_85S_060M_201608` (Sun) and `AVGVISIB_85S_060M_201608_EARTH` (Earth). They give the share of time the Sun (any part of its disc) or the Earth is visible, averaged over 18.6 years, at 60 m per pixel.
+**NASA's maps:** LOLA-derived polar illumination maps, NASA GSFC Planetary Geodesy Data Archive, https://pgda.gsfc.nasa.gov/products/69 (Mazarico et al. 2011, Icarus 211). Files `AVGVISIB_85S_060M_201608` (Sun) and `AVGVISIB_85S_060M_201608_EARTH` (Earth). They give the share of time the Sun (any part of its disc) or any part of Earth's disc is visible, averaged over 18.6 years, at 60 m per pixel.
 
-**Our numbers:** every hour of 2027 and 2028, from the 80 m height map, using the same definition (any part of the Sun's disc; centre of the Earth), for three solar panel heights.
+**Our numbers:** every hour of 2027 and 2028, from the 80 m height map, counting any part of the Sun's disc and the centre of Earth (the Earth definition differs from NASA's), for three solar panel heights.
 
-Run it yourself: `python engine/validate.py`.
+Run it yourself: `python engine/validate.py`, after supplying both raw PGDA `.IMG` files in `data_raw/pgda/`. The existing comparison data have not been regenerated for this wording correction.
 
 ## Result
 
@@ -29,13 +29,13 @@ Share of time visible, in percent.
 
 ## What we take from it
 
-- **Earth visibility agrees well** with NASA: within 3 points at every site with the panel at 2 m.
-- **Our sunlight is on the generous side** at every site. So a "Survived" by a small margin deserves caution. A "Died" is the safer signal.
+- We cross-checked against NASA's long-term visibility maps. The comparison uses different time periods, terrain resolutions, observer heights and Earth-visibility definitions; it is not a measurement of prediction accuracy. Our Earth metric uses its centre; NASA counts any visible part of Earth's disc.
+- The tabulated differences describe visibility duration, not full-sun-equivalent energy. Higher sunlight duration alone does not establish the correctness of either power verdict.
 - **Panel height matters a lot on ridge tops.** Raising the panel from 0.5 m to 10 m adds up to 15 points of sunlight at Malapert Massif. This is also where an 80 m map is weakest, because it cannot see small bumps close to the lander.
 
 ## Why the numbers differ
 
-We have not proven the cause. Likely reasons:
+We have not isolated the causes. Known methodological differences:
 
 - NASA's map is for the ground surface on a 60 m grid; ours puts a panel above an 80 m grid, which smooths the ground near the lander.
 - NASA averages 18.6 years; we cover two.

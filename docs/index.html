@@ -230,11 +230,11 @@
     <div class="exportScroll" tabindex="0" role="region" aria-label="Daily mission numbers, scroll sideways for all columns">
       <table class="exportTable">
         <caption>Each mission day, starting at the landing time. Dates are UTC.</caption>
-        <thead><tr><th scope="col">Date (UTC)</th><th scope="col">Sun (hours)</th><th scope="col">Earth in view (hours)</th><th scope="col">Battery at day end (%)</th><th scope="col">Lowest battery (%)</th></tr></thead>
+        <thead><tr><th scope="col">Date (UTC)</th><th scope="col">Full-sun-equivalent hours</th><th scope="col">Partly sunlit hours</th><th scope="col">Earth centre above hills (hours)</th><th scope="col">Battery at day end (%)</th><th scope="col">Lowest battery (%)</th></tr></thead>
         <tbody id="exportDays"></tbody>
       </table>
     </div>
-    <p class="hint">Sun hours add up the visible fraction of the Sun’s disc. Both in view means any Sun and Earth’s centre above the hills. Earth in view means line of sight only. Battery values are from a simple model, not mission-grade data. The CSV gives battery charge at the end of each hour.</p>
+    <p class="hint">Full-sun-equivalent hours sum the visible disc-area fractions; partly sunlit hours count intervals with any Sun visible. Both in view means any Sun and Earth's centre above the hills. Earth visibility is geometry only, not a radio link. CSV intervals include UTC start and end: geometry is sampled at interval start, battery at interval end. The initial battery is 100%; a dark first hour with a 24-unit battery ends at 23 units (95.833%, rounded to 95.8% in CSV).</p>
     <button class="exportDownload" id="exportDownload" type="button">Download every hour (CSV)</button>
     <p class="hint" id="exportStatus" role="status"></p>
   </section>
@@ -272,12 +272,7 @@
           <li><b>Your own place ("Somewhere else").</b> Worked out in your browser, with the same method. The page loads NASA's 80 m height map for the ground within about 18 km and a 640 m copy for hills further away. The Sun and Earth are taken from the nearest prepared place's NASA/JPL Horizons table and turned to your place's sky. We tested it by rebuilding each of the six prepared places this way: the hill line stayed within 0.24 degrees, the Sun and Earth within 0.02 degrees, and the answer (survived or lost) matched on 97 to 100 percent of landing days. It works south of 85 degrees. The first time you choose a new area it needs the internet.</li>
         </ul>
         <h3>How close are we to NASA's own maps?</h3>
-        <p>NASA Goddard publishes maps of how often the Sun and the Earth are visible at the south pole (Mazarico et al. 2011, averaged over 18.6 years). We compared them with our numbers for 2027 and 2028 at the six places.</p>
-        <ul>
-          <li><b>Earth in view:</b> with the panel at 2 m we agree within 3 points at every place (average difference under 2).</li>
-          <li><b>Sunlight:</b> we are higher than NASA at every place: by 6 points on average with the panel at 0.5 m, and 11 points at 2 m. The largest gap is at Nobile Rim 1 (about 20 points).</li>
-          <li><b>What that means:</b> our sunlight is on the generous side, so a "Survived" by a small margin deserves caution. A "Lost" is the safer signal. Panel height changes the answer a lot on ridge tops, which is where an 80 m map is weakest. Use the panel height setting to see it.</li>
-        </ul>
+        <p>We cross-checked against NASA's long-term visibility maps. The comparison uses different time periods, terrain resolutions, observer heights and Earth-visibility definitions; it is not a measurement of prediction accuracy. Our Earth metric uses its centre; NASA counts any visible part of Earth's disc. The retained differences are descriptive: Earth at 2 m differs by 1.7 percentage points on average (largest 2.8); sunlight is higher by 6.0 points at 0.5 m and 10.9 at 2 m. These visibility-duration figures do not measure solar energy or power-prediction accuracy.</p>
         <div class="valWrap"><table class="val" id="val"></table></div>
         <h3>The battery is a simple model</h3>
         <ul>
@@ -313,6 +308,7 @@
 <script src="data/SP07.js"></script>
 <script src="data/ridges.js"></script>
 <script src="data/far/relief.js"></script>
+<script src="science.js"></script>
 <script src="app.js"></script>
 <script src="planner.js"></script>
 <script src="extras.js"></script>

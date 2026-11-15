@@ -38,8 +38,7 @@
     var n = d.n, r = d.sun_width_deg / 2;
     var sun = new Float32Array(n), earth = new Uint8Array(n);
     for (var i = 0; i < n; i++) {
-      var f = (d.sun_el[i] + r - horizonAt(d, d.sun_az[i])) / (2 * r);
-      sun[i] = f < 0 ? 0 : f > 1 ? 1 : f;
+      sun[i] = window.LANDER_SCIENCE.visibleDiscFraction(d.sun_el[i], horizonAt(d, d.sun_az[i]), r);
       earth[i] = d.earth_el[i] > horizonAt(d, d.earth_az[i]) ? 1 : 0;
     }
     return (prepCache[key] = { d: d, sun: sun, earth: earth });
@@ -50,12 +49,12 @@
   function sim(P, start, hours, batt, keep, opts) {
     var o = opts || {}, num = function (v, dflt) { return typeof v === "number" && isFinite(v) ? v : dflt; };
     var rate = num(o.rate, RATE), load = num(o.load, 1), sunScale = num(o.sunScale, 1);
-    var c = batt * num(o.charge, 1), min = c, died = -1, sunSum = 0, earthSum = 0, dark = 0, longest = 0, lastFull = 0;
+    var c = batt * num(o.charge, 1), min = c, died = -1, sunSum = 0, sunHours = 0, earthSum = 0, dark = 0, longest = 0, lastFull = 0;
     var series = keep ? new Float32Array(hours + 1) : null;
     if (series) series[0] = c;
     for (var h = 0; h < hours; h++) {
       var s = P.sun[start + h];
-      sunSum += s; earthSum += P.earth[start + h];
+      sunSum += s; if (s > 0) sunHours++; earthSum += P.earth[start + h];
       if (s * rate * sunScale < load) { dark++; if (dark > longest) longest = dark; } else dark = 0;
       if (died < 0) {
         c += s * sunScale * rate - load;
@@ -66,6 +65,9 @@
       if (series) series[h + 1] = c;
     }
     return { alive: died < 0, died: died, min: min / batt, sun: sunSum / hours, earth: earthSum / hours,
+             sunHours: sunHours, fullSunHours: sunSum,
+             earthWindows: window.LANDER_SCIENCE.earthWindows(P.earth, start, hours),
+             poweredEarthWindows: window.LANDER_SCIENCE.earthWindows(P.earth, start, died < 0 ? hours : died),
              longestDark: longest, lastFull: lastFull, series: series };
   }
 
