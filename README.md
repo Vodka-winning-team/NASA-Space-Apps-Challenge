@@ -55,3 +55,12 @@ This is a hackathon project. It is not a NASA product and is not endorsed by NAS
 ## Use of AI
 
 Code, data scripts and text in this repo were written with AI assistance (Claude, and OpenAI Codex for a code review and the hour-by-hour numbers section). All science comes from NASA data and published papers, listed above. No NASA logos or branding are used.
+
+## 360° lunar look-around (phones)
+
+In "Watch the mission", phones show a **Look around with your phone** button. Tap it and turn the phone to look around the landing site from the lander's eye; **Re-centre** faces the Sun's direction again, **Exit look-around** returns to the normal controls.
+
+- It uses the phone's motion sensors only. The camera and location are never used.
+- Directions are relative to the virtual Moon scene, not the real sky above you.
+- It needs HTTPS and a browser that provides orientation readings; some browsers ask for motion permission first. If readings are unavailable or refused, dragging still works.
+- Checked with simulated sensor readings in headless Chrome. Not yet checked on real Android or iPhone devices.

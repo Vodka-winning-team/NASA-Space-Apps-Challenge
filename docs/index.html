@@ -145,8 +145,15 @@
           <button type="button" class="t3dExag" id="t3dEarth">Look at Earth</button>
           <button type="button" class="t3dExag" id="t3dExag" aria-pressed="false">Hills 3× taller</button>
           <button type="button" class="t3dReset" id="t3dReset">Reset view</button>
+          <button type="button" class="t3dLook" id="t3dLook" hidden>Look around with your phone</button>
+        </div>
+        <div class="lookBar" id="lookBar" role="group" aria-label="Phone look-around" hidden>
+          <button type="button" id="lookCentre">Re-centre</button>
+          <button type="button" id="lookPlay">Play</button>
+          <button type="button" class="lookExit" id="lookExit">Exit look-around</button>
         </div>
       </div>
+      <p class="lookSay" id="lookSay" role="status" aria-live="polite" hidden></p>
       <p class="t3dNow" id="t3dNow" aria-live="polite"></p>
     </div>
     <div class="status">
@@ -319,5 +326,6 @@
 <script src="vendor/three.min.js"></script>
 <script src="vendor/OrbitControls.js"></script>
 <script src="terrain3d.js"></script>
+<script src="gyro.js"></script>
 </body>
 </html>

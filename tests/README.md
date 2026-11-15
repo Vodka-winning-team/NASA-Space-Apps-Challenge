@@ -27,3 +27,9 @@ The 96% regression floor was chosen from the audit's existing 96.9% baseline wit
 Earth samples represent half-open hourly intervals [i, i+1), clipped to the selected mission. Ties select the earliest longest outage. The next visible interval includes an interval already visible at landing. Powered windows end at battery depletion, independently of the full geometric schedule.
 
 Corrected-area result (2026-11-15): worst custom/prepared agreement is 95.8333% (Mons Mouton, 60 days / 240-hour battery), so the predeclared 96% gate currently fails. The threshold is intentionally retained; investigate that geometry/near-threshold battery sensitivity separately rather than relaxing it after observing the result.
+
+## Phone look-around (gyro)
+
+- `node tests/gyro.mjs`: the pure orientation maths in `docs/gyro.js` (neutral pose, turns, portrait/landscape, re-centre, 359 to 0 wrap, bad readings). No browser needed.
+- `tests/gyro_sim.mjs` with `tests/_gyro_sim.html`: the whole mode in headless Chrome at 390 px with simulated sensor events (no readings, denied, granted, enter/exit, time moving, place/panel/camera changes). See the usage line at the top of the script.
+- Neither replaces a real phone: motion permission prompts and real sensors must be checked by hand on Android Chrome and iPhone Safari over HTTPS.

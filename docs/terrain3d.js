@@ -237,7 +237,7 @@
       controls.target.copy(camera.position).add(dir(az, el)); controls.update(); render();
     });
 
-    renderer.domElement.addEventListener("webglcontextlost", function (e) { e.preventDefault(); note("3D paused: the graphics card was reset. It comes back by itself."); });
+    renderer.domElement.addEventListener("webglcontextlost", function (e) { e.preventDefault(); if (looking) lookEnd("gl", false); note("3D paused: the graphics card was reset. It comes back by itself."); });
     renderer.domElement.addEventListener("webglcontextrestored", function () { note(""); renderer.shadowMap.needsUpdate = true; render(); });
     new ResizeObserver(resize).observe(host);
     resize();
@@ -388,6 +388,7 @@
   }
   function setView(v, keepFollow) {
     if (!renderer || !api) return;
+    if (looking && !lookEntering) lookEnd("view", false);      // camera, panel or reset changed: leave phone look-around, keep the new choice
     view = v;
     if (!keepFollow) follow = true;
     [].forEach.call($("t3dViews").children, function (b) { b.setAttribute("aria-pressed", b.dataset.v === v); });
@@ -416,7 +417,7 @@
   // keep the camera sensible while you move: above the ground, not too flat when far out
   var moving = false;
   function onMove() {
-    if (moving || !api) { render(); return; }
+    if (moving || !api || looking) { render(); return; }      // in phone look-around the phone sets the camera
     moving = true;
     if (view === "eye") {          // turn on the spot: keep the way you look, put the eye back at the panel
       var fw = controls.target.clone().sub(camera.position).normalize();
@@ -575,9 +576,14 @@
       var y = parseFloat(api.state.mast) * exag;
       var fwd = controls.target.clone().sub(camera.position).normalize();
       camera.position.set(0, y, 0);                       // pinned at the panel, so it cannot drift
-      if (follow) { var look = dir(d.sun_az[idx], 0); controls.target.set(look.x, y, look.z); }
-      else controls.target.copy(camera.position).add(fwd);
-      controls.update();
+      if (looking) {                                      // the phone decides where you look; time moving on must not turn your head
+        if (lookQ) camera.quaternion.set(lookQ[0], lookQ[1], lookQ[2], lookQ[3]);
+        controls.target.copy(camera.position).add(fwd);
+      } else {
+        if (follow) { var look = dir(d.sun_az[idx], 0); controls.target.set(look.x, y, look.z); }
+        else controls.target.copy(camera.position).add(fwd);
+        controls.update();
+      }
     } else if (follow) {                                  // keep the Sun ahead until you look around yourself
       var off = camera.position.clone().sub(controls.target), dist = off.length();
       setOrbit(dist, Math.asin(clamp(off.y / dist, -1, 1)) / D2R, camAz());
@@ -648,12 +654,46 @@
     }
   }
 
+  /* ---------- phone look-around (gyro.js): the phone's orientation owns the camera while it is on ---------- */
+
+  var looking = false, lookEntering = false, lookQ = null, lookPrev = "ground", lookCb = null, lookF = null;
+  function lookAz() { var f = controls.target.clone().sub(camera.position); return (Math.atan2(f.x, -f.z) / D2R + 360) % 360; }
+  function lookEnter(onEnd) {
+    if (!renderer || !api || !ground || !lander || siteShown !== api.state.site) return null;
+    if (looking) return { az: lookAz() };
+    lookPrev = view; lookCb = onEnd || null;
+    if (view !== "eye") { lookEntering = true; setView("eye"); lookEntering = false; }     // stand at the panel; starts facing the Sun
+    looking = true; lookQ = null; follow = false;
+    controls.enabled = false;                             // dragging would fight the phone
+    return { az: lookAz() };
+  }
+  function lookApply(q) {
+    if (!looking || !q || !isFinite(q[0] + q[1] + q[2] + q[3])) return;
+    lookQ = q;
+    camera.position.set(0, parseFloat(api.state.mast) * exag, 0);     // turning only: moving the phone never walks you across the Moon
+    camera.quaternion.set(q[0], q[1], q[2], q[3]);
+    lookF = (lookF || new T.Vector3()).set(0, 0, -1).applyQuaternion(camera.quaternion);
+    controls.target.copy(camera.position).add(lookF);     // keeps "which way am I looking" true for everything else
+    render();
+  }
+  // restore: true when the user leaves by choice (go back to the view they came from)
+  function lookEnd(reason, restore) {
+    if (!looking) return;
+    looking = false; lookQ = null;
+    controls.enabled = true;
+    var cb = lookCb; lookCb = null;
+    if (restore && lookPrev !== "eye") setView(lookPrev);
+    else if (restore) { controls.update(); onMove(); }
+    if (!restore && cb) cb(reason);
+  }
+
   /* ---------- keep in step with the rest of the page ---------- */
 
   function sync() {
     if (!started || !api) return;
     var id = api.state.site, mast = api.state.mast;
     if (id !== siteShown) {
+      if (looking) lookEnd("place", false);
       note("Loading the ground…");
       loadTerrain(id, function () {
         if (api.state.site !== id) return;
@@ -718,6 +758,8 @@
   }
   window.LANDER_T3D = { view: function () { return view; }, block: function () { return block; }, follow: function () { return follow; },
     lookAt: lookAt, earthLon: earthLon,
+    look: { enter: lookEnter, apply: lookApply, exit: function () { lookEnd("user", true); }, active: function () { return looking; },
+            sunAz: function () { return api ? DATA()[api.state.site].sun_az[idx] : 0; } },
     cam: function () { return camera && controls ? { dist: camera.position.distanceTo(controls.target), y: camera.position.y, fov: camera.fov, ratio: ratio,
       look: (function (f) { return { az: (Math.atan2(f.x, -f.z) / D2R + 360) % 360, el: Math.asin(clamp(f.y, -1, 1)) / D2R }; })(controls.target.clone().sub(camera.position).normalize()) } : null; },
     ready: function () { return !!ground && !!lander && siteShown === (api && api.state.site); } };   // for tests

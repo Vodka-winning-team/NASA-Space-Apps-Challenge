@@ -1,0 +1,107 @@
+<!doctype html><meta charset="utf-8"><iframe id="f" style="width:390px;height:844px;border:0" src="index.html?gyro=1&mode=simple#site=HW06&date=2027-07-28&days=14&batt=96&panel=2"></iframe><pre id="r">running</pre>
+<script>
+var out = [], ok = function (c, m) { out.push((c ? "PASS " : "FAIL ") + m); };
+var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+document.getElementById("f").onload = async function () {
+  var w = this.contentWindow, d = this.contentDocument, $ = function (id) { return d.getElementById(id); };
+  var errs = []; w.addEventListener("error", function (e) { errs.push(e.message); });
+  var send = function (a, b, g) { w.dispatchEvent(new w.DeviceOrientationEvent("deviceorientation", { alpha: a, beta: b, gamma: g })); };
+  var look = function () { return w.LANDER_T3D.cam().look; };
+  var diff = function (a, b) { return Math.abs(((a - b + 540) % 360) - 180); };
+  try {
+    await sleep(1500);
+    $("terrain3d").scrollIntoView();
+    for (var i = 0; i < 60 && !(w.LANDER_T3D && w.LANDER_T3D.ready()); i++) await sleep(300);
+    ok(w.LANDER_T3D.ready(), "3D view ready");
+    ok(!$("t3dLook").hidden && !$("lookSay").hidden && /camera is not used/i.test($("lookSay").textContent), "entry button and 'camera is not used' text are shown");
+    ok(w.LANDER_GYRO.listeners() === 0, "no sensor listener before the tap");
+    var realAsk = w.DeviceOrientationEvent.requestPermission; out.push("INFO this browser " + (typeof realAsk === "function" ? "has" : "does not have") + " a motion permission method");
+    w.DeviceOrientationEvent.requestPermission = undefined;       // first test the no-permission-method path
+
+    // 1. no readings arrive -> gives up, drag still works
+    $("t3dLook").click(); await sleep(200);
+    ok(w.LANDER_GYRO.state() === "waiting", "after the tap it waits for readings (" + w.LANDER_GYRO.state() + ")");
+    await sleep(2800);
+    ok(w.LANDER_GYRO.state() === "off" && /unavailable/i.test($("lookSay").textContent) && w.LANDER_GYRO.listeners() === 0 && !w.LANDER_T3D.look.active(), "no readings: gives up after the wait with a message, listener removed");
+
+    // 2. unusable readings are ignored, then a good one enters the mode
+    var view0 = w.LANDER_T3D.view(), hour0 = w.LANDER_APP.get().state.hour, hash0 = w.location.hash;
+    $("t3dLook").click(); await sleep(100);
+    send(null, null, null); send(null, 90, 0); await sleep(100);
+    ok(w.LANDER_GYRO.state() === "waiting", "null and NaN readings do not start the mode");
+    send(10, 90, 0); await sleep(300);
+    ok(w.LANDER_GYRO.state() === "on" && w.LANDER_T3D.look.active() && w.LANDER_T3D.view() === "eye" && !$("lookBar").hidden && $("t3dLook").hidden, "a usable reading enters look-around in the lander's-eye view with its controls");
+    var sunAz = w.LANDER_T3D.look.sunAz();
+    for (var k = 0; k < 25; k++) send(10, 90, 0); await sleep(200);
+    var l0 = look();
+    ok(diff(l0.az, sunAz) < 1 && Math.abs(l0.el) < 1, "it starts facing the way the view faced (the Sun's direction), level: az " + l0.az.toFixed(1) + " vs " + sunAz.toFixed(1));
+    ok(Math.abs(w.LANDER_T3D.cam().y - 2) < 0.01, "the eye stays at panel height (" + w.LANDER_T3D.cam().y.toFixed(2) + " m)");
+
+    // 3. turning and tilting
+    for (k = 0; k < 30; k++) send(10 - 40, 90, 0); await sleep(200);
+    var l1 = look();
+    ok(diff(l1.az, (l0.az + 40) % 360) < 1, "turning the phone 40 degrees right turns the view 40 degrees right (" + l0.az.toFixed(1) + " -> " + l1.az.toFixed(1) + ")");
+    for (k = 0; k < 30; k++) send(-30, 120, 0); await sleep(200);
+    var l2 = look();
+    ok(Math.abs(l2.el - 30) < 1 && diff(l2.az, l1.az) < 1, "tilting back 30 degrees looks 30 degrees up, heading unchanged (el " + l2.el.toFixed(1) + ")");
+
+    // 4. mission time moves, the look direction stays; mission not restarted
+    w.LANDER_APP.setHour(100); await sleep(200);
+    var l3 = look();
+    ok(diff(l3.az, l2.az) < 0.5 && Math.abs(l3.el - l2.el) < 0.5 && w.LANDER_T3D.look.active(), "moving mission time to hour 100 does not turn the view or end the mode");
+    $("lookPlay").click(); await sleep(400);
+    ok(/pause/i.test($("play").textContent) && $("lookPlay").textContent === "Pause", "Play in the look-around bar starts the normal replay and shows Pause");
+    for (k = 0; k < 5; k++) send(-30, 120, 0); await sleep(300);
+    var l4 = look();
+    ok(diff(l4.az, l2.az) < 0.5 && Math.abs(l4.el - l2.el) < 0.5, "while playing, the view stays where the phone points");
+    $("lookPlay").click(); await sleep(200);
+    ok(!/pause/i.test($("play").textContent) && $("lookPlay").textContent === "Play", "Pause works from the bar");
+
+    // 5. re-centre: only heading resets; settings untouched
+    var st = JSON.stringify(w.LANDER_APP.get().state);
+    $("lookCentre").click(); await sleep(200);
+    var l5 = look(), sun5 = w.LANDER_T3D.look.sunAz();
+    ok(diff(l5.az, sun5) < 1 && Math.abs(l5.el - 30) < 1, "Re-centre faces the Sun's direction and keeps the tilt (az " + l5.az.toFixed(1) + " vs Sun " + sun5.toFixed(1) + ")");
+    ok(JSON.stringify(w.LANDER_APP.get().state) === st, "Re-centre changes no mission setting");
+
+    // 6. exit restores the earlier view and drag controls; listeners do not pile up
+    $("lookExit").click(); await sleep(300);
+    ok(w.LANDER_GYRO.state() === "off" && !w.LANDER_T3D.look.active() && w.LANDER_T3D.view() === view0 && $("lookBar").hidden && !$("t3dLook").hidden && w.LANDER_GYRO.listeners() === 0, "Exit: back to the '" + view0 + "' view, normal buttons, listener removed");
+    var before = look(); send(200, 45, 10); await sleep(200);
+    ok(diff(look().az, before.az) < 0.01, "after Exit, phone readings no longer move the camera");
+    for (var n = 0; n < 3; n++) { $("t3dLook").click(); await sleep(50); send(0, 90, 0); await sleep(150); $("lookExit").click(); await sleep(150); }
+    ok(w.LANDER_GYRO.listeners() === 0 && w.LANDER_GYRO.state() === "off", "enter/exit three more times: still no leftover listener");
+
+    // 7. changing the camera, the panel or the place ends the mode and keeps the new choice
+    $("t3dLook").click(); await sleep(50); send(0, 90, 0); await sleep(200);
+    w.LANDER_APP.set({ mast: "10" }); await sleep(400);
+    ok(w.LANDER_GYRO.state() === "off" && !w.LANDER_T3D.look.active() && w.LANDER_APP.get().state.mast === "10" && /view changed/i.test($("lookSay").textContent), "changing the panel height ends look-around with a message and keeps the new height");
+    $("t3dLook").click(); await sleep(50); send(0, 90, 0); await sleep(200);
+    d.querySelector('#t3dViews [data-v="above"]') && w.LANDER_T3D.look.active() && d.querySelector('#t3dReset').click(); await sleep(300);
+    ok(w.LANDER_GYRO.state() === "off" && !w.LANDER_T3D.look.active(), "a camera change (Reset view) ends look-around");
+    $("t3dLook").click(); await sleep(50); send(0, 90, 0); await sleep(200);
+    w.LANDER_APP.setSite("SP07"); await sleep(300);
+    ok(w.LANDER_GYRO.state() === "off" && !w.LANDER_T3D.look.active() && w.LANDER_APP.get().state.site === "SP07", "choosing another place ends look-around and keeps the new place");
+    for (i = 0; i < 40 && !w.LANDER_T3D.ready(); i++) await sleep(300);
+
+    // 8. permission method present: denied, then granted
+    w.DeviceOrientationEvent.requestPermission = function () { return Promise.resolve("denied"); };
+    $("t3dLook").click(); await sleep(200);
+    ok(w.LANDER_GYRO.state() === "off" && /not allowed/i.test($("lookSay").textContent) && w.LANDER_GYRO.listeners() === 0, "permission denied: message, drag controls stay, nothing listening");
+    var asked = 0; w.DeviceOrientationEvent.requestPermission = function () { asked++; return Promise.resolve("granted"); };
+    $("t3dLook").click(); await sleep(100); send(0, 90, 0); await sleep(300);
+    ok(asked === 1 && w.LANDER_GYRO.state() === "on", "permission granted: asked once, mode starts on the first reading");
+    $("lookExit").click(); await sleep(200);
+
+    // 9. layout on the phone-width page
+    var c = $("t3dCanvas").getBoundingClientRect();
+    $("t3dLook").click(); await sleep(100); send(0, 90, 0); await sleep(300);
+    var e = $("lookExit").getBoundingClientRect();
+    ok(e.width > 0 && e.left >= c.left && e.right <= c.right + 1 && e.bottom <= c.bottom + 1 && e.height >= 40, "Exit button is on the picture and big enough to tap at 390 px (" + Math.round(e.width) + "x" + Math.round(e.height) + ")");
+    ok(d.documentElement.scrollWidth <= 390, "no sideways overflow at 390 px (" + d.documentElement.scrollWidth + ")");
+    $("lookExit").click();
+    ok(errs.length === 0, "no script errors" + (errs.length ? ": " + errs.join(" | ") : ""));
+  } catch (err) { out.push("FAIL exception: " + err.message); }
+  document.getElementById("r").textContent = out.join("\n") + "\nDONE";
+};
+</script>
