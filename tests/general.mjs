@@ -88,7 +88,7 @@ for (const [sz, w, h] of SIZES) {
         const m = await js(`return { planner: document.body.classList.contains("mode-planner"), shown: [].filter.call(document.querySelectorAll(".pro"), function (e) { return e.offsetParent; }).length, total: document.querySelectorAll(".pro").length };`);
         ok(m.planner && m.shown > 0, `${sz}: "Mission planner" shows the detailed sections (${m.shown}/${m.total})`);
         await shot(sz + "-planner");
-        await js(`document.querySelector('.modes [data-mode="simple"]').click();`); await sleep(400);
+        await js(`document.querySelector('.modes [data-mode="simple"]').click();`); await sleep(1300);   // the switch has a short animation
         const m2 = await js(`return [].filter.call(document.querySelectorAll(".pro"), function (e) { return e.offsetParent; }).length;`);
         ok(m2 === 0, `${sz}: "Simple" hides them again (${m2} shown)`);
       }

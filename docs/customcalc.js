@@ -100,7 +100,14 @@
     var p = toPix(lat, lon), out = [];
     var r0 = Math.floor((p[0] - REACH_PX) / TILE), r1 = Math.floor((p[0] + REACH_PX) / TILE);
     var c0 = Math.floor((p[1] - REACH_PX) / TILE), c1 = Math.floor((p[1] + REACH_PX) / TILE);
-    for (var r = r0; r <= r1; r++) for (var c = c0; c <= c1; c++) out.push(r + "_" + c);
+    // engine/build_custom.py writes only the tiles within (85 S + 18.2 km) of the pole; corners of the square
+    // beyond that are never needed (nothing is sampled there), so do not ask for them
+    var keep = (2 * R * Math.tan(Math.PI / 4 - 85 * Math.PI / 360) + 18200) / SCALE + 2;
+    for (var r = r0; r <= r1; r++) for (var c = c0; c <= c1; c++) {
+      var a0 = r * TILE, a1 = Math.min(N, a0 + TILE), b0 = c * TILE, b1 = Math.min(N, b0 + TILE);
+      var dr = Math.max(a0 - C0, 0, C0 - (a1 - 1)), dc = Math.max(b0 - C0, 0, C0 - (b1 - 1));
+      if (Math.sqrt(dr * dr + dc * dc) <= keep) out.push(r + "_" + c);
+    }
     return out;
   }
 

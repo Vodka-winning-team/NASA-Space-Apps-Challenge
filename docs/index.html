@@ -17,15 +17,19 @@
 <link rel="stylesheet" href="custom.css">
 <link rel="stylesheet" href="export.css">
 <link rel="stylesheet" href="replay.css">
+<link rel="stylesheet" href="tour.css">
 <link rel="stylesheet" href="theme.css">
 </head>
 <body class="mode-simple">
 
 <header class="top">
   <p class="brand">Will the lander <em>survive?</em></p>
-  <div class="modes" role="group" aria-label="How much detail to show">
-    <button type="button" data-mode="simple" aria-pressed="true">Simple</button>
-    <button type="button" data-mode="planner" aria-pressed="false">Mission planner</button>
+  <div class="topRight">
+    <div class="modes" role="group" aria-label="How much detail to show">
+      <button type="button" data-mode="simple" aria-pressed="true">Simple</button>
+      <button type="button" data-mode="planner" aria-pressed="false">Mission planner</button>
+    </div>
+    <button type="button" class="tourBtn" id="tourBtn" aria-haspopup="dialog"><i aria-hidden="true">?</i>Tour</button>
   </div>
   <div class="prefs" id="prefs" role="group" aria-label="Display and language"></div>
   <p class="modeSay" id="modeSay" role="status" aria-live="polite"></p>
@@ -331,6 +335,7 @@
 <script src="vendor/OrbitControls.js"></script>
 <script src="terrain3d.js"></script>
 <script src="gyro.js"></script>
+<script src="tour.js"></script>
 <script src="fr.js"></script>
 <script src="i18n.js"></script>
 </body>
