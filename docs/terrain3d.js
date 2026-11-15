@@ -513,6 +513,8 @@
     mL.makeBasis(a, yv, a.clone().cross(yv)).transpose();
     earth.quaternion.setFromRotationMatrix(mW.multiply(mL));
     earth.material.uniforms.sunDir.value.copy(sun);
+    // its name says so when the hills or the Moon itself are in the way (the label shows where it is even then)
+    labels.earth.textContent = P.earth[idx] ? "Earth" : d.earth_el[idx] < -1 ? "Earth (below the horizon)" : "Earth (behind the hills)";
     stars.setRotationFromAxisAngle(new T.Vector3(0, Math.sin(la), -Math.cos(la)).normalize(), -idx / (27.32 * 24) * Math.PI * 2);
 
     var h = idx - api.state.start, dead = !api.run.alive && h >= api.run.died;
