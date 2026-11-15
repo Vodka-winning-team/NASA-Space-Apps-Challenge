@@ -20,6 +20,7 @@ run "stress"             node "$HERE/stress.mjs" "$U"
 run "review fixes"       node "$HERE/review.mjs" "$U"
 run "3D mission replay"   node "$HERE/replay.mjs" "$U"
 run "random clicking"     node "$HERE/monkey.mjs" "$U" 250
+run "guided tour"         node "$HERE/tour.mjs" "$U"
 run "opened from disk"   node "$HERE/custom.mjs" "file://$(cd "$DOCS" && pwd)" ""   # docs/ itself: snap Firefox cannot read /tmp
 run "science helpers" node "$HERE/science.mjs"
 run "custom-place mathematics" node "$HERE/../engine/check_custom.mjs"
