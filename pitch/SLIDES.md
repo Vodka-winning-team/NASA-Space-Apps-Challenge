@@ -39,7 +39,7 @@ Open on the red verdict. A lander touches down at the south pole, and nine days 
 - The Sun stays low. Hills hide it for days.
 - No Sun → battery empty → lander lost.
 - No Earth in view → no contact.
-- Picture: `desktop-lost-planner-07-watch-the-mission.jpg`, cropped to the top half: the hill line, the Sun low on the left, Earth above, "The lander is here".
+- Picture: `desktop-replay-1-beside-the-lander.jpg`, cropped to the top half: the hill line, the Sun low on the left, Earth above, "The lander is here".
 
 **Speaker notes**
 
@@ -67,13 +67,13 @@ The tools that do this today are powerful but hard to read. Ours is one screen: 
 
 - Lost on day 9 → How do we save it? → Saved.
 - Picture (shown only if the demo fails): `desktop-lost-planner-05-rescue.jpg` ("We tried five changes, one at a time. 4 of 5 would save this mission.")
-- Second backup picture: `desktop-lost-planner-10-landing-later.jpg` (2 Aug: "Wait 5 days, land on 2 Aug, and the lander survives.")
+- Second backup picture: `desktop-lost-planner-09-landing-later.jpg` (2 Aug: "Wait 5 days, land on 2 Aug, and the lander survives.")
 
 **Speaker notes**
 
 Switch to the browser. Exact clicks are in PITCH_SCRIPT.md. Show "Lost on day 9", scroll to "How do we save it?", 4 of 5 fixes work, raising the panel to 10 m does not. Click "Try it" on "Land 5 days later". The verdict becomes "Survived, just." with the battery down to 12%. Say honestly that Earth is now in view only 5% of the time: power is saved, contact is the next problem.
 
-The backup video (`pitch/backup-demo.mp4`) shows the "Survived, just." screen at about 0:17, and `pitch/screenshots/` has it too (see its README).
+The backup video (`pitch/backup-demo.mp4`) shows the "Survived, just." screen at about 0:27, and `pitch/screenshots/` has it too (see its README).
 
 ---
 
@@ -83,7 +83,7 @@ The backup video (`pitch/backup-demo.mp4`) shows the "Survived, just." screen at
 
 - What if we land a few days later?
 - Which place is safest?
-- Pictures: `desktop-lost-planner-10-landing-later.jpg` (top) and `desktop-lost-planner-13-compare-the-six-places.jpg` (bottom: two years, six places, green and red stripes).
+- Pictures: `desktop-lost-planner-09-landing-later.jpg` (top) and `desktop-lost-planner-12-compare-the-six-places.jpg` (bottom: two years, six places, green and red stripes).
 - Small line: Land anywhere south of 85° S (type it or tap the map). The numbers hour by hour, as a CSV.
 
 **Speaker notes**
@@ -107,7 +107,7 @@ The challenge stresses launch delays. Each square is the same mission, landing o
 | Sunlight (panel 0.5 m) | 6.0 points higher | 18.9 points |
 
 - Honest limits: our sunlight runs high, so "lost" is the safer signal. The battery is a simple model. Earth in view is line of sight, not a radio link.
-- Small picture: `desktop-lost-planner-11-which-hill-hid-the-sun.jpg` (the real hill, 91.8 km away, that hid the Sun).
+- Small picture: `desktop-lost-planner-10-which-hill-hid-the-sun.jpg` (the real hill, 91.8 km away, that hid the Sun).
 
 **Speaker notes**
 
@@ -120,7 +120,7 @@ Every hill and every Sun position is NASA data. We then checked ourselves agains
 **On the slide**
 
 - "Go outside, look at the Moon, and the lander is looking back."
-- Picture: `desktop-lost-planner-15-mauritius.jpg` ("Yes. For 54 hours of this mission, the lander can see Earth while the Moon is in the sky over Port Louis.")
+- Picture: `desktop-lost-planner-14-mauritius.jpg` ("Yes. For 54 hours of this mission, the lander can see Earth while the Moon is in the sky over Port Louis.")
 - QR code: `pitch/qr-code-dark.png` (for a dark slide) or `pitch/qr-code.png` (for a white slide). Scan it once with a phone before the pitch.
 - Links: vodka-winning-team.github.io/NASA-Space-Apps-Challenge · github.com/Vodka-winning-team/NASA-Space-Apps-Challenge
 - Footer, small: NASA data: LRO LOLA, NASA/JPL Horizons, NASA GSFC PGDA. Built with AI assistance (Claude, OpenAI Codex). Not a NASA product.

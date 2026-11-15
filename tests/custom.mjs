@@ -56,20 +56,31 @@ const sweep = await js(`var A = window.LANDER_APP, id = A.get().state.site, out 
   ["0.5","2","10"].forEach(function (m) { A.set({ mast: m }); out.push(A.get().run.alive); });
   A.setSite("HW06"); A.setSite(id); for (var k = 0; k < 20; k++) A.setStart(k * 30 * 24); return out.length;`);
 ok(sweep === 3, "custom place: all 3 panel heights and 20 dates run");
-// 4. map tap inside the ring
-const disc = await call("POST", S + "/element", { using: "css selector", value: "#moon" });
-await js(`arguments[0].scrollIntoView({block:"center"})`, disc); await sleep(400);
-const rect = await js(`var r = arguments[0].getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height };`, disc);
-await call("POST", S + "/actions", { actions: [{ type: "pointer", id: "m", parameters: { pointerType: "mouse" }, actions: [
-  { type: "pointerMove", x: Math.round(rect.x + rect.w * 0.62), y: Math.round(rect.y + rect.h * 0.40), origin: "viewport" }, { type: "pointerDown", button: 0 }, { type: "pointerUp", button: 0 }] }] });
+// 4. a second place picked on the map (the flat map, or the 3D globe when it is shown; tests/globe.mjs taps the globe itself)
+const globeOn = await js(`var g = document.getElementById("globeFig"); return !!g && !g.hidden;`);
+let rect = null;
+if (globeOn) {
+  await js(`window.LANDER_CUSTOM.land(-87.7607, 49.9306);`);
+} else {
+  const disc = await call("POST", S + "/element", { using: "css selector", value: "#moon" });
+  await js(`arguments[0].scrollIntoView({block:"center"})`, disc); await sleep(400);
+  rect = await js(`var r = arguments[0].getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height };`, disc);
+  await call("POST", S + "/actions", { actions: [{ type: "pointer", id: "m", parameters: { pointerType: "mouse" }, actions: [
+    { type: "pointerMove", x: Math.round(rect.x + rect.w * 0.62), y: Math.round(rect.y + rect.h * 0.40), origin: "viewport" }, { type: "pointerDown", button: 0 }, { type: "pointerUp", button: 0 }] }] });
+}
 const tapped = await until(`return /^Done/.test(document.getElementById("customMsg").textContent) && /^P/.test(window.LANDER_APP.get().state.site) && window.LANDER_APP.get().state.site !== "P-88.5000_-40.0000";`, 60000);
 const st2 = await js(`var A = window.LANDER_APP.get(); return { site: A.state.site, n: A.sites.length, chips: document.querySelectorAll("#sites [data-custom]").length, dots: document.querySelectorAll("#moon .dotCustom").length };`);
-ok(tapped && st2.n === 7 && st2.chips === 1 && st2.dots === 1, `map tap chooses a new place and replaces the old one (${st2.site}, ${st2.n} places, ${st2.chips} chip, ${st2.dots} dot)`);
-// tap outside the ring
-await call("POST", S + "/actions", { actions: [{ type: "pointer", id: "m", parameters: { pointerType: "mouse" }, actions: [
-  { type: "pointerMove", x: Math.round(rect.x + rect.w * 0.95), y: Math.round(rect.y + rect.h * 0.5), origin: "viewport" }, { type: "pointerDown", button: 0 }, { type: "pointerUp", button: 0 }] }] });
-await sleep(400);
-ok(/dashed circle/.test(await js(`return document.getElementById("customMsg").textContent;`)), "tap outside 85° S explains the limit");
+ok(tapped && st2.n === 7 && st2.chips === 1 && st2.dots === 1, `a new place replaces the old one (${st2.site}, ${st2.n} places, ${st2.chips} chip, ${st2.dots} dot)${globeOn ? " [3D globe shown]" : ""}`);
+// outside the 85 S limit
+if (globeOn) {
+  await js(`window.LANDER_CUSTOM.land(-80, 10);`); await sleep(400);
+  ok(/85° and 90° south/.test(await js(`return document.getElementById("customMsg").textContent;`)), "a place outside 85° S is refused with the reason");
+} else {
+  await call("POST", S + "/actions", { actions: [{ type: "pointer", id: "m", parameters: { pointerType: "mouse" }, actions: [
+    { type: "pointerMove", x: Math.round(rect.x + rect.w * 0.95), y: Math.round(rect.y + rect.h * 0.5), origin: "viewport" }, { type: "pointerDown", button: 0 }, { type: "pointerUp", button: 0 }] }] });
+  await sleep(400);
+  ok(/dashed circle/.test(await js(`return document.getElementById("customMsg").textContent;`)), "tap outside 85° S explains the limit");
+}
 // 5. shared link opens the custom place
 const link = await js(`return location.href;`);
 await call("POST", S + "/url", { url: "about:blank" });

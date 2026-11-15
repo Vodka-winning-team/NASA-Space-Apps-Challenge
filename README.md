@@ -34,6 +34,7 @@ Needs Python 3 with `numpy` and `requests` (and `Pillow` for the map picture).
    - `python build_terrain.py`: the ground for the 3D view
    - `python build_map.py`: the small map picture
    - `python validate.py`: the check against NASA's sunlight maps (needs the NASA files listed in VALIDATION.md)
+   - `python build_far.py path/to/bluemarble-2048.png`: the wider land and the Earth picture for the 3D mission replay
    - `python build_custom.py`: the height maps the website uses for "Somewhere else" (any place south of 85° S)
    - `node check_custom.mjs`: checks "Somewhere else" against the six prepared sites
 
@@ -41,6 +42,7 @@ Needs Python 3 with `numpy` and `requests` (and `Pillow` for the map picture).
 
 - **NASA LRO LOLA** gridded elevation, LDEM_80S_80M, NASA PDS Geosciences Node. Used for the horizon around each site.
 - **NASA/JPL Horizons** (https://ssd.jpl.nasa.gov/horizons/). Used for the direction of the Sun and Earth from each site, and of the Moon from Port Louis, every hour of 2027 and 2028.
+- **NASA SVS Blue Marble** (https://svs.gsfc.nasa.gov/2915). Used for the picture of the Earth in the 3D mission replay.
 - **Wueller et al. (2026)**, JGR Planets 131(3), e2025JE009434, data at https://doi.org/10.5281/zenodo.17084058 (CC BY 4.0). Used for the coordinates of the six candidate landing sites.
 - Fonts: Archivo and JetBrains Mono (SIL Open Font License).
 

@@ -90,16 +90,17 @@ Scan the code. It works on your phone, even offline. Everything is open: the cod
 6. Scroll down one screen to **"How do we save it?"**: "We tried five changes, one at a time. 4 of 5 would save this mission." Point at the one card with a cross, "Raise the solar panel": "Does not work. Even at 10 m the hills still hide the Sun for too long."
 7. On the first card, **"Land 5 days later"** (Land on 2 Aug instead of 28 Jul), click **Try it**.
 8. The page scrolls back up by itself. The verdict now says **"Survived, just."** and "The battery fell to 12%". The line under it says Earth is in view 5% of the time.
-9. If there is time: the box below says "Saved. One change did it: landing 5 days later." Click **Put it back the way it was** to show the undo. Skip this if behind.
-10. Go back to the slides for slide 5.
+9. If there is time: scroll to **"Why? Watch the mission."** and press **Play the mission**. The 3D view shows the lander on the real ground, the Sun on the horizon, and the Earth above it (click **Look at Earth**). When the Sun goes behind a hill the line to it turns red. Ctrl + scroll zooms out over the craters. Skip this if behind.
+10. If there is still time: the box below says "Saved. One change did it: landing 5 days later." Click **Put it back the way it was** to show the undo. Skip this if behind.
+11. Go back to the slides for slide 5.
 
 **If the demo fails**
 
-Say: *"The live site is not answering, so here are the same screens from last night."* Then show the backup video (`pitch/backup-demo.mp4`, 32 s, also at https://github.com/Vodka-winning-team/NASA-Space-Apps-Challenge/blob/main/pitch/backup-demo.mp4; keep a copy on the laptop's desktop), or these screenshots in order:
+Say: *"The live site is not answering, so here are the same screens from last night."* Then show the backup video (`pitch/backup-demo.mp4`, 37 s, also at https://github.com/Vodka-winning-team/NASA-Space-Apps-Challenge/blob/main/pitch/backup-demo.mp4; keep a copy on the laptop's desktop), or these screenshots in order:
 
 1. `pitch/screenshots/desktop-lost-planner-04-verdict.jpg` ("Lost on day 9.")
 2. `pitch/screenshots/desktop-lost-planner-05-rescue.jpg` (4 of 5 fixes)
-3. `pitch/screenshots/desktop-lost-planner-10-landing-later.jpg` ("Wait 5 days, land on 2 Aug, and the lander survives.")
+3. `pitch/screenshots/desktop-lost-planner-09-landing-later.jpg` ("Wait 5 days, land on 2 Aug, and the lander survives.")
 
 Keep talking from the script. Do not try to fix the laptop during the pitch.
 

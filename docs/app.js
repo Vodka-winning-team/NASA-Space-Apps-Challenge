@@ -474,7 +474,23 @@
 
   var calGeom = null;
 
+  // each place's two-year results only change with the lander's settings, so work them out once and keep them
+  var calCache = {}, calKeys = 0;
+  function calRow(id, hours, nDays) {
+    var key = id + "|" + state.mast + "|" + state.batt + "|" + hours + "|" + nDays;
+    if (calCache[key]) return calCache[key];
+    if (calKeys > 80) { calCache = {}; calKeys = 0; }
+    var P = prep(id), g = new Uint8Array(nDays), a = new Float32Array(nDays), alive = 0;
+    for (var d = 0; d < nDays; d++) {
+      var r = sim(P, d * 24, hours, state.batt, false), gr = grade(r);
+      g[d] = gr === "live" ? 0 : gr === "close" ? 1 : 2; a[d] = gr === "dead" ? 0.45 + 0.4 * (r.died / hours) : 1;
+      if (r.alive) alive++;
+    }
+    calKeys++;
+    return (calCache[key] = { g: g, a: a, alive: alive });
+  }
   function drawCal() {
+    if (!$("cal").offsetParent) return;          // hidden (Simple view): nothing to draw; it is drawn when shown
     var o = fit($("cal")), ctx = o.ctx, W = o.w, H = o.h, hours = hoursTotal();
     var nDays = Math.floor(maxStart() / 24) + 1, axisH = 22;
     var pitch = (H - axisH) / SITES.length, barH = Math.max(12, pitch - 22);
@@ -497,17 +513,16 @@
 
     var stats = [];
     SITES.forEach(function (s, row) {
-      var P = prep(s.id), y = axisH + row * pitch + 18, sel = s.id === state.site;
+      var y = axisH + row * pitch + 18, sel = s.id === state.site, rowData = calRow(s.id, hours, nDays);
       ctx.font = (sel ? "600" : "500") + " 11px " + MONO; ctx.fillStyle = sel ? C.text : C.t3;
       ctx.textBaseline = "bottom"; ctx.textAlign = "left";
       ctx.fillStyle = C.bg; ctx.fillRect(0, y - 15, ctx.measureText(s.name).width + 8, 14);
       ctx.fillStyle = sel ? C.text : C.t3; ctx.fillText(s.name, 0, y - 3);
-      var alive = 0;
+      var alive = rowData.alive;
       for (var d = 0; d < nDays; d++) {
-        var r = sim(P, d * 24, hours, state.batt, false), g = grade(r);
-        if (r.alive) alive++;
-        ctx.fillStyle = g === "live" ? C.live : g === "close" ? C.close : C.dead;
-        ctx.globalAlpha = g === "dead" ? 0.45 + 0.4 * (r.died / hours) : 1;
+        var g = rowData.g[d];
+        ctx.fillStyle = g === 0 ? C.live : g === 1 ? C.close : C.dead;
+        ctx.globalAlpha = rowData.a[d];
         ctx.fillRect(X(d), y, X(d + 1) - X(d) + 0.4, barH);
       }
       ctx.globalAlpha = 1;
@@ -690,7 +705,7 @@
       b.onclick = function () { ridgePick = spells.filter(function (s) { return s.from === +b.dataset.from; })[0]; drawRidge(); drawPano(); };
     });
     if (!pick) {
-      $("ridgeSay").innerHTML = "The Sun never stays hidden for long on this mission. Tap the sky picture above to look in any direction.";
+      $("ridgeSay").innerHTML = "The Sun never stays hidden for long on this mission. Open the flat 360° view above and tap it to look in any direction.";
       drawSection(null);
       return;
     }
