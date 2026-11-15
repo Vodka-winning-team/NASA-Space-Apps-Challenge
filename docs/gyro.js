@@ -200,9 +200,10 @@
   doc.addEventListener("visibilitychange", function () { if (!doc.hidden) smoothed = null; });   // back from the background: no slow swing
   root.addEventListener("pagehide", function () { if (state !== "off") leave(); });
 
-  // Offer it where it can work: a touch device whose browser knows about orientation events. (?gyro=1 forces it, for testing.)
-  var touch = root.matchMedia && root.matchMedia("(pointer: coarse)").matches;
-  if (root.DeviceOrientationEvent && (touch || /[?&]gyro=1\b/.test(root.location.search))) { btn.hidden = false; say.hidden = false; tell(INTRO); }
+  // Shown on any touch device, even if the browser hides its motion sensors: tapping then explains that dragging still works. (?gyro=1 forces it, for testing.)
+  var nav = root.navigator || {};
+  var touch = (root.matchMedia && (root.matchMedia("(pointer: coarse)").matches || root.matchMedia("(any-pointer: coarse)").matches)) || nav.maxTouchPoints > 0 || "ontouchstart" in root;
+  if ((touch || /[?&]gyro=1\b/.test(root.location.search))) { btn.hidden = false; say.hidden = false; tell(INTRO); }
 
   root.LANDER_GYRO = { math: MATH, state: function () { return state; }, listeners: function () { return attached; } };   // for tests
 })(typeof window !== "undefined" ? window : this);

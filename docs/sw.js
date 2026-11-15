@@ -1,5 +1,5 @@
 /* Offline support: keep a copy of every file. Written with AI assistance (Claude). */
-var CACHE = "lander-v37";
+var CACHE = "lander-v38";
 var FILES = ["./", "index.html", "style.css", "science.js", "app.js", "planner.js", "planner.css", "extras.js", "extras.css", "mode.js", "mode.css", "rescue.js", "rescue.css", "customcalc.js", "custom.js", "custom.css", "manifest.webmanifest", "icon.svg", "map.jpg", "icon-192.png", "icon-512.png",
   "export.js", "export.css", "replay.css", "tour.js", "tour.css", "data/far/relief.js", "data/far/shade.jpg", "data/far/earth.jpg", "fonts/archivo.woff2", "fonts/jbmono.woff2", "data/sites.js", "data/validation.js", "data/moris.js",
   "data/MMA_K2023.js", "data/MMO01.js", "data/NR101.js", "data/dGR201.js", "data/HW06.js", "data/SP07.js", "data/ridges.js", "terrain3d.js", "gyro.js", "theme.css", "theme.js", "fr.js", "i18n.js", "vendor/three.min.js", "vendor/OrbitControls.js",
