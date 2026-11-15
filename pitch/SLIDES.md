@@ -9,7 +9,7 @@ All pictures are in `pitch/screenshots/`. They show the real website on the demo
 | 1 | Will the lander survive? | 0:15 | Presentation |
 | 2 | The south pole is hard | 0:30 | Relevance, Impact |
 | 3 | One screen, one answer | 0:15 | Impact, Presentation |
-| 4 | Lost on day 9. Can we save it? (live demo, then 20 s of the 3D replay) | 1:20 | Creativity, Impact |
+| 4 | Lost on day 9. Why? Can we save it? (live demo with the 3D view) | 1:20 | Creativity, Impact |
 | 5 | When the launch slips | 0:30 | Relevance, Creativity |
 | 6 | Built on NASA data, checked against NASA | 0:35 | Validity |
 | 7 | Mauritius can see it. So can you. | 0:35 | Impact, Presentation |
@@ -61,7 +61,7 @@ The tools that do this today are powerful but hard to read. Ours is one screen: 
 
 ---
 
-## Slide 4: Lost on day 9. Can we save it? (live demo, then the 3D replay)
+## Slide 4: Lost on day 9. Why? Can we save it? (live demo with the 3D view)
 
 **On the slide**
 
@@ -71,9 +71,7 @@ The tools that do this today are powerful but hard to read. Ours is one screen: 
 
 **Speaker notes**
 
-Switch to the browser. Exact clicks are in PITCH_SCRIPT.md. Show "Lost on day 9", scroll to "How do we save it?", 4 of 5 fixes work, raising the panel to 10 m does not. Click "Try it" on "Land 5 days later". The verdict becomes "Survived, just." with the battery down to 12%. Say honestly that Earth is now in view only 5% of the time: power is saved, contact is the next problem.
-
-Then about 20 seconds of the 3D replay: scroll to "Why? Watch the mission.", press Play, and point at the line to the Sun turning red when a ridge hides it (it names the ridge). Pause, back to the slides. Skip the 3D if behind at 2:20.
+Switch to the browser. Exact clicks are in PITCH_SCRIPT.md. Show "Lost on day 9". Scroll down to the 3D view and click once in the middle of the battery chart under it: day 8, battery about 30%, the line to the Sun is red, and the label says a hill about 100 km away hides the Sun. Scroll back up to "How do we save it?": 4 of 5 fixes work, raising the panel does not. Click "Try it" on "Land 5 days later": "Survived, just.", battery down to 12%. Say honestly that Earth is now in view only 5% of the time: power is saved, contact is the next problem. Do not press Play during the pitch: it runs the 14 days in about 8 seconds.
 
 The backup video (`pitch/backup-demo.mp4`) shows the "Survived, just." screen at about 0:27, and `pitch/screenshots/` has it too (see its README).
 

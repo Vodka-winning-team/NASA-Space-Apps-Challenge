@@ -21,12 +21,12 @@
 | 1 | Title | 0:15 | 0:15 |
 | 2 | The problem | 0:30 | 0:45 |
 | 3 | One screen, one answer | 0:15 | 1:00 |
-| 4 | Live demo: lost, saved, then 20 s of the 3D replay | 1:20 | 2:20 |
+| 4 | Live demo: lost, why (the 3D view, 20 s), saved | 1:20 | 2:20 |
 | 5 | When the launch slips | 0:30 | 2:50 |
 | 6 | NASA data and our check | 0:35 | 3:25 |
 | 7 | Mauritius, QR code, your phone, thanks | 0:35 | 4:00 |
 
-The pitch is strictly timed. If you are behind at 2:20, skip the 3D replay paragraph on slide 4 (go straight to slide 5) and the line in brackets on slide 5.
+The pitch is strictly timed. If the demo is running long, drop the line in brackets on slide 5. Keep the 3D part: it is the "why", and it is short.
 
 ---
 
@@ -48,13 +48,13 @@ The tools that check this today are powerful, but hard to read. Ours is one scre
 
 Let me show you. Haworth, 28 July 2027. A two-week mission, and a battery that lasts four days without Sun.
 
-Lost on day 9. The hills hid the Sun for too long.
+Lost on day 9. Why?
 
-So we ask: how do we save it? It tried five changes by itself. Four work. A taller panel does not: the hills are too high.
+This is the real ground at Haworth, built from NASA's laser maps, with our lander on it. Let's jump to day 8. The Sun is right there on the horizon, but the line to it is red: a hill about a hundred kilometres away is in the way. No sunlight, and the battery is already down to thirty percent.
+
+So how do we save it? The page tried five changes by itself. Four work. A taller panel does not: the hills are too high.
 
 Let's land five days later. Survived, just: the battery fell to twelve percent. But Earth is now in view only five percent of the time. Power is saved; contact is the next problem. The tool shows both.
-
-Why did the first date fail? This is the real ground at Haworth, from NASA's laser maps. Press Play. When a ridge hides the Sun, this line turns red and names the ridge.
 
 ### Slide 5 (0:30)
 
@@ -92,20 +92,16 @@ Will the lander survive? Now anyone can check. Thank you.
 2. Check that it says **"Lost on day 9."** and that "How do we save it?" says **4 of 5**.
 3. Keep a second tab on the same link, in case you need to start again. Keep `docs/index.html` from the repo on the laptop as a second backup (it opens with no internet).
 
-**Clicks during the demo** (if the page is not already set, do all of them; if it is, just point)
+**Clicks during the demo** (the link sets everything; you only point, scroll and click twice)
 
-1. Top right: click **Mission planner**.
-2. "Where do we land?": click **Haworth**.
-3. "When?": set the date to **28 Jul 2027** (the box may show it as 07/28/2027).
-4. Open **More settings**: mission **14 days**, slide the battery to **4 days without Sun**, panel **2 m**. The line next to "More settings" should read "14-day mission · battery lasts 4 days without Sun · panel 2 m high".
-5. Point at the verdict: **"Lost on day 9."** "The hills hid the Sun for too long."
-6. Scroll down one screen to **"How do we save it?"**: "We tried five changes, one at a time. 4 of 5 would save this mission." Point at the one card with a cross, "Raise the solar panel": "Does not work. Even at 10 m the hills still hide the Sun for too long."
-7. On the first card, **"Land 5 days later"** (Land on 2 Aug instead of 28 Jul), click **Try it**.
-8. The page scrolls back up by itself. The verdict now says **"Survived, just."** and "The battery fell to 12%". The line under it says Earth is in view 5% of the time.
-9. Scroll to **"Why? Watch the mission."** and press **Play the mission**. The 3D view shows the lander on the real ground at Haworth with the Sun on the horizon. When the Sun goes behind a hill, the line to it turns red and names the ridge. Press **Pause** when you have said it. Keep this to about 20 seconds. Skip it if behind at 2:20.
-10. Only if ahead of time: click **Look at Earth**, or press **−** twice to zoom out over the craters. Otherwise skip.
-11. If there is still time: the box below says "Saved. One change did it: landing 5 days later." Click **Put it back the way it was** to show the undo. Skip this if behind.
-12. Go back to the slides for slide 5.
+1. Point at the verdict: **"Lost on day 9."**
+2. Scroll down past "How do we save it?" to **"Why? Watch the mission."** (the 3D view of the ground, with the lander on it).
+3. **Click once in the middle of the battery chart** (the wide dark chart right under the 3D view). The view jumps to **day 8**: the battery in the top-left corner shows about **30%**, the thin line from the lander to the Sun is **red**, and a label next to the Sun says **"The Sun is below the horizon here (the land … km away hides it)"** (about 97 km; the exact number depends on where you click). Point at the red line and the label.
+   - Do **not** press Play here: it runs all 14 days in about 8 seconds, too fast to talk over.
+4. Scroll back up to **"How do we save it?"**: "We tried five changes, one at a time. 4 of 5 would save this mission." Point at the card with a cross, "Raise the solar panel".
+5. On the first card, **"Land 5 days later"**, click **Try it**.
+6. The page scrolls back up by itself. The verdict now says **"Survived, just."**, the battery fell to 12%, and the line under it says Earth is in view 5% of the time.
+7. Back to the slides for slide 5.
 
 **If the demo fails**
 
