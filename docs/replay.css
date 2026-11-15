@@ -79,8 +79,11 @@
 @keyframes guidePulse { 50% { border-color: #ffb4a6; box-shadow: 0 0 0 4px rgba(236, 96, 73, 0.22); } }
 .t3dLabel-level { color: #9fd6ff; font-size: 11px; letter-spacing: 0.04em; transform: translate(-50%, calc(-100% - 4px)); }
 .t3dLabel-compass { color: #9fd6ff; font-size: 13px; font-weight: 700; transform: translate(-50%, 6px); }
-.t3dCanvas.lookFull { position: fixed !important; inset: 0; z-index: 60; width: 100vw; height: 100vh !important; height: 100dvh !important; margin: 0 !important; }
+.t3dCanvas.lookFull { position: fixed !important; inset: 0; z-index: 60; width: auto; height: auto !important; margin: 0 !important; }
 html.lookFullPage, html.lookFullPage body { overflow: hidden; }
-.t3dCanvas.lookFull .lookBar { bottom: max(12px, env(safe-area-inset-bottom)); }
+/* in full screen the buttons sit at the top, under the readout: the bottom edge can hide behind the phone's own bars */
+.t3dCanvas.lookFull .lookBar { top: calc(56px + env(safe-area-inset-top, 0px)); bottom: auto; z-index: 70; }
+.t3dCanvas.lookFull .t3dHud { top: calc(12px + env(safe-area-inset-top, 0px)); }
+.t3dCanvas:fullscreen { width: 100vw; height: 100vh !important; }
 .lookBar #lookFull[aria-pressed="true"] { border-color: var(--sun); color: var(--sun); }
 @media (prefers-reduced-motion: reduce) { .t3dLabel-guide { animation: none; } }
