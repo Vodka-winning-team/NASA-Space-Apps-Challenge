@@ -18,15 +18,39 @@
     [].forEach.call(document.querySelectorAll(".modes [data-mode]"), function (b) {
       b.setAttribute("aria-pressed", b.getAttribute("data-mode") === mode);
     });
+    say(mode, fromClick);
     if (!fromClick) return;
     try { localStorage.setItem(KEY, mode); } catch (e) { /* private window: the switch still works for this visit */ }
     // sections that were hidden have no size yet; ask every chart to redraw itself
     window.dispatchEvent(new Event("resize"));
   }
 
+  // Say what changed, right next to the switch, because the sections it adds or hides are further down.
+  function say(mode, fromClick) {
+    var el = document.getElementById("modeSay");
+    if (!el) return;
+    if (mode === "planner") {
+      el.innerHTML = "Mission planner view: adds sensitivity checks, science jobs, site comparisons and hourly numbers further down. " +
+        '<a href="#" class="modeJump" data-jump=".sure">View planner details</a>';
+    } else {
+      el.textContent = fromClick ? "Simple view: the result, the replay and other landing dates. The planner details are hidden."
+                                 : "Simple view: the result, the replay and other landing dates.";
+    }
+    el.classList.remove("flash"); void el.offsetWidth;
+    if (fromClick) el.classList.add("flash");
+  }
+
   apply(saved(), false);
 
   document.addEventListener("click", function (e) {
+    var j = e.target.closest ? e.target.closest("[data-jump]") : null;
+    if (j) {
+      e.preventDefault();
+      var t = document.querySelector(j.getAttribute("data-jump"));
+      var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (t) { t.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "start" }); t.setAttribute("tabindex", "-1"); t.focus({ preventScroll: true }); }
+      return;
+    }
     var b = e.target.closest ? e.target.closest("[data-mode]") : null;
     if (!b) return;
     apply(b.getAttribute("data-mode"), true);

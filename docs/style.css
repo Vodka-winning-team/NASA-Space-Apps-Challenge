@@ -87,6 +87,8 @@ h1 {
 .moon figcaption { font-size: 14px; color: var(--text-3); margin-top: 14px; }
 .field legend, .field .legend { display: block; font: 600 17px/1.3 var(--sans); letter-spacing: -0.01em; margin-bottom: 12px; padding: 0; }
 .field output { color: var(--sun); }
+.battOut { display: block; margin: -4px 0 4px; font: 700 20px/1.2 var(--sans); font-variant-numeric: tabular-nums; min-height: 1.2em; white-space: nowrap; }
+.siteNow { display: none; color: var(--sun); font-weight: 600; }
 
 .sites { display: flex; flex-wrap: wrap; gap: 8px; }
 .sites button, .seg button {
@@ -135,6 +137,13 @@ details[open] > summary > span:first-child::before { transform: rotate(45deg); }
 .vWhy { font-size: clamp(1.15rem, 2.2vw, 1.6rem); line-height: 1.3; max-width: 32ch; margin-top: clamp(16px, 2.4vw, 28px); text-wrap: pretty; }
 .vFacts { color: var(--text-2); margin-top: 12px; max-width: 60ch; }
 .vFacts b { color: var(--text); font-weight: 600; }
+.vModel { color: var(--text-3); font-size: 14px; margin-top: 10px; max-width: 72ch; }
+.slipNow { margin-top: 8px; color: var(--text-2); }
+.slipNow b { color: var(--text); }
+.modeSay { flex-basis: 100%; font-size: 14px; color: var(--text-2); margin-top: 8px; min-height: 1.4em; }
+.modeSay a { color: var(--sun); font-weight: 600; margin-left: 4px; }
+.modeSay.flash { animation: modeFlash 1.2s var(--ease); }
+@keyframes modeFlash { from { color: var(--text); background: rgba(242, 181, 68, 0.16); } to { background: transparent; } }
 
 /* ---------- shared: small technical tag above a heading ---------- */
 .tag {
@@ -163,7 +172,8 @@ details[open] > summary > span:first-child::before { transform: rotate(45deg); }
 }
 .sureCell.close { background: var(--close); }
 .sureCell.dead { background: var(--dead); }
-.sureCell.base { outline: 3px solid var(--text); outline-offset: 2px; }
+.sureCell.base { flex-wrap: wrap; box-shadow: inset 0 0 0 2px rgba(12, 14, 17, 0.55); }
+.baseTag { flex-basis: 100%; font: 700 11px/1.2 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.85; }
 .sureCell .sym { font: 800 20px/1 var(--sans); }
 .sureCell .v { font: 600 13px/1.1 var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
@@ -288,6 +298,13 @@ details[open] > summary > span:first-child::before { transform: rotate(45deg); }
   .sites { flex-wrap: nowrap; overflow-x: auto; margin: 0 calc(-1 * var(--gut)); padding: 2px var(--gut) 6px; scrollbar-width: none; }
   .sites::-webkit-scrollbar { display: none; }
   .sites button { white-space: nowrap; flex: none; }
+  /* a fade at the edge says "there are more places this way"; the chosen place is also named in the heading */
+  .sites.moreRight { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+  .siteNow { display: inline; }
+  .siteNow::before { content: "· "; color: var(--text-3); }
+  /* get to the answer sooner: a smaller map */
+  .moon { max-width: 220px; margin: 8px auto 0; }
+  .moon figcaption { display: none; }
   .field-date input { max-width: none; }
   .play { width: 100%; }
   .calCanvas { height: 300px; }
@@ -296,4 +313,5 @@ details[open] > summary > span:first-child::before { transform: rotate(45deg); }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
+  .modeSay.flash { animation: none; }
 }

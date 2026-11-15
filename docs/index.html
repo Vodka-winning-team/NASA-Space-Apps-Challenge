@@ -26,6 +26,7 @@
     <button type="button" data-mode="simple" aria-pressed="true">Simple</button>
     <button type="button" data-mode="planner" aria-pressed="false">Mission planner</button>
   </div>
+  <p class="modeSay" id="modeSay" role="status" aria-live="polite"></p>
 </header>
 
 <main>
@@ -39,8 +40,8 @@
     <div class="pick">
       <div class="pickMain">
         <fieldset class="field field-sites">
-          <legend>Where do we land?</legend>
-          <div class="sites" id="sites" role="radiogroup"></div>
+          <legend>Where do we land? <span class="siteNow" id="siteNow" aria-hidden="true"></span></legend>
+          <div class="sites" id="sites" role="radiogroup" aria-label="Landing place"></div>
           <div class="custom">
             <button type="button" class="customOpen" id="customOpen" aria-expanded="false" aria-controls="customForm">Somewhere else…</button>
             <form class="customForm" id="customForm" hidden novalidate>
@@ -65,10 +66,11 @@
               <legend>How long is the mission?</legend>
               <div class="seg" id="days" role="radiogroup"></div>
             </fieldset>
-            <label class="field">
-              <span class="legend">Battery lasts <output id="battOut"></output> without Sun</span>
+            <div class="field">
+              <label class="legend" for="batt">Battery endurance without sunlight</label>
+              <output class="battOut" id="battOut" for="batt" aria-live="off"></output>
               <input type="range" id="batt" min="24" max="240" step="12">
-            </label>
+            </div>
             <fieldset class="field">
               <legend>How high is the solar panel?</legend>
               <div class="seg" id="mast" role="radiogroup"></div>
@@ -94,6 +96,7 @@
     <p class="vText" id="vText"></p>
     <p class="vWhy" id="vWhy"></p>
     <p class="vFacts" id="vFacts"></p>
+    <p class="vModel" id="vModel"></p>
   </section>
 
   <section class="rescue" id="rescue" aria-label="How to save the mission" aria-live="polite" hidden>
@@ -112,7 +115,7 @@
       <p class="sureScore"><span class="sureNum" id="sureNum"></span><span class="sureWord" id="sureWord"></span></p>
     </div>
     <div class="sureGrid" id="sureGrid"></div>
-    <p class="hint">Each square is one version of the mission. The outlined square is the answer above. The number shows how low the battery got, or the day it ran out.</p>
+    <p class="hint">Each square is one version of the mission. The square marked <b>Baseline</b> uses your current settings (the answer above); the others apply the changes named on their row and column. The number shows the lowest battery charge, or the day it ran out. A baseline of "lowest 100%" means the battery never dropped.</p>
   </section>
 
   <section class="watch" aria-label="Watch the mission">
@@ -185,8 +188,9 @@
   <section class="slip" aria-label="Landing later">
     <h2>What if we land a few days later?</h2>
     <p class="say" id="slipSay"></p>
+    <p class="slipNow" id="slipNow" aria-live="polite"></p>
     <div class="slipRow" id="slip"></div>
-    <p class="hint">Each square is the same mission, landing one day later. Tap one to try it.</p>
+    <p class="hint">Each square is the same mission, landing on a different day. Tap one to select it; the row stays put so you can compare.</p>
   </section>
 
   <section class="ridge pro" aria-label="Which hill hid the Sun">
@@ -215,8 +219,8 @@
     <h2>Which place is safest?</h2>
     <p class="say" id="calSay"></p>
     <canvas id="cal" class="calCanvas" role="img" aria-label="Safe and unsafe landing dates for six places over two years"></canvas>
-    <p class="key"><i class="k k-live"></i>lander survives <i class="k k-close"></i>survives, but battery drops below 25% <i class="k k-dead"></i>lander is lost</p>
-    <p class="hint">Every stripe is one landing date, from January 2027 to December 2028. Tap anywhere to load that place and date.</p>
+    <p class="key"><i class="k k-live"></i>power lasts <i class="k k-close"></i>power lasts, but battery drops below 25% <i class="k k-dead"></i>battery runs out</p>
+    <p class="hint">Every stripe is one landing date, from January 2027 to December 2028. Tap anywhere to load that place and date. With a keyboard, use the place buttons and the date box at the top; they do the same thing.</p>
   </section>
 
   <section class="numbers pro" id="exportSection" aria-label="The numbers">
@@ -239,6 +243,7 @@
     <h2>Can Mauritius see it?</h2>
     <p class="say" id="morisText"></p>
     <p class="hint" id="morisSub"></p>
+    <p class="hint">Both things are true at the same hour: the lander has Earth in its line of sight, and the Moon is above Port Louis. It does not mean a radio link to a station in Mauritius.</p>
   </section>
 
   <section class="moreView simple-only" aria-label="More detail">

@@ -99,11 +99,35 @@
 
   /* ---------- controls ---------- */
 
+  // Bumped by every explicit choice of place (buttons, map dots, calendar, other sections, links),
+  // so a slow custom-place calculation can tell whether the user has moved on meanwhile.
+  var selection = 0;
+  function pickSite(id) { selection++; state.site = id; clampStart(); state.hour = 0; refresh(); }
+
+  // Radio-group keyboard pattern: one Tab stop (the chosen option), arrow keys move and choose.
+  function radioKeys(group) {
+    group.addEventListener("keydown", function (e) {
+      var keys = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1, Home: "first", End: "last" };
+      if (!(e.key in keys)) return;
+      var items = [].filter.call(group.querySelectorAll('[role="radio"]'), function (b) { return b.offsetParent !== null; });
+      var at = items.indexOf(document.activeElement);
+      if (at < 0) return;
+      e.preventDefault();
+      var k = keys[e.key], to = k === "first" ? 0 : k === "last" ? items.length - 1 : (at + k + items.length) % items.length;
+      items[to].click(); items[to].focus();
+    });
+  }
+  function rovingTabs(group, isOn) {
+    var items = group.querySelectorAll('[role="radio"]'), any = false;
+    [].forEach.call(items, function (b) { var on = isOn(b); b.setAttribute("aria-checked", on); b.tabIndex = on ? 0 : -1; if (on) any = true; });
+    if (!any && items.length) items[0].tabIndex = 0;
+  }
+
   function buildControls() {
     SITES.forEach(function (s) {
       var b = document.createElement("button");
       b.type = "button"; b.setAttribute("role", "radio"); b.dataset.id = s.id; b.textContent = s.name;
-      b.onclick = function () { state.site = s.id; clampStart(); state.hour = 0; refresh(); };
+      b.onclick = function () { pickSite(s.id); };
       $("sites").appendChild(b);
     });
     // the same six places as dots on the map of the south pole
@@ -116,7 +140,7 @@
       b.style.left = (50 + r * Math.sin(lon) / MAP_HALF * 50) + "%";
       b.style.top = (50 - r * Math.cos(lon) / MAP_HALF * 50) + "%";
       b.innerHTML = "<span>" + s.name + "</span>";
-      b.onclick = function () { state.site = s.id; clampStart(); state.hour = 0; refresh(); };
+      b.onclick = function () { pickSite(s.id); };
       $("moon").appendChild(b);
     });
     DAY_CHOICES.forEach(function (n) {
@@ -138,24 +162,56 @@
       if (isNaN(t)) return;
       state.start = Math.round((t - T0) / HOUR); clampStart(); state.hour = 0; refresh();
     };
-    $("batt").oninput = function () { state.batt = +this.value; state.hour = Math.min(state.hour, hoursTotal()); refresh(); };
-    $("play").onclick = togglePlay;
+    // 17. show the new duration at once; do the heavy redraw once per frame, always with the last value
+    var battQueued = false;
+    $("batt").oninput = function () {
+      state.batt = +this.value; showBatt();
+      if (battQueued) return;
+      battQueued = true;
+      requestAnimationFrame(function () { battQueued = false; state.batt = +$("batt").value; state.hour = Math.min(state.hour, hoursTotal()); refresh(); });
+    };
+    $("play").onclick = function () { var was = !!playing; togglePlay(); if (!was) centreReplay(); };
+    radioKeys($("sites")); radioKeys($("days")); radioKeys($("mast"));
+    $("sites").addEventListener("scroll", edgeCue, { passive: true });
+    window.addEventListener("resize", edgeCue);
   }
   function clampStart() {
     state.start = Math.max(0, Math.min(maxStart(), Math.round(state.start / 24) * 24));
   }
+  function battText(b) {
+    var d = Math.floor(b / 24), h = b % 24;
+    return (d ? d + (d === 1 ? " day" : " days") : "") + (d && h ? " " : "") + (h ? h + " h" : "");
+  }
+  function showBatt() {
+    $("battOut").textContent = battText(state.batt);
+    $("setSum").textContent = state.days + "-day mission · battery lasts " + battText(state.batt) +
+      " without Sun · panel " + state.mast + " m high";
+  }
+  var siteShown = null;
   function syncControls() {
-    [].forEach.call($("sites").children, function (b) { b.setAttribute("aria-checked", b.dataset.id === state.site); });
+    rovingTabs($("sites"), function (b) { return b.dataset.id === state.site; });
     [].forEach.call($("moon").querySelectorAll(".dot"), function (b) { b.setAttribute("aria-checked", b.dataset.id === state.site); });
-    [].forEach.call($("days").children, function (b) { b.setAttribute("aria-checked", +b.dataset.n === state.days); });
-    [].forEach.call($("mast").children, function (b) { b.setAttribute("aria-checked", b.dataset.m === state.mast); });
+    rovingTabs($("days"), function (b) { return +b.dataset.n === state.days; });
+    rovingTabs($("mast"), function (b) { return b.dataset.m === state.mast; });
     $("date").value = iso(state.start);
     $("date").max = iso(maxStart());
     $("batt").value = state.batt;
-    var d = Math.floor(state.batt / 24), h = state.batt % 24;
-    $("battOut").textContent = (d ? d + (d === 1 ? " day" : " days") : "") + (d && h ? " " : "") + (h ? h + " h" : "");
-    $("setSum").textContent = state.days + "-day mission · battery lasts " + $("battOut").textContent +
-      " without Sun · panel " + state.mast + " m high";
+    showBatt();
+    $("siteNow").textContent = DATA[state.site].name;
+    if (state.site !== siteShown) { siteShown = state.site; revealSite(); }
+  }
+  // On a phone the places scroll sideways: bring the chosen one into the strip, without moving the page.
+  function edgeCue() {
+    var box = $("sites");
+    box.classList.toggle("moreRight", box.scrollLeft + box.clientWidth < box.scrollWidth - 2);
+  }
+  function revealSite() {
+    var box = $("sites"), b = box.querySelector('[data-id="' + state.site + '"]');
+    if (!b || box.scrollWidth <= box.clientWidth + 1) { edgeCue(); return; }
+    var left = b.offsetLeft - box.offsetLeft, right = left + b.offsetWidth, pad = 24;
+    if (left - pad < box.scrollLeft) box.scrollLeft = Math.max(0, left - pad);
+    else if (right + pad > box.scrollLeft + box.clientWidth) box.scrollLeft = right + pad - box.clientWidth;
+    edgeCue();
   }
 
   /* ---------- verdict ---------- */
@@ -169,18 +225,26 @@
     if (run.alive) {
       var low = run.min < 0.25;
       $("vText").textContent = low ? "Survived, just." : "Survived.";
-      $("vWhy").textContent = (low ? "The battery fell to " + Math.round(run.min * 100) + "%, so there is little room for error. " : "") + (run.longestDark === 0
+      $("vWhy").textContent = "Power lasts the full " + state.days + "-day mission under these assumptions" +
+        (low ? ", but the battery falls to " + Math.round(run.min * 100) + "%, so there is little room for error. " : ". ") + (run.longestDark === 0
         ? "The Sun never stayed behind the hills long enough to drain the battery."
-        : "The longest stretch without enough Sun was " + run.longestDark + " hours. The battery lasts " + state.batt + " hours.");
+        : "The longest stretch without enough Sun was " + run.longestDark + " hours; the battery lasts " + state.batt + " hours.");
     } else {
       var day = Math.floor((run.died - 1) / 24) + 1;
       $("vText").textContent = "Lost on day " + day + ".";
-      $("vWhy").textContent = "The hills hid the Sun for too long. The battery was last full " +
+      $("vWhy").textContent = "Battery empty at hour " + run.died + " under this setup. The hills hid the Sun for too long: the battery was last full " +
         (run.lastFull === 0 ? "at landing" : "on day " + (Math.floor(run.lastFull / 24) + 1)) +
         " and ran out " + (run.died - run.lastFull) + " hours later.";
     }
-    $("vFacts").innerHTML = "Over these " + state.days + " days, the Sun is above the hills <b>" + Math.round(run.sun * 100) +
-      "%</b> of the time and Earth is in view <b>" + Math.round(run.earth * 100) + "%</b> of the time.";
+    // two different sunlight numbers: hours with any of the Sun showing, and full-Sun-equivalent hours (what the panels get)
+    var P = prep(state.site), part = 0, hrs = hoursTotal();
+    for (var k = 0; k < hrs; k++) if (P.sun[state.start + k] > 0) part++;
+    $("vFacts").innerHTML = "Over these " + state.days + " days the Sun is at least partly above the hills for <b>" + Math.round(part / hrs * 100) +
+      "%</b> of hours, worth <b>" + Math.round(run.sun * hrs) + " full-Sun-equivalent hours</b> (" + Math.round(run.sun * 100) + "%). " +
+      "Earth's centre is above the hills <b>" + Math.round(run.earth * 100) + "%</b> of the time.";
+    $("vModel").textContent = "What this assumes: battery lasts " + battText(state.batt) + " without Sun and starts full · panel " + state.mast +
+      " m high and follows the Sun · in full Sun the panel makes 3 times what the lander uses. Not included: heat and cold, dust, ageing, and whether a radio link would actually work. " +
+      "It is a power estimate for planning and teaching, not a promise that a real lander survives.";
   }
 
   /* ---------- the view from the lander ---------- */
@@ -287,7 +351,7 @@
     var lost = !run.alive && hr >= run.died, mUp = MORIS.up.charAt(i) === "1";
     $("chips").innerHTML =
       '<span class="' + (sunPct ? "" : "off") + '"><i style="background:' + C.sun + '"></i>' + (sunPct >= 99 ? "<b>Sun is out</b>" : sunPct ? "<b>Sun is " + sunPct + "% out</b>" : "<b>Sun is hidden</b>") + "</span>" +
-      '<span class="' + (P.earth[i] ? "" : "off") + '"><i style="background:' + C.earth + '"></i>' + (lost ? "<b>No contact</b>, lander lost" : P.earth[i] ? "<b>Earth in view</b>, can talk home" : "<b>Earth is hidden</b>, no contact") + "</span>" +
+      '<span class="' + (P.earth[i] ? "" : "off") + '"><i style="background:' + C.earth + '"></i>' + (lost ? "<b>No contact</b>, lander lost" : P.earth[i] ? "<b>Earth in view</b> (line of sight)" : "<b>Earth is hidden</b>, no line of sight") + "</span>" +
       '<span><i style="background:' + (lost ? C.dead : C.live) + '"></i>' + (lost ? "<b>Lander lost</b>" : "Battery <b>" + charge + "%</b>") + "</span>";
   }
 
@@ -411,6 +475,18 @@
   }
 
   function togglePlay() { if (playing) stopPlay(); else startPlay(); }
+  // Called once when the user presses Play: bring the moving picture to the middle of the screen if it is not already.
+  function centreReplay() {
+    // the 3D view, unless it has fallen back to the flat view (it then opens #flatView and says so)
+    var t3 = $("terrain3d"), flat = $("flatView");
+    var el = flat && flat.open && /cannot show 3D/.test(t3 ? t3.textContent : "") ? flat : t3 && t3.offsetHeight > 0 ? t3 : flat;
+    if (!el || !el.getBoundingClientRect) return;
+    var r = el.getBoundingClientRect(), vh = window.innerHeight || document.documentElement.clientHeight;
+    var mid = r.top + r.height / 2;
+    if (mid > vh * 0.3 && mid < vh * 0.7 && r.top > -r.height * 0.2) return;    // already comfortably in view
+    var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    try { el.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "center" }); } catch (e) { el.scrollIntoView(); }
+  }
   function stopPlay() {
     if (playing) cancelAnimationFrame(playing);
     playing = null; $("play").textContent = "Play the mission";
@@ -435,38 +511,47 @@
   function shortDate(idx) { var t = new Date(T0 + idx * HOUR); return t.getUTCDate() + " " + MONTHS[t.getUTCMonth()]; }
   function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
 
+  // The row of dates stays put while you pick inside it; it starts again from a new date only when the date
+  // is changed some other way (date box, calendar, another section) or the place/settings change.
+  var slipAnchor = null, slipKey = "", slipKeep = false;
   function drawSlip() {
-    var P = prep(state.site), box = $("slip"), hours = hoursTotal(), html = "", res = [];
+    var P = prep(state.site), box = $("slip"), hours = hoursTotal(), html = "", all = [];
+    var key = state.site + "|" + state.days + "|" + state.batt + "|" + state.mast;
+    if (!slipKeep || slipAnchor === null || key !== slipKey || state.start < slipAnchor || state.start > slipAnchor + 14 * 24) slipAnchor = state.start;
+    slipKeep = false; slipKey = key;
     for (var k = 0; k < 15; k++) {
-      var st = state.start + k * 24;
+      var st = slipAnchor + k * 24;
       if (st > maxStart()) break;
-      var r = sim(P, st, hours, state.batt, false), g = grade(r);
-      res.push(r);
-      var say = fmtDate(st) + ": " + (r.alive ? (g === "close" ? "lander survives, battery drops below 25%" : "lander survives") : "lander lost on day " + (Math.floor((r.died - 1) / 24) + 1));
+      var r = sim(P, st, hours, state.batt, false), g = grade(r), on = st === state.start;
+      all.push(r);
+      var off = (st - state.start) / 24;
+      var say = fmtDate(st) + ": " + (r.alive ? (g === "close" ? "power lasts, battery drops below 25%" : "power lasts") : "battery empty on day " + (Math.floor((r.died - 1) / 24) + 1)) + (on ? " (selected)" : "");
       // a symbol as well as a colour, so the answer does not depend on seeing red and green
-      html += '<button type="button" class="' + g + '" data-k="' + k + '"' + (k === 0 ? ' aria-current="true"' : "") +
+      html += '<button type="button" class="' + g + '" data-start="' + st + '"' + (on ? ' aria-current="true"' : "") +
               ' title="' + say + '" aria-label="' + say + '"><span class="sym">' + (g === "dead" ? "\u2715" : g === "close" ? "!" : "\u2713") +
-              '</span><span class="when">' + shortDate(st) + '</span><span class="plus">' + (k === 0 ? "chosen" : "+" + k + (k === 1 ? " day" : " days")) + "</span></button>";
+              '</span><span class="when">' + shortDate(st) + '</span><span class="plus">' + (on ? "selected" : (off > 0 ? "+" : "\u2212") + plural(Math.abs(off), "day")) + "</span></button>";
     }
     box.innerHTML = html;
     [].forEach.call(box.children, function (b) {
-      b.onclick = function () { state.start += (+b.dataset.k) * 24; clampStart(); state.hour = 0; refresh(); };
+      b.onclick = function () { slipKeep = true; state.start = +b.dataset.start; clampStart(); state.hour = 0; refresh(); };
     });
+    $("slipNow").innerHTML = "Selected landing: <b>" + fmtDate(state.start) + "</b>";
 
-    // the takeaway, in one sentence
+    // the takeaway, in one sentence, looking forward from the selected date
+    var res = all.slice((state.start - slipAnchor) / 24);
     var flip = -1;
     for (k = 1; k < res.length; k++) if (res[k].alive !== res[0].alive) { flip = k; break; }
     var msg;
     if (!res[0].alive) {
       msg = flip > 0 ? "Wait <b>" + plural(flip, "day") + "</b>, land on " + shortDate(state.start + flip * 24) + ", and the lander <b>survives</b>."
-                     : (res.length < 15 ? "No later landing date we have data for works here." : "No landing date in the next two weeks works here.") + " Try another place or a bigger battery.";
+                     : (res.length < 15 ? "No later date shown here works." : "No later date shown here works.") + " Try another place or a bigger battery.";
     } else {
       msg = flip > 0 ? "This date works. But slip by <b>" + plural(flip, "day") + "</b> and the lander <b>would be lost</b>."
-                     : res.length < 15 ? "This date works, and so does every later date we have data for (" + plural(res.length - 1, "more day") + ")."
+                     : res.length < 15 ? "This date works, and so does every later date shown (" + plural(res.length - 1, "more day") + ")."
                      : "This date works, and so does every day for the next two weeks.";
       if (res[0].min < 0.25) msg += " But the battery drops below 25%, so it is close.";
     }
-    if (res.length < 15 && !(res[0].alive && flip < 0)) msg += " Our data ends after " + shortDate(state.start + (res.length - 1) * 24) + ".";
+    if (res.length < 15 && !(res[0].alive && flip < 0) && slipAnchor + all.length * 24 > maxStart()) msg += " Our data ends after " + shortDate(state.start + (res.length - 1) * 24) + ".";
     $("slipSay").innerHTML = msg;
   }
 
@@ -540,7 +625,7 @@
     });
     stats.sort(function (a, b) { return b.share - a.share; });
     var best = stats[0], worst = stats[stats.length - 1];
-    $("calSay").innerHTML = "With these settings, <b>" + best.name + "</b> is the safest: the lander survives on " + best.share +
+    $("calSay").innerHTML = "With these settings, <b>" + best.name + "</b> is the safest: power lasts on " + best.share +
       "% of landing dates. <b>" + worst.name + "</b> is the riskiest, at " + worst.share + "%.";
   }
 
@@ -551,7 +636,7 @@
       var r = c.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
       var row = Math.floor((y - calGeom.axisH) / calGeom.pitch);
       if (row < 0 || row >= SITES.length) return;
-      state.site = SITES[row].id;
+      selection++; state.site = SITES[row].id;
       state.start = Math.floor(x / calGeom.W * calGeom.nDays) * 24;
       clampStart(); state.hour = 0; refresh();
     });
@@ -616,18 +701,17 @@
   function drawSure() {
     computeSure();
     var ok = sure.ok, word, cls;
-    if (!run.alive) { word = "Lost before anything goes wrong."; cls = "dead"; }
-    else if (ok === 16) { word = "Solid."; cls = "live"; }
-    else if (ok >= 12) { word = "Likely."; cls = "live"; }
-    else { word = "Fragile."; cls = "close"; }
+    if (!run.alive) { word = "Battery runs out even at the baseline."; cls = "dead"; }
+    else if (ok === 16) { word = "Passes all 16 tested scenarios."; cls = "live"; }
+    else { word = "Passes " + ok + " of 16 tested scenarios."; cls = ok >= 12 ? "live" : "close"; }
     $("sureNum").innerHTML = ok + "<span>/16</span>";
     $("sureWord").textContent = word;
     $("sureWord").className = "sureWord " + cls;
 
     var breaks = sure.single.filter(function (x) { return !x.r.alive; });
     var msg;
-    if (run.alive && ok === 16) msg = "The lander survives all 16 tougher versions, even with everything going wrong at once.";
-    else if (run.alive && breaks.length) msg = "One thing going wrong is enough: with <b>" + breaks.map(function (x) { return x.f.name; }).join("</b> or <b>") + "</b> the lander is lost.";
+    if (run.alive && ok === 16) msg = "Power lasts in all 16 tested scenarios, including the one with all four changes applied together. These are a fixed set of what-ifs, not odds and not every way things could go wrong.";
+    else if (run.alive && breaks.length) msg = "One thing going wrong is enough: with <b>" + breaks.map(function (x) { return x.f.name; }).join("</b> or <b>") + "</b> the battery runs out.";
     else if (run.alive) msg = "No single problem kills it, but some combinations do. It survives " + ok + " of the 16 tougher versions.";
     else msg = "Making things worse only brings the end sooner: as early as <b>day " + (Math.floor((sure.firstDeath - 1) / 24) + 1) + "</b>.";
     var days = function (h) { var d = h / 24; return (d % 1 ? d.toFixed(1) : d) + (d === 1 ? " day" : " days"); };
@@ -648,7 +732,9 @@
         var txt = r.alive ? "lowest " + Math.round(r.min * 100) + "%" : "day " + (Math.floor((r.died - 1) / 24) + 1);
         var label = rowName[ri].replace("<br> ", ", ") + ", " + colName[ci].replace("<br> ", ", ") + ": " +
                     (r.alive ? "survives, lowest charge " + Math.round(r.min * 100) + "%" : "lost on " + txt);
-        html += '<div class="sureCell ' + c.g + (m === 0 ? " base" : "") + '" role="img" aria-label="' + label + '"><span class="sym">' +
+        if (m === 0) label = "Baseline, your current settings: " + (r.alive ? "power lasts, lowest charge " + Math.round(r.min * 100) + "%" : "battery empty on " + txt);
+        html += '<div class="sureCell ' + c.g + (m === 0 ? " base" : "") + '" role="img" aria-label="' + label + '">' +
+                (m === 0 ? '<span class="baseTag">Baseline: current settings</span>' : "") + '<span class="sym">' +
                 (c.g === "dead" ? "✕" : c.g === "close" ? "!" : "✓") + '</span><span class="v">' + txt + "</span></div>";
       }
     }
@@ -829,11 +915,12 @@
     onHour: function (f) { hourListeners.push(f); },   // f(dataIndex) whenever the shown hour changes
     setHour: function (h) { if (!isFinite(h)) return; state.hour = Math.max(0, Math.min(hoursTotal(), h)); stopPlay(); drawPano(); drawTime(); },
     setStart: function (idx) { if (!isFinite(idx)) return; state.start = idx; clampStart(); state.hour = 0; refresh(); },
-    setSite: function (id) { if (known(id)) { state.site = id; clampStart(); state.hour = 0; refresh(); } },
+    setSite: function (id) { if (known(id)) pickSite(id); },
+    selection: function () { return selection; },      // how many explicit place choices so far
     // change any of: site, start (hour index), days, batt, mast; anything not valid is ignored
     set: function (p) {
       if (!p) return;
-      if (known(p.site)) state.site = p.site;
+      if (known(p.site)) { if (p.site !== state.site) selection++; state.site = p.site; }
       if (DAY_CHOICES.indexOf(p.days) >= 0) state.days = p.days;
       if (MAST_CHOICES.indexOf(p.mast) >= 0) state.mast = p.mast;
       if (p.batt >= 24 && p.batt <= 240) state.batt = Math.round(p.batt / 12) * 12;
@@ -870,7 +957,7 @@
   function start() {
     drawValidation();
     buildControls(); bindTime(); bindCal(); bindRidge(); readHash(); refresh();
-    window.addEventListener("hashchange", function () { readHash(); state.hour = 0; refresh(); });
+    window.addEventListener("hashchange", function () { selection++; readHash(); state.hour = 0; refresh(); });
     var again = null;
     window.addEventListener("resize", function () {
       clearTimeout(again); again = setTimeout(function () { drawPano(); drawTime(); drawCal(); drawRidge(); }, 80);

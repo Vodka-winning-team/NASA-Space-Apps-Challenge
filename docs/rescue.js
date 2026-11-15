@@ -51,7 +51,7 @@
     }
     out.push(later
       ? { ok: true, title: "Land " + a.plural(later.k, "day") + " later",
-          text: "Land on " + a.shortDate(s.start + later.k * 24) + " instead of " + a.shortDate(s.start) + ". " + low(later.r),
+          text: "Land on " + a.shortDate(s.start + later.k * 24) + " instead of " + a.shortDate(s.start) + ". " + low(later.r) + ' <span class="cost">Cost: the whole schedule moves; the launch window may not.</span>',
           set: { start: s.start + later.k * 24 }, done: "landing " + a.plural(later.k, "day") + " later" }
       : { ok: false, title: "Land later", text: "No landing date in the next " + LATER_DAYS + " days works at this place." });
 
@@ -63,7 +63,7 @@
     }
     out.push(batt
       ? { ok: true, title: "Carry a bigger battery",
-          text: "One that lasts " + days(batt.b) + " without Sun, instead of " + days(s.batt) + ". " + low(batt.r),
+          text: "One that lasts " + days(batt.b) + " without Sun, instead of " + days(s.batt) + ". " + low(batt.r) + ' <span class="cost">Cost: a heavier, different lander.</span>',
           set: { batt: batt.b }, done: "a battery that lasts " + days(batt.b) }
       : { ok: false, title: "Carry a bigger battery",
           text: need ? "It would need to last " + days(need) + " without Sun. That is more than the 10 days this tool allows."
@@ -77,7 +77,7 @@
     }
     out.push(mast
       ? { ok: true, title: "Raise the solar panel",
-          text: "Put it " + mast.m + " m above the ground instead of " + s.mast + " m, so it sees over more of the hills. " + low(mast.r),
+          text: "Put it " + mast.m + " m above the ground instead of " + s.mast + " m, so it sees over more of the hills. " + low(mast.r) + ' <span class="cost">Cost: a taller mast to design and deploy.</span>',
           set: { mast: mast.m }, done: "a panel " + mast.m + " m high" }
       : { ok: false, title: "Raise the solar panel",
           text: at === masts.length - 1 ? "The panel is already at the highest setting, " + s.mast + " m."
@@ -94,7 +94,8 @@
     out.push(places.length
       ? { ok: true, title: "Land at " + places[0].name,
           text: "Same date, same lander, a different place. " + low(places[0].r) +
-                (places.length > 1 ? " Also works: " + places.slice(1).map(function (p) { return p.name; }).join(", ") + "." : ""),
+                (places.length > 1 ? " Also works: " + places.slice(1).map(function (p) { return p.name; }).join(", ") + "." : "") +
+                ' <span class="cost">Cost: a different place, so different science and landing risks.</span>',
           set: { site: places[0].id }, done: "landing at " + places[0].name }
       : { ok: false, title: "Land somewhere else", text: "None of the other five places works on this date either." });
 
@@ -107,7 +108,8 @@
     });
     out.push(shorter
       ? { ok: true, title: "Plan a " + shorter.n + "-day mission",
-          text: "Finish in " + shorter.n + " days instead of " + s.days + ", before the long dark stretch. " + low(shorter.r),
+          text: "Finish in " + shorter.n + " days instead of " + s.days + ", before the long dark stretch. " + low(shorter.r) +
+                ' <span class="cost">Cost: ' + (s.days - shorter.n) + " fewer days of work; this is a smaller mission, not the same one.</span>",
           set: { days: shorter.n }, done: "a " + shorter.n + "-day mission" }
       : { ok: false, title: "Plan a shorter mission",
           text: s.days === a.dayChoices[0] ? "This is already the shortest mission, " + s.days + " days."
@@ -139,7 +141,7 @@
     $("rescueTitle").textContent = "How do we save it?";
     $("rescueSay").innerHTML = n === 0
       ? "None of the usual fixes works for this mission. Try a different place and date together."
-      : "We tried five changes, one at a time. <b>" + n + " of 5</b> would save this mission.";
+      : "We tried five changes, one at a time. <b>" + n + " of 5</b> would keep the power going for this mission. Each one changes something else, shown as its cost.";
     $("rescueList").innerHTML = list.map(function (f, i) {
       return '<div class="rescueCard ' + (f.ok ? "ok" : "no") + '"><p class="rescueMark" aria-hidden="true">' + (f.ok ? "✓" : "✕") + "</p>" +
         '<p class="rescueName">' + f.title + '</p><p class="rescueText">' + (f.ok ? "" : '<span class="rescueNo">Does not work. </span>') + f.text + "</p>" +

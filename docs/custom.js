@@ -94,6 +94,7 @@
     try { history.replaceState(null, "", window.LANDER_HASH0); } catch (e) { /* opened from disk: fine */ }
   }
 
+  var reqId = 0;
   function land(lat, lon, quiet, noScroll) {
     if (busy) return;
     var err = CALC.check(lat, lon);
@@ -103,6 +104,7 @@
     lat = Math.round(lat * 1e4) / 1e4; lon = Math.round(lon * 1e4) / 1e4;
     if (current && Math.abs(current.lat - lat) < 1e-5 && Math.abs(current.lon - lon) < 1e-5) { APP.setSite(current.id); return; }
     busy = true; form.classList.add("busy");
+    var req = ++reqId, picked = APP.selection ? APP.selection() : 0;   // to notice if the user moves on meanwhile
     say("Loading NASA's height map around " + fmt(lat, lon) + "…");
     loadAll(lat, lon, function (failed) {
       if (failed) {
@@ -127,6 +129,11 @@
         whenReady(function () {
           addPlace(out);
           busy = false; form.classList.remove("busy");
+          // the user picked something else while we were working: keep the new place ready, but do not take over
+          if (req !== reqId || (APP.selection && APP.selection() !== picked)) {
+            say("Ready: " + fmt(lat, lon) + " is now in the list of places. Tap it to see its result.", "good");
+            return;
+          }
           APP.setSite(out.site.id);
           var ref = APP.get().data[out.data.ref];
           say("Done: " + fmt(lat, lon) + ", ground " + Math.round(out.data.ground_m) + " m from the Moon's average height. " +

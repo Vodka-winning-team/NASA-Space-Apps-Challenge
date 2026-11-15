@@ -11,6 +11,7 @@
 .rescueName { font: 700 19px/1.2 var(--sans); letter-spacing: -0.02em; margin-top: 12px; text-wrap: balance; }
 .rescueText { font-size: 15px; line-height: 1.45; color: var(--text-2); margin-top: 8px; flex: 1; }
 .rescueNo { color: var(--text); font-weight: 600; }
+.rescueText .cost { display: block; margin-top: 6px; color: var(--text-3); font-size: 14px; }
 .rescueCard.no { background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
 .rescueCard.no .rescueName { color: var(--text-2); }
 .rescueCard button, .rescueUndo {
@@ -28,4 +29,10 @@
 @media (max-width: 520px) {
   .rescueList { grid-template-columns: minmax(0, 1fr); }
   .rescueCard button, .rescueUndo { width: 100%; }
+  /* shorter list on a phone: fixes that do not work shrink to one line */
+  .rescueList { gap: 8px; }
+  .rescueCard { padding: 14px 16px 16px; }
+  .rescueCard.no { flex-direction: row; align-items: baseline; gap: 10px; padding: 10px 16px; }
+  .rescueCard.no .rescueName { margin-top: 0; font-size: 16px; }
+  .rescueCard.no .rescueText { display: none; }
 }
