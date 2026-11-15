@@ -41,6 +41,7 @@ Needs Python 3 with `numpy` and `requests` (and `Pillow` for the map picture).
 
 - **NASA LRO LOLA** gridded elevation, LDEM_80S_80M, NASA PDS Geosciences Node. Used for the horizon around each site.
 - **NASA/JPL Horizons** (https://ssd.jpl.nasa.gov/horizons/). Used for the direction of the Sun and Earth from each site, and of the Moon from Port Louis, every hour of 2027 and 2028.
+- **NASA SVS CGI Moon Kit** (https://svs.gsfc.nasa.gov/4720), LRO LROC colour map of the whole Moon. Used for the 3D Moon you pick a landing place on.
 - **Wueller et al. (2026)**, JGR Planets 131(3), e2025JE009434, data at https://doi.org/10.5281/zenodo.17084058 (CC BY 4.0). Used for the coordinates of the six candidate landing sites.
 - Fonts: Archivo and JetBrains Mono (SIL Open Font License).
 
