@@ -1,15 +1,17 @@
-# Pitch script, 5 minutes (task S4)
+# Pitch script, 4 minutes (task S4)
 
 **Who speaks:** Paveesh presents (story lead in PLAN.md). Who drives the laptop during the demo: [CHECK: team to decide]. Practise the hand-over at slide 4.
+
+**Length:** about 460 spoken words: an easy pace of about 115 a minute, which leaves room for the demo clicks and pauses.
 
 **What the judges score**, and where each one is earned:
 
 | Criterion | Where we earn it |
 |---|---|
-| Relevance | Slide 2 and slide 5: the challenge's own problem (hard-to-use tools, launch delays), answered on one screen |
+| Relevance | Slides 2 and 5: the challenge's own problem (hard-to-use tools, launch delays), answered on one screen |
 | Impact | Slides 3, 4 and 7: planners get an answer in seconds; the public sees why, in 3D, on their own phone, in English or French |
-| Creativity | Slide 4: the page finds the fix by itself; the 3D replay; turning your phone to stand on the Moon |
-| Validity | Slide 6: NASA LOLA hills, NASA JPL Horizons Sun and Earth, our own check against NASA's maps, limits stated by us |
+| Creativity | Slide 4: the page finds the fix by itself; the 3D replay. Slide 7: turn your phone to stand on the Moon |
+| Validity | Slide 6: NASA LOLA hills, NASA JPL Horizons Sun and Earth, our check against NASA's maps, limits stated by us |
 | Presentation | One story (lost, then saved), a live demo, a QR code the judges can try |
 
 **Time budget**
@@ -17,14 +19,14 @@
 | Slide | What | Time | Clock at end |
 |---|---|---|---|
 | 1 | Title | 0:15 | 0:15 |
-| 2 | The problem | 0:35 | 0:50 |
-| 3 | One screen, one answer | 0:20 | 1:10 |
-| 4 | Live demo: lost, saved, then the 3D replay | 1:40 | 2:50 |
-| 5 | When the launch slips | 0:35 | 3:25 |
-| 6 | NASA data and our check | 0:50 | 4:15 |
-| 7 | Mauritius, QR code, your phone, thanks | 0:45 | 5:00 |
+| 2 | The problem | 0:30 | 0:45 |
+| 3 | One screen, one answer | 0:15 | 1:00 |
+| 4 | Live demo: lost, saved, then 20 s of the 3D replay | 1:20 | 2:20 |
+| 5 | When the launch slips | 0:30 | 2:50 |
+| 6 | NASA data and our check | 0:35 | 3:25 |
+| 7 | Mauritius, QR code, your phone, thanks | 0:35 | 4:00 |
 
-The pitch is strictly timed. If you are behind at 2:50, drop the 3D zoom-out (demo step 10) and the line in brackets on slide 5.
+The pitch is strictly timed. If you are behind at 2:20, skip the 3D replay paragraph on slide 4 (go straight to slide 5) and the line in brackets on slide 5.
 
 ---
 
@@ -34,51 +36,47 @@ The pitch is strictly timed. If you are behind at 2:50, drop the 3D zoom-out (de
 
 Imagine a lander touches down at the Moon's south pole. Nine days later, it is lost. We are a team from Port Louis. We built a tool that answers one question before launch: will the lander survive?
 
-### Slide 2 (0:35)
+### Slide 2 (0:30)
 
-The south pole has ice, so space agencies want to land there. But it is a hard place. The Sun never climbs high. It skims the edge of the sky, so a hill or a crater rim can hide it for days. A lander runs on solar panels. No Sun, and the battery drains. Empty battery, lost lander. And to talk to us, the lander must see Earth. If a hill hides Earth, there is no contact. So where and when you land decides everything.
+The south pole has ice, so space agencies want to land there. But the Sun never climbs high. It skims the edge of the sky, so a hill or a crater rim can hide it for days. No Sun, the battery drains. Empty battery, lost lander. And to talk to us, the lander must also see Earth. So where and when you land decides everything.
 
-### Slide 3 (0:20)
+### Slide 3 (0:15)
 
-The tools that check this today are powerful, but hard to read. Ours is one screen. Pick a place. Pick a date. A battery runs through the mission, and you get an answer in big letters. A short guided tour shows first-time visitors around.
+The tools that check this today are powerful, but hard to read. Ours is one screen. Pick a place, pick a date, and get an answer in big letters.
 
-### Slide 4 (1:40), live demo
+### Slide 4 (1:20), live demo
 
-Let me show you. Haworth, landing 28 July 2027. A two-week mission, and a battery that lasts four days without Sun.
+Let me show you. Haworth, 28 July 2027. A two-week mission, and a battery that lasts four days without Sun.
 
 Lost on day 9. The hills hid the Sun for too long.
 
-We do not stop there. We ask: how do we save it? It tried five changes by itself. Four of them work. A taller panel does not: the hills are too high.
+So we ask: how do we save it? It tried five changes by itself. Four work. A taller panel does not: the hills are too high.
 
-Let's land five days later.
+Let's land five days later. Survived, just: the battery fell to twelve percent. But Earth is now in view only five percent of the time. Power is saved; contact is the next problem. The tool shows both.
 
-Survived, just. The battery fell to twelve percent.
+Why did the first date fail? This is the real ground at Haworth, from NASA's laser maps. Press Play. When a ridge hides the Sun, this line turns red and names the ridge.
 
-But look: Earth is now in view only five percent of the time. Power is saved. Contact is the next problem. The tool shows both.
+### Slide 5 (0:30)
 
-Why did the first date fail? Watch. This is the real ground at Haworth, from NASA's laser maps. Press Play. The Sun skims the horizon. When a ridge hides it, this line turns red and names the ridge. Here is Earth, low in the sky. And if we zoom out, you see the craters that get in the way.
+The challenge stresses launch delays. Each square is the same mission, one day later. Five red days, then green. That is the question planners face when a launch slips.
 
-### Slide 5 (0:35)
+Over two years of dates, with this lander, Mons Mouton survives on 71 percent, Slater Plain on only 33.
 
-The challenge stresses launch delays. So: what if we land a few days later? Each square is the same mission, one day later. Five red days, then green. That is the question planners face when a launch slips.
+(You can also land anywhere south of 85 degrees, and download every hour as a spreadsheet.)
 
-And which place is safest? Two years of landing dates for all six places. With this lander, Mons Mouton survives on 71 percent of dates, Slater Plain on only 33.
+### Slide 6 (0:35)
 
-(Planners can also land anywhere south of 85 degrees, and download every hour as a spreadsheet.)
+Is it real? Every hill comes from NASA's LOLA laser altimeter on the Lunar Reconnaissance Orbiter. Every Sun and Earth position comes from NASA JPL Horizons, every hour of 2027 and 2028.
 
-### Slide 6 (0:50)
+We cross-checked against NASA's own visibility maps; the page shows where we differ and why. And we are honest about the limits: the battery is a simple model, and seeing Earth is not the same as a radio link.
 
-Is it real? Every hill comes from NASA's LOLA laser altimeter on the Lunar Reconnaissance Orbiter, with the Moon's curve included. Every Sun and Earth position comes from NASA JPL Horizons, every hour of 2027 and 2028, with no atmosphere.
+### Slide 7 (0:35)
 
-We cross-checked against NASA's long-term visibility maps. The comparison uses different time periods, terrain resolutions, observer heights and Earth-visibility definitions; it is not a measurement of prediction accuracy. Our Earth metric uses its centre; NASA counts any visible part of Earth's disc. The battery is a simple model, and Earth visibility does not establish a radio link. We say all of this on the page.
+One last thing. On 28 July 2027, our lander can see Earth while the Moon is up over Port Louis. Look at the Moon, and the lander is looking back.
 
-### Slide 7 (0:45)
+Scan the code. It works on your phone, offline, in English or French. Press "Look around with your phone" and turn: you are standing at Haworth.
 
-One last thing. On 28 July 2027, from four in the morning, our lander can see Earth while the Moon is up over Port Louis. Go outside, look at the Moon, and the lander is looking back.
-
-Scan the code. It works on your phone, even offline, in English or in French. Press "Look around with your phone", hold it up and turn: you are standing at Haworth, and you can find the Sun on the horizon yourself.
-
-Everything is open: the code, the data, and our check against NASA. Will the lander survive? Now anyone can check. Thank you.
+Will the lander survive? Now anyone can check. Thank you.
 
 ---
 
@@ -104,8 +102,8 @@ Everything is open: the code, the data, and our check against NASA. Will the lan
 6. Scroll down one screen to **"How do we save it?"**: "We tried five changes, one at a time. 4 of 5 would save this mission." Point at the one card with a cross, "Raise the solar panel": "Does not work. Even at 10 m the hills still hide the Sun for too long."
 7. On the first card, **"Land 5 days later"** (Land on 2 Aug instead of 28 Jul), click **Try it**.
 8. The page scrolls back up by itself. The verdict now says **"Survived, just."** and "The battery fell to 12%". The line under it says Earth is in view 5% of the time.
-9. Scroll to **"Why? Watch the mission."** and press **Play the mission**. The 3D view shows the lander on the real ground at Haworth with the Sun on the horizon. When the Sun goes behind a hill, the line to it turns red and names the ridge. Click **Look at Earth** to show Earth low in the sky. Press **Pause** when you have said it.
-10. If there is time: hold **Ctrl** and scroll up over the 3D view to zoom out over the craters (or press **−** twice), then **Reset view**. Skip this if behind.
+9. Scroll to **"Why? Watch the mission."** and press **Play the mission**. The 3D view shows the lander on the real ground at Haworth with the Sun on the horizon. When the Sun goes behind a hill, the line to it turns red and names the ridge. Press **Pause** when you have said it. Keep this to about 20 seconds. Skip it if behind at 2:20.
+10. Only if ahead of time: click **Look at Earth**, or press **−** twice to zoom out over the craters. Otherwise skip.
 11. If there is still time: the box below says "Saved. One change did it: landing 5 days later." Click **Put it back the way it was** to show the undo. Skip this if behind.
 12. Go back to the slides for slide 5.
 

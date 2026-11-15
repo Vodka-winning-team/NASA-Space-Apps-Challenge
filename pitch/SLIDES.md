@@ -7,13 +7,13 @@ All pictures are in `pitch/screenshots/`. They show the real website on the demo
 | # | Slide | Time | Judging criteria |
 |---|---|---|---|
 | 1 | Will the lander survive? | 0:15 | Presentation |
-| 2 | The south pole is hard | 0:35 | Relevance, Impact |
-| 3 | One screen, one answer | 0:20 | Impact, Presentation |
-| 4 | Lost on day 9. Can we save it? (live demo, then the 3D replay) | 1:40 | Creativity, Impact |
-| 5 | When the launch slips | 0:35 | Relevance, Creativity |
-| 6 | Built on NASA data, checked against NASA | 0:50 | Validity |
-| 7 | Mauritius can see it. So can you. | 0:45 | Impact, Presentation |
-| | **Total** | **5:00** | |
+| 2 | The south pole is hard | 0:30 | Relevance, Impact |
+| 3 | One screen, one answer | 0:15 | Impact, Presentation |
+| 4 | Lost on day 9. Can we save it? (live demo, then 20 s of the 3D replay) | 1:20 | Creativity, Impact |
+| 5 | When the launch slips | 0:30 | Relevance, Creativity |
+| 6 | Built on NASA data, checked against NASA | 0:35 | Validity |
+| 7 | Mauritius can see it. So can you. | 0:35 | Impact, Presentation |
+| | **Total** | **4:00** | |
 
 ---
 
@@ -57,11 +57,11 @@ The south pole has ice, so agencies want to land there. The Sun skims the edge o
 
 **Speaker notes**
 
-The tools that do this today are powerful but hard to read. Ours is one screen: the real hills with the Sun and Earth moving along them, a battery run through the mission, and an answer in big letters. Same site on a phone.
+The tools that do this today are powerful but hard to read. Ours is one screen: pick a place, pick a date, get an answer in big letters. Same site on a phone.
 
 ---
 
-## Slide 4: Lost on day 9. Can we save it? (live demo)
+## Slide 4: Lost on day 9. Can we save it? (live demo, then the 3D replay)
 
 **On the slide**
 
@@ -72,6 +72,8 @@ The tools that do this today are powerful but hard to read. Ours is one screen: 
 **Speaker notes**
 
 Switch to the browser. Exact clicks are in PITCH_SCRIPT.md. Show "Lost on day 9", scroll to "How do we save it?", 4 of 5 fixes work, raising the panel to 10 m does not. Click "Try it" on "Land 5 days later". The verdict becomes "Survived, just." with the battery down to 12%. Say honestly that Earth is now in view only 5% of the time: power is saved, contact is the next problem.
+
+Then about 20 seconds of the 3D replay: scroll to "Why? Watch the mission.", press Play, and point at the line to the Sun turning red when a ridge hides it (it names the ridge). Pause, back to the slides. Skip the 3D if behind at 2:20.
 
 The backup video (`pitch/backup-demo.mp4`) shows the "Survived, just." screen at about 0:27, and `pitch/screenshots/` has it too (see its README).
 
@@ -111,7 +113,7 @@ The challenge stresses launch delays. Each square is the same mission, landing o
 
 **Speaker notes**
 
-We cross-checked against NASA's long-term visibility maps. The comparison uses different time periods, terrain resolutions, observer heights and Earth-visibility definitions; it is not a measurement of prediction accuracy. Our Earth metric uses its centre; NASA counts any visible part of Earth's disc.
+Every hill comes from NASA's LOLA laser altimeter on the Lunar Reconnaissance Orbiter. Every Sun and Earth position comes from NASA JPL Horizons, every hour of 2027 and 2028. We cross-checked against NASA's own visibility maps; the page shows where we differ and why. Limits, said by us: the battery is a simple model, and seeing Earth is not the same as a radio link.
 
 ---
 

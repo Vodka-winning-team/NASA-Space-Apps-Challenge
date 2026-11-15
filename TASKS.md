@@ -58,6 +58,6 @@ Status: `open`, `doing (name)`, `done`. Take any open task. Edit this file and p
 
 - 15 Nov 10:40, Suresh: added a guided tour for first-time visitors (`docs/tour.js`, `docs/tour.css`): a welcome card, then 12 short spotlight steps over the real page, with "Try it" hints. It opens by itself only on a first visit to the plain link, never over a link with settings (so not over the demo link). The **Tour** button at the top replays it. Tested by `tests/tour.mjs` at laptop and phone sizes.
 
-- 15 Nov 11:25, Suresh: tour updated for Jayesh's additions: a step for **Look around with your phone** (shown only when that button is, on phones and tablets), a step for **Light / Dark and FR / EN**, and the whole tour in French (it follows the language switch). Fixed a bug in the French switch: a link with settings opened in French lost its settings (the demo link opened 1 Jan with default settings). Pitch script and slides moved to 5 minutes, with the 3D replay in the demo and the phone look-around in the close.
+- 15 Nov 11:25, Suresh: tour updated for Jayesh's additions: a step for **Look around with your phone** (shown only when that button is, on phones and tablets), a step for **Light / Dark and FR / EN**, and the whole tour in French (it follows the language switch). Fixed a bug in the French switch: a link with settings opened in French lost its settings (the demo link opened 1 Jan with default settings). Pitch script and slides rewritten for 4 minutes, with 20 s of the 3D replay in the demo and the phone look-around and French in the close.
 
 (add here)
