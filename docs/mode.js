@@ -74,7 +74,7 @@
   function switchTo(mode, scrollTo) {
     if (busy) return;
     var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var toPlanner = mode === "planner", wait = calm ? 0 : toPlanner ? 540 : 220;
+    var toPlanner = mode === "planner", wait = calm ? 0 : 540;
     var el = loader();
     el.querySelector(".mlText").textContent = toPlanner ? "Opening the mission planner…" : "Back to the simple view…";
     el.classList.toggle("toSimple", !toPlanner);

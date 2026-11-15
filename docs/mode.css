@@ -62,7 +62,6 @@ body.mode-planner .simple-only { display: none !important; }
 .mlText { font: 600 15px/1.2 var(--sans); color: var(--text); white-space: nowrap; }
 .mlBar { display: block; width: 168px; height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; }
 .mlBar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--sun), #ffe3a3); transform-origin: left; transform: scaleX(0); animation: mlBar 540ms var(--ease) forwards; }
-.modeLoader.toSimple .mlBar i { animation-duration: 220ms; }
 @keyframes mlBar { to { transform: scaleX(1); } }
 
 /* newly shown planner sections rise into place one after another */
