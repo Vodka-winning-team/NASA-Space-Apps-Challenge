@@ -96,11 +96,11 @@ Scan the code. It works on your phone, even offline. Everything is open: the cod
 
 **If the demo fails**
 
-Say: *"The live site is not answering, so here are the same screens from last night."* Then show the backup video (`pitch/backup-demo.mp4`, 32 s, also at https://github.com/Vodka-winning-team/NASA-Space-Apps-Challenge/blob/main/pitch/backup-demo.mp4; keep a copy on the laptop's desktop), or these screenshots in order:
+Say: *"The live site is not answering, so here are the same screens from last night."* Then show the backup video (`pitch/backup-demo.mp4`, 37 s, also at https://github.com/Vodka-winning-team/NASA-Space-Apps-Challenge/blob/main/pitch/backup-demo.mp4; keep a copy on the laptop's desktop), or these screenshots in order:
 
 1. `pitch/screenshots/desktop-lost-planner-04-verdict.jpg` ("Lost on day 9.")
 2. `pitch/screenshots/desktop-lost-planner-05-rescue.jpg` (4 of 5 fixes)
-3. `pitch/screenshots/desktop-lost-planner-10-landing-later.jpg` ("Wait 5 days, land on 2 Aug, and the lander survives.")
+3. `pitch/screenshots/desktop-lost-planner-09-landing-later.jpg` ("Wait 5 days, land on 2 Aug, and the lander survives.")
 
 Keep talking from the script. Do not try to fix the laptop during the pitch.
 

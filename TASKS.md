@@ -41,13 +41,15 @@ Status: `open`, `doing (name)`, `done`. Take any open task. Edit this file and p
 | S3 | Draft the NASA submission text: summary (50 to 200 words), project details, NASA data, references, AI use | draft done (Suresh, with AI): `pitch/SUBMISSION.md` (summary 160 words); team to check the team list |
 | S4 | Pitch script for 4 minutes; decide who speaks | draft done (Suresh, with AI): `pitch/PITCH_SCRIPT.md` (544 words, timed to 4:00, demo clicks, fallback, judge Q&A); team to decide who drives the laptop |
 | S5 | Screenshots of every screen, for slides and as backup | done (Suresh): `pitch/screenshots/`, desktop and phone (true 390 px), both modes |
-| S6 | 30-second backup screen recording | done (Suresh): `pitch/backup-demo.mp4` (32 s, captions, recorded from the real site) |
+| S6 | 30-second backup screen recording | done (Suresh): `pitch/backup-demo.mp4` (37 s, captions, recorded from the real site, with the 3D replay) |
 | S7 | QR code to the public link for the last slide | done (Suresh): `pitch/qr-code.png` (black on white) and `pitch/qr-code-dark.png` (for the dark slides); scan it once with a phone to be sure |
 | S8 | Make the repo public; test every link in a private browser window | done (Suresh): repo is public; live site tested in a fresh browser with no login; every link in README, CHALLENGE and VALIDATION opens, except spaceappschallenge.org, which did not answer our script, so check it by hand |
 | S9 | Fill the NASA page and click Submit for Judging | open |
 | S10 | Three timed rehearsals | open |
 
 ## Bugs and notes
+
+- 15 Nov, 06:40, Suresh (with Claude and OpenAI Codex): **"Why? Watch the mission." is now a 3D replay.** It opens beside the lander on the real ground (NASA LOLA), with the Sun on the horizon and the Earth (NASA Blue Marble) where NASA/JPL Horizons puts it. Drag to look around, right-drag to move, Ctrl + scroll or the + and − buttons to zoom out over the whole region; buttons for "From above", "Lander's eye", "Look at Earth". A line to the Sun turns red and names the ridge when the Sun is blocked. The old flat picture is still there, folded below the battery chart ("Flat 360° view of the horizon"). Also fixed: the mouse pointer vanishing over the 3D view, the mouse wheel getting stuck on it, and slow place changes. Tests: 134 checks pass. Screenshots (`pitch/screenshots/`, see `desktop-replay-*`) and the backup video are new. If anything looks wrong on the demo laptop, the version before this change is tagged `before-3d-replay` (to go back: `git revert -m 1 <the merge commit>` and push, or ask Suresh).
 
 - 15 Nov, early morning, Suresh (with Claude and OpenAI Codex): added "Somewhere else" (land anywhere south of 85° S) and "The numbers, hour by hour" (CSV), the submission pack drafts, the backup video, and a browser test suite (`tests/run.sh`, 112 checks, all passing). Codex reviewed the code and found 13 issues; 12 are fixed and tested (`tests/review.mjs`). Not changed: after a deploy, a phone that loses the network halfway through loading could mix old and new files for one visit; the cache now never stores error pages, so a reload fixes it.
 
