@@ -18,7 +18,8 @@ tests/run.sh
 | `review.mjs` | The fixes from the Codex review: compare switch, end-of-data countdown, keyboard hour, hook validation, 90° S, coordinate rounding, offline cache never saves errors |
 | `replay.mjs` | The 3D mission replay: starts beside the lander following the Sun, arrow cursor, the wheel scrolls the page and Ctrl + wheel zooms, + and −, Play, looking around, zooming out over the region, the lander's eye, Look at Earth, a blocking ridge found and labelled, the flat 360° view |
 | `science.mjs` | Disc area boundaries, symmetry, exposure hours, Earth windows, 4,308-case sweep and rescue consistency |
-| `../engine/check_custom.mjs` | Six-site consistency; finite geometry/fractions, nonempty comparisons and worst verdict agreement at least 96% |
+| `monkey.mjs` | 250 random judge-like actions in a row at laptop sizes (Play, places, panels, days, dates, battery, all 3D views and buttons, zoom, custom places, rescue and undo, modes, the calendar, window resizes), checking after every step: verdict shown, dates and hours in range, camera sane, no sideways scroll, labels inside the 3D view, no console errors. Optional: `node monkey.mjs <url> <steps> <seed> <webdriver port>` |
+| `../engine/check_custom.mjs` | Six-site consistency; finite geometry/fractions, nonempty comparisons and worst verdict agreement at least 96%; every map tile the page asks for exists, and a place at the 85° S edge works |
 
 Every test also fails on any JavaScript error in the console. Written with AI assistance (Claude).
 

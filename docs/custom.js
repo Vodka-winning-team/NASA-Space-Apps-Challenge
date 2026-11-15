@@ -176,6 +176,32 @@
     land(lat, lon, false);
   });
 
+  // a custom-place link pasted into a tab that is already open: rebuild that place too
+  // (this runs before app.js's own hashchange handler, which keeps the date and settings from the link)
+  function fromLink() {
+    var h = /(?:^#|&)site=P(-?\d+(?:\.\d+)?)_(-?\d+(?:\.\d+)?)(?:&|$)/.exec(location.hash);
+    if (!h) return;
+    var la = parseFloat(h[1]), lo = parseFloat(h[2]);
+    if (CALC.check(la, lo)) return;
+    // the same place can be written in more than one way (fewer decimals, longitude 326.7 for -33.3)
+    lo = ((lo + 180) % 360 + 360) % 360 - 180;
+    la = Math.round(la * 1e4) / 1e4; lo = Math.round(lo * 1e4) / 1e4;
+    if (current && Math.abs(current.lat - la) < 1e-5 && Math.abs(current.lon - lo) < 1e-5) {
+      var id = current.id;
+      setTimeout(function () { APP.setSite(id); }, 0);      // after app.js has read the link's date and settings
+      return;
+    }
+    if (busy) {                                   // another place is still being worked out: do this one next
+      var want = location.hash;
+      setTimeout(function () { if (location.hash === want) fromLink(); }, 400);
+      return;
+    }
+    window.LANDER_HASH0 = location.hash;          // so a failed load puts this link back
+    $("customLat").value = Math.abs(la); $("customLon").value = lo;
+    land(la, lo, true);
+  }
+  window.addEventListener("hashchange", fromLink, true);   // capture: always before app.js's own handler
+
   // a shared link to a custom place: site=P<lat>_<lon>
   var m = /(?:^#|&)site=P(-?\d+(?:\.\d+)?)_(-?\d+(?:\.\d+)?)(?:&|$)/.exec(window.LANDER_HASH0 || "");
   if (m) {

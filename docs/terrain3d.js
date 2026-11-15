@@ -440,9 +440,15 @@
   function lookAt(az, el) {        // turn so the given direction is ahead
     if (!renderer || !api) return;
     follow = false;
-    if (view === "eye") { controls.target.copy(camera.position).add(sky(az, el || 0)); controls.update(); render(); return; }
+    var high = Math.asin(clamp(sky(az, el || 0).y, -1, 1)) / D2R;      // how high it is drawn (taller hills stretch the sky too)
+    // from beside or above the lander the camera looks down at it, so only things low in the sky fit in the picture;
+    // anything higher is shown from the lander's eye, tilted up to it
+    // (far out, the camera cannot go lower than 10 degrees, closer in 4; the picture shows about 23 degrees above its centre)
+    var far = view !== "eye" ? camera.position.distanceTo(controls.target) : 0, lowest = far < 400 ? 3 : far < 4000 ? 4 : 10;
+    if (view !== "eye" && high + lowest > 20) { setView("eye", true); follow = false; }
+    if (view === "eye") { controls.target.copy(camera.position).add(sky(az, el || 0)); controls.update(); onMove(); return; }
     var off = camera.position.clone().sub(controls.target), dist = off.length();
-    setOrbit(dist, Math.min(8, Math.asin(clamp(off.y / dist, -1, 1)) / D2R), az + 180 + side(18));
+    setOrbit(dist, Math.max(lowest, Math.min(high > 9 ? 3 : 8, Math.asin(clamp(off.y / dist, -1, 1)) / D2R)), az + 180 + side(18));
     controls.update(); onMove();
   }
   function zoom(k) {

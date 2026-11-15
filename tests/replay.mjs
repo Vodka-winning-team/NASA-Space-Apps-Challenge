@@ -113,6 +113,26 @@ ok(tags.length === 0, "each ground file is loaded once" + (tags.length ? ": twic
 await js(`document.getElementById("flatView").open = true`); await sleep(800);
 const pano = await js(`var c = document.getElementById("pano"); return [c.width, c.height];`);
 ok(pano[0] > 100 && pano[1] > 100, `the flat 360° view opens and draws (${pano.join("x")})`);
+// "Look at Earth" always brings the Earth into the picture, also with taller hills (the Earth is then drawn higher)
+await js(`window.LANDER_APP.set({ site: "HW06", start: 4992, days: 14, mast: "2" }); window.LANDER_APP.setHour(0);`); await sleep(2500);
+for (const [view, tall] of [["ground", false], ["ground", true], ["above", true], ["eye", true]]) {
+  await js(`var b = document.querySelector('#t3dViews [data-v="' + arguments[0] + '"]'); b.click(); var x = document.getElementById("t3dExag"); if ((x.getAttribute("aria-pressed") === "true") !== arguments[1]) x.click();`, view, tall);
+  await sleep(900);
+  await js(`document.getElementById("t3dEarth").click()`); await sleep(900);
+  const e = await js(`var a = window.LANDER_APP.get(), i = a.state.start + Math.round(a.state.hour), up = a.data[a.state.site].earth_el[i] > 0;
+    var l = document.querySelector(".t3dLabel-earth"), c = document.getElementById("t3dCanvas").getBoundingClientRect(), r = l.getBoundingClientRect();
+    return { up: up, shown: l.style.display === "block" && r.bottom > c.top && r.top < c.bottom, text: l.textContent, view: window.LANDER_T3D.view() };`);
+  ok(!e.up || e.shown, `Look at Earth from "${view}"${tall ? " with taller hills" : ""} shows the Earth (view now ${e.view}, label "${e.text}")`);
+}
+// Codex's case: far out from above, 13 Jan 2027 01:00, taller hills
+await js(`window.LANDER_APP.set({ site: "HW06", start: 288, days: 14, mast: "2" }); window.LANDER_APP.setHour(1);`); await sleep(2500);
+await js(`document.querySelector('#t3dViews [data-v="above"]').click(); var x = document.getElementById("t3dExag"); if (x.getAttribute("aria-pressed") !== "true") x.click();`); await sleep(900);
+await js(`document.getElementById("t3dEarth").click()`); await sleep(900);
+const ce = await js(`var a = window.LANDER_APP.get(), i = a.state.start + Math.round(a.state.hour), up = a.data[a.state.site].earth_el[i] > 0;
+  var l = document.querySelector(".t3dLabel-earth"), c = document.getElementById("t3dCanvas").getBoundingClientRect(), r = l.getBoundingClientRect();
+  return { up: up, shown: l.style.display === "block" && r.bottom > c.top && r.top < c.bottom, view: window.LANDER_T3D.view() };`);
+ok(!ce.up || ce.shown, `Look at Earth from far above with taller hills (13 Jan 2027) shows the Earth (view now ${ce.view})`);
+await js(`var x = document.getElementById("t3dExag"); if (x.getAttribute("aria-pressed") === "true") x.click();`); await sleep(600);
 ok(logs.length === 0, "no JavaScript errors" + (logs.length ? ": " + logs.slice(0, 4).join(" | ") : ""));
 console.log(rep.join("\n"));
 await call("DELETE", S); ws.close(); process.exit(0);

@@ -77,4 +77,19 @@ for (const s of SITES) {
 }
 console.log(`\nWorst agreement over all sites and settings: ${worst.toFixed(1)}%`);
 
+// Every map tile the page asks for must exist, for any place it accepts (85 S to the pole, all longitudes).
+let asked = 0, absent = [];
+for (let lat = -85; lat >= -89.99; lat -= (lat > -85.6 ? 0.02 : 0.25)) {
+  for (let lon = -180; lon < 180; lon += 1.5) {
+    if (C.check(lat, lon)) continue;
+    for (const k of C.needed(lat, lon)) { asked++; if (!fs.existsSync(path.join(DOCS, "data/dem/f_" + k + ".js"))) absent.push(`${lat.toFixed(2)},${lon} -> f_${k}`); }
+  }
+}
+console.log(`Tiles asked for over the whole accepted area: ${asked}, missing: ${absent.length}` + (absent.length ? " e.g. " + absent.slice(0, 5).join("; ") : ""));
+// and an edge place (Codex's example) works out with no gaps
+for (const k of C.needed(-85.1, 132)) load(`data/dem/f_${k}.js`);
+const edge = C.build(-85.1, 132, SITES, DATA, { id: "EDGE" });
+const bad = ["0.5", "2", "10"].some((h) => edge.data.horizons[h].some((v) => !isFinite(v)));
+console.log(`Edge place 85.1 S 132 E: horizon ${bad ? "HAS GAPS" : "complete"}`);
+if (absent.length || bad) process.exitCode = 1;
 assert(Number.isFinite(worst) && worst >= MIN_AGREEMENT, `Agreement ${worst}% below ${MIN_AGREEMENT}% regression floor`);

@@ -90,6 +90,28 @@ ok(restored, `opening the shared link rebuilds the same place (${link.split("#")
 // 6. dots on the map still select prepared sites when the form is closed
 await js(`if (!document.getElementById("customForm").hidden) document.getElementById("customOpen").click(); document.querySelector('#moon .dot[data-id="SP07"]').click();`); await sleep(500);
 ok(await js(`return window.LANDER_APP.get().state.site === "SP07";`), "map dots still work");
+// a custom-place link pasted into the tab that is already open
+await js(`location.hash = "#site=P-86.6000_33.3000&date=2027-05-02&days=30&batt=96&panel=2";`);
+const pasted = await until(`return window.LANDER_APP.get().state.site === "P-86.6000_33.3000";`, 30000);
+const ps = await js(`var s = window.LANDER_APP.get().state; return [s.site, s.days, location.hash.slice(0, 40)];`);
+ok(pasted && ps[1] === 30, `a custom-place link pasted into an open tab opens that place with its settings (${ps.join(", ")})`);
+// the same place written differently (fewer decimals, longitude + 360) is recognised, and the link's settings kept
+await js(`document.querySelector('#sites [data-id="SP07"]').click();`); await sleep(500);
+for (const [form, days] of [["P-86.6_33.3", 7], ["P-86.6000_-326.7000", 30]]) {
+  await js(`document.querySelector('#sites [data-id="SP07"]').click();`); await sleep(500);
+  await js(`location.hash = "#site=" + arguments[0] + "&date=2027-06-01&days=" + arguments[1] + "&batt=96&panel=2";`, form, days);
+  const same = await until(`var s = window.LANDER_APP.get().state; return s.site === "P-86.6000_33.3000" && s.days === ${days};`, 15000);
+  ok(same, `a link to the same place written as ${form} selects it with the link's settings (${await js(`var s = window.LANDER_APP.get().state; return s.site + ", " + s.days + " days";`)})`);
+}
+// two links pasted quickly: the last one wins, with its own settings
+await js(`location.hash = "#site=P-87.1000_-61.0000&date=2027-04-01&days=14&batt=96&panel=2";`); await sleep(60);
+await js(`location.hash = "#site=P-88.2000_101.0000&date=2027-09-09&days=60&batt=96&panel=2";`);
+const last = await until(`var s = window.LANDER_APP.get().state; return s.site === "P-88.2000_101.0000" && s.days === 60 && !document.querySelector("#customForm.busy");`, 40000);
+ok(last, `two links pasted quickly: the second one wins with its settings (${await js(`var s = window.LANDER_APP.get().state; return s.site + ", " + s.days + " days";`)})`);
+// a place at the very edge of the accepted area (needs only map pieces that exist)
+await js(`window.LANDER_CUSTOM.land(-85.1, 132);`);
+const edge = await until(`return /^Done|Could not/.test(document.getElementById("customMsg").textContent) && /^P-85.1/.test(window.LANDER_APP.get().state.site);`, 30000);
+ok(edge, `a place at the edge, 85.1° S 132° E, works out: "${(await js(`return document.getElementById("customMsg").textContent;`)).slice(0, 60)}"`);
 ok(logs.length === 0, "no JavaScript errors" + (logs.length ? ": " + logs.slice(0, 5).join(" | ") : ""));
 console.log(rep.join("\n"));
 await call("DELETE", S); ws.close(); process.exit(0);
