@@ -1,0 +1,29 @@
+/* The 3D Moon picker. Written with AI assistance (Claude). */
+.pick.hasGlobe { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); }
+.pick.hasGlobe .globeFig { order: 2; }
+.globeFig { margin: 0; }
+.globe { position: relative; aspect-ratio: 1; width: 100%; max-width: 560px; margin-left: auto; background: radial-gradient(circle at 50% 50%, #0d1016 0%, #05060a 70%); border-radius: 18px; overflow: hidden; touch-action: none; cursor: grab; }
+.globe:active { cursor: grabbing; }
+.globe canvas { display: block; width: 100%; height: 100%; }
+.globeLabels { position: absolute; inset: 0; pointer-events: none; }
+.globeLabel { position: absolute; transform: translate(-50%, calc(-100% - 10px)); font: 600 12px/1.2 var(--sans); color: var(--text); white-space: nowrap; text-shadow: 0 0 6px #000, 0 0 2px #000; display: none; }
+.globeLabel.on { color: var(--sun); font-size: 13px; }
+.globeReset {
+  position: absolute; right: 10px; bottom: 10px; min-height: 36px; padding: 6px 14px; border-radius: 999px;
+  border: 1px solid var(--line-2); background: rgba(14, 16, 20, 0.75); color: var(--text-2); font: 500 13px/1.2 var(--sans); cursor: pointer;
+}
+@media (hover: hover) { .globeReset:hover { color: var(--text); border-color: var(--text-2); } }
+.globeMsg { font-size: 14px; color: var(--text-2); margin-top: 10px; min-height: 1.4em; max-width: 560px; margin-left: auto; }
+.globeMsg.bad { color: var(--dead); }
+.globeFig figcaption { font-size: 14px; color: var(--text-3); margin-top: 6px; max-width: 560px; margin-left: auto; }
+@media (max-width: 900px) {
+  .pick.hasGlobe { grid-template-columns: minmax(0, 1fr); }
+  .pick.hasGlobe .globeFig { order: -1; }
+  .globe, .globeMsg, .globeFig figcaption { max-width: none; }
+}
+@media (max-width: 560px) {
+  .globe { border-radius: 14px; margin: 0 calc(-1 * var(--gut) + 6px); width: auto; }
+}
+.globeViews { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 6px; }
+.globeViews button { min-height: 36px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line-2); background: rgba(14, 16, 20, 0.75); color: var(--text-2); font: 500 13px/1.2 var(--sans); cursor: pointer; }
+.globeViews button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 600; }

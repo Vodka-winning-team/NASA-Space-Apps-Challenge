@@ -16,6 +16,8 @@ tests/run.sh
 | `numbers.mjs` | "The numbers": CSV rows and columns, battery matches the verdict, custom places, download button |
 | `stress.mjs` | Broken and hostile links, 60 rapid clicks, double clicks while a place is worked out, storage blocked, WebGL off |
 | `review.mjs` | The fixes from the Codex review: compare switch, end-of-data countdown, keyboard hour, hook validation, 90° S, coordinate rounding, offline cache never saves errors |
+| `globe.mjs` | The 3D Moon picker: replaces the flat map, dots select places, a tap south of 85° S lands there, a tap elsewhere explains the limit, dragging turns it |
+| `replay.mjs` | The 3D mission replay: starts at the lander following the Sun, Play moves it, looking around, the view from above, a blocking ridge found and labelled, the flat 360° view |
 | `../engine/check_custom.mjs` | "Somewhere else" maths against the six prepared sites |
 
 Every test also fails on any JavaScript error in the console. Written with AI assistance (Claude).

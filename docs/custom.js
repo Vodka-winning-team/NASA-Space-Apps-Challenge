@@ -19,7 +19,11 @@
   });
   function whenReady(f) { if (ready) f(); else waiting = f; }
 
-  function say(text, kind) { msg.textContent = text; msg.className = "customMsg" + (kind ? " " + kind : ""); }
+  function say(text, kind) {
+    msg.textContent = text; msg.className = "customMsg" + (kind ? " " + kind : "");
+    // the 3D globe shows the same progress next to itself
+    try { window.dispatchEvent(new CustomEvent("lander-custom-msg", { detail: { text: text, kind: kind || "" } })); } catch (e) { /* very old browser */ }
+  }
   function fmt(lat, lon) { return Math.abs(lat).toFixed(2) + "° S, " + Math.abs(lon).toFixed(2) + "° " + (lon < 0 ? "W" : "E"); }
 
   /* ---------- loading the map pieces ---------- */
@@ -90,7 +94,7 @@
     try { history.replaceState(null, "", window.LANDER_HASH0); } catch (e) { /* opened from disk: fine */ }
   }
 
-  function land(lat, lon, quiet) {
+  function land(lat, lon, quiet, noScroll) {
     if (busy) return;
     var err = CALC.check(lat, lon);
     if (err) { say(err, "bad"); return; }
@@ -128,7 +132,7 @@
           say("Done: " + fmt(lat, lon) + ", ground " + Math.round(out.data.ground_m) + " m from the Moon's average height. " +
               "Hills from NASA's height map (80 m detail near the lander, 640 m beyond 10 km); Sun and Earth from the NASA/JPL Horizons table of " +
               (ref ? ref.name : "the nearest site") + ".", "good");
-          if (!quiet) { try { $("verdict").scrollIntoView({ block: "start", behavior: "smooth" }); } catch (e) { /* old browser */ } }
+          if (!quiet && !noScroll) { try { $("verdict").scrollIntoView({ block: "start", behavior: "smooth" }); } catch (e) { /* old browser */ } }
         });
       }, 40);
     });
@@ -175,4 +179,6 @@
       land(la0, lo0, true);
     }
   }
+  // for the 3D globe: land at a place picked on it (stays where it is, no scrolling)
+  window.LANDER_CUSTOM = { land: function (lat, lon) { land(lat, lon, false, true); }, check: CALC.check };
 })();

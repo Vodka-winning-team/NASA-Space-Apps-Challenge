@@ -690,7 +690,7 @@
       b.onclick = function () { ridgePick = spells.filter(function (s) { return s.from === +b.dataset.from; })[0]; drawRidge(); drawPano(); };
     });
     if (!pick) {
-      $("ridgeSay").innerHTML = "The Sun never stays hidden for long on this mission. Tap the sky picture above to look in any direction.";
+      $("ridgeSay").innerHTML = "The Sun never stays hidden for long on this mission. Open the flat 360° view above and tap it to look in any direction.";
       drawSection(null);
       return;
     }

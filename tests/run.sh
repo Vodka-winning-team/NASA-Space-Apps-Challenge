@@ -18,6 +18,8 @@ run "somewhere else"     node "$HERE/custom.mjs" "$U" ""
 run "numbers and CSV"    node "$HERE/numbers.mjs" "$U"
 run "stress"             node "$HERE/stress.mjs" "$U"
 run "review fixes"       node "$HERE/review.mjs" "$U"
+run "3D Moon picker"      node "$HERE/globe.mjs" "$U"
+run "3D mission replay"   node "$HERE/replay.mjs" "$U"
 run "opened from disk"   node "$HERE/custom.mjs" "file://$(cd "$DOCS" && pwd)" ""   # docs/ itself: snap Firefox cannot read /tmp
 node "$HERE/../engine/check_custom.mjs" | tail -1
 [ $fail = 0 ] && echo "ALL PASSED" || echo "SOME TESTS FAILED"
