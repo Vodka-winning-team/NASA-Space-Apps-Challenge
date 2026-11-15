@@ -124,7 +124,7 @@ We cross-checked against NASA's long-term visibility maps. The comparison uses d
 No. It means the centre of the Earth is above the hills, so there is a clear line of sight. It does not include the antenna, the ground stations, their schedules or relay satellites. We say this on the page.
 
 **3. How accurate is "Somewhere else" (your own coordinates)?**
-Close to the prepared sites. The browser uses NASA's 80 m height map for the ground within 10 km of the lander, which is where ridge-top horizons are decided, and a 640 m copy for hills up to 200 km away. We tested it by rebuilding the six prepared sites this way: the hill line stayed within a quarter of a degree, and the survived/lost answer matched on 97 to 100% of landing days. One more thing we learned: moving the lander just 700 m changes the answer on about half the landing days, so the exact spot matters.
+Close to the prepared sites. The browser uses NASA's 80 m height map for the ground within 10 km of the lander, which is where ridge-top horizons are decided, and a 640 m copy for hills up to 200 km away. We tested it by rebuilding the six prepared sites this way: the hill line stayed within a quarter of a degree, and the survived/lost answer matched on about 96 to 100% of landing days. One more thing we learned: moving the lander just 700 m changes the answer on about half the landing days, so the exact spot matters.
 
 **4. What would you add next?**
 A better battery model (cold, heat, real lander power numbers), a finer height map close to the lander, and more years of Sun and Earth positions. Then test it with real mission planners and teachers, and fix what confuses them.
