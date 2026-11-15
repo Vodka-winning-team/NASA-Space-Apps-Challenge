@@ -16,7 +16,6 @@
 <link rel="stylesheet" href="rescue.css">
 <link rel="stylesheet" href="custom.css">
 <link rel="stylesheet" href="export.css">
-<link rel="stylesheet" href="globe.css">
 <link rel="stylesheet" href="replay.css">
 </head>
 <body class="mode-simple">
@@ -45,7 +44,7 @@
           <div class="custom">
             <button type="button" class="customOpen" id="customOpen" aria-expanded="false" aria-controls="customForm">Somewhere else…</button>
             <form class="customForm" id="customForm" hidden novalidate>
-              <p class="hint">Tap inside the dashed ring on the Moon, or type a place south of 85° S. The page works out its hills from NASA's height map.</p>
+              <p class="hint">Tap anywhere inside the dashed circle on the map, or type a place south of 85° S. The page works out its hills from NASA's height map.</p>
               <div class="customRow">
                 <label>Latitude <span>degrees south</span><input id="customLat" type="text" inputmode="decimal" autocomplete="off" placeholder="86.10"></label>
                 <label>Longitude <span>degrees east (west is minus)</span><input id="customLon" type="text" inputmode="decimal" autocomplete="off" placeholder="12.30"></label>
@@ -77,18 +76,6 @@
           </div>
         </details>
       </div>
-      <figure class="globeFig" id="globeFig" hidden>
-        <div class="globe" id="globe">
-          <div class="globeLabels" id="globeLabels" aria-hidden="true"></div>
-          <div class="globeViews" id="globeViews" role="group" aria-label="View">
-            <button type="button" data-v="pole" aria-pressed="false">South pole</button>
-            <button type="button" data-v="whole" aria-pressed="true">Whole Moon</button>
-          </div>
-          <button type="button" class="globeReset" id="globeReset">Reset view</button>
-        </div>
-        <p class="globeMsg" id="globeMsg" role="status" aria-live="polite"></p>
-        <figcaption>NASA's Moon (LRO), lit by the Sun at the hour you picked. Drag to turn it, pinch or scroll to zoom. Tap a dot to pick a landing place, or tap anywhere inside the dashed ring (south of 85° S) to land there. Heights near the south pole are shown 5× taller.</figcaption>
-      </figure>
       <figure class="moon">
         <div class="moonDisc" id="moon">
           <img src="map.jpg" alt="The Moon's south pole seen from above" width="640" height="640">
@@ -132,7 +119,7 @@
     <div class="head">
       <div>
         <h2>Why? Watch the mission.</h2>
-        <p class="lede">You are standing next to the lander, on the real ground of the place you picked. Press Play and watch the Sun skim the horizon. When a ridge or crater wall hides it, the lander runs on battery. Drag to look around, or switch to the view from above to see what is in the way.</p>
+        <p class="lede">This is the real ground of the place you picked, with the lander on it. Press Play and watch the Sun skim the horizon. When a ridge or crater wall hides it, the lander falls into shadow and runs on battery. Look around, or zoom out to see the craters and ridges that get in the way.</p>
       </div>
       <button class="play" id="play" type="button">Play the mission</button>
     </div>
@@ -141,11 +128,18 @@
         <p class="t3dNote" id="t3dNote"></p>
         <div class="t3dLabels" id="t3dLabels" aria-hidden="true"></div>
         <div class="t3dHud" id="t3dHud" aria-hidden="true"><span class="hudWhen" id="hudWhen"></span><span class="hudBatt"><i id="hudBattBar"></i></span><span class="hudPct" id="hudPct"></span></div>
+        <p class="t3dTip" id="t3dTip" aria-hidden="true">Hold Ctrl and scroll to zoom, or use + and −</p>
+        <div class="t3dZoom" role="group" aria-label="Zoom">
+          <button type="button" id="t3dIn" aria-label="Zoom in">+</button>
+          <button type="button" id="t3dOut" aria-label="Zoom out">−</button>
+        </div>
         <div class="t3dCtl">
           <div class="seg t3dViews" id="t3dViews" role="group" aria-label="Camera">
-            <button type="button" data-v="lander" aria-pressed="true">At the lander</button>
-            <button type="button" data-v="overview" aria-pressed="false">From above</button>
+            <button type="button" data-v="ground" aria-pressed="true">Beside the lander</button>
+            <button type="button" data-v="above" aria-pressed="false">From above</button>
+            <button type="button" data-v="eye" aria-pressed="false">Lander's eye</button>
           </div>
+          <button type="button" class="t3dExag" id="t3dEarth">Look at Earth</button>
           <button type="button" class="t3dExag" id="t3dExag" aria-pressed="false">Hills 3× taller</button>
           <button type="button" class="t3dReset" id="t3dReset">Reset view</button>
         </div>
@@ -158,7 +152,7 @@
     </div>
     <div class="nowGrid pro" id="nowGrid" aria-live="off"></div>
     <canvas id="time" class="time" role="slider" tabindex="0" aria-valuemin="0" aria-label="Battery level through the mission. Left and right arrow keys choose the hour, with Shift a whole day"></canvas>
-    <p class="hint">Drag across the battery chart to move through the mission. In the 3D view the yellow line runs from the lander to the Sun; when something blocks it, it turns red and marks the ridge in the way. Ground from NASA's height map (LOLA), 26 km across; hills further away are drawn as a ring. True to scale unless you make the hills taller.</p>
+    <p class="hint">Drag across the battery chart to move through the mission. In the 3D view: drag to look around, right-drag to move, Ctrl + scroll (or pinch, or + and −) to zoom. A yellow line runs from the lander to the Sun; when something is in the way it turns red and marks the ridge. Ground shapes come from NASA's height map (LOLA): 80 m detail for 26 km around the lander, coarser beyond. The fine grain of the soil, and the lander, are illustrative. The Sun and Earth are drawn 3× larger so you can see them; the Earth picture is NASA's Blue Marble.</p>
     <details class="flatView" id="flatView">
       <summary>Flat 360° view of the horizon</summary>
       <canvas id="pano" class="pano" role="img" aria-label="The hills around the lander with the Sun and Earth"></canvas>
@@ -313,7 +307,7 @@
 <script src="data/HW06.js"></script>
 <script src="data/SP07.js"></script>
 <script src="data/ridges.js"></script>
-<script src="data/globe/pole.js"></script>
+<script src="data/far/relief.js"></script>
 <script src="app.js"></script>
 <script src="planner.js"></script>
 <script src="extras.js"></script>
@@ -324,6 +318,5 @@
 <script src="vendor/three.min.js"></script>
 <script src="vendor/OrbitControls.js"></script>
 <script src="terrain3d.js"></script>
-<script src="globe.js"></script>
 </body>
 </html>
