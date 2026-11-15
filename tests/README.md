@@ -35,3 +35,7 @@ Corrected-area result (2026-11-15): worst custom/prepared agreement is 95.8333% 
 - `node tests/gyro.mjs`: the pure orientation maths in `docs/gyro.js` (neutral pose, turns, portrait/landscape, re-centre, 359 to 0 wrap, bad readings). No browser needed.
 - `tests/gyro_sim.mjs` with `tests/_gyro_sim.html`: the whole mode in headless Chrome at 390 px with simulated sensor events (no readings, denied, granted, enter/exit, time moving, place/panel/camera changes). See the usage line at the top of the script.
 - Neither replaces a real phone: motion permission prompts and real sensors must be checked by hand on Android Chrome and iPhone Safari over HTTPS.
+
+## Full sweep (headless Chrome)
+
+`node tests/sweep.mjs http://localhost:PORT <folder for screenshots>`: loads every mix of language (en/fr), theme, mode and width (1366, 390, 360), walks the guided tour in French, and clicks through the main controls (mode switch, battery slider, date row, rescue, keyboard, Play, theme and language buttons, planner). Needs Chrome at its default Windows path. 80 checks.

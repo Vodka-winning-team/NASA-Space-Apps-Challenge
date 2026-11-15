@@ -361,3 +361,112 @@ window.LANDER_FR = { exact: {
   F.rules = rules.concat(F.rules);
   F.first = rules.length;      // these whole-sentence rules stop further word-by-word rules when they match
 })();
+
+/* French for the guided tour (tour.js). Existing entries are kept, so the same words read the same everywhere. */
+(function () {
+  var F = window.LANDER_FR, E = F.exact;
+  var tour = {
+    "Tour": "Visite",
+    "Welcome": "Bienvenue",
+    "A lander at the Moon's south pole lives on sunlight. The Sun stays so low there that hills hide it for days. If the battery runs out before the Sun comes back, the mission is over. This tour shows you how to find out, in about a minute.": "Au pôle Sud de la Lune, un atterrisseur vit de lumière solaire. Le Soleil y reste si bas que les collines le cachent pendant des jours. Si la batterie se vide avant le retour du Soleil, la mission est terminée. Cette visite vous montre comment le savoir, en une minute environ.",
+    "No thanks": "Non merci",
+    "Start the tour": "Commencer la visite",
+    "Close the tour": "Fermer la visite",
+    "1. Where": "1. Où",
+    "Pick a landing place": "Choisissez un lieu d’atterrissage",
+    "These six places come from a 2026 study of good landing spots near the south pole. Choose one and every answer on the page updates.": "Ces six lieux viennent d’une étude de 2026 sur les bons sites d’atterrissage près du pôle Sud. Choisissez-en un : toutes les réponses de la page se mettent à jour.",
+    "Try it": "Essayez",
+    "Tap a different place and watch the answer below change.": "Touchez un autre lieu et regardez la réponse changer plus bas.",
+    "Back": "Retour",
+    "Next": "Suivant",
+    "The map": "La carte",
+    "The south pole from above, drawn from NASA's height map. Each dot is a landing place; you can pick one here too. The dashed ring is 85° S.": "Le pôle Sud vu d’en haut, dessiné à partir de la carte d’altitude de la NASA. Chaque point est un lieu d’atterrissage ; vous pouvez aussi en choisir un ici. Le cercle en pointillés est à 85° S.",
+    "Want a spot that is not on the list? Press “Somewhere else…”, then tap inside the dashed ring. The page works out that spot's hills in a few seconds.": "Vous voulez un endroit qui n’est pas dans la liste ? Appuyez sur « Ailleurs… », puis touchez l’intérieur du cercle en pointillés. La page calcule les collines de cet endroit en quelques secondes.",
+    "2. When": "2. Quand",
+    "Pick a landing date": "Choisissez une date d’atterrissage",
+    "The Sun goes once around the horizon every 29.5 days, so the date decides whether you land into sunlight or into a long shadow. Dates run from January 2027 to November 2028.": "Le Soleil fait le tour de l’horizon tous les 29,5 jours : la date décide donc si vous atterrissez en plein soleil ou dans une longue ombre. Les dates vont de janvier 2027 à novembre 2028.",
+    "3. The lander": "3. L’atterrisseur",
+    "More settings": "Plus de réglages",
+    "Mission length": "Durée de la mission",
+    ": how many days the lander must last.": " : le nombre de jours que l’atterrisseur doit tenir.",
+    "Battery": "Batterie",
+    ": how many hours it can keep going with no sunlight at all.": " : le nombre d’heures qu’il peut tenir sans aucun soleil.",
+    "Panel height": "Hauteur du panneau",
+    ": a solar panel on a taller mast sees over nearby rocks and hills.": " : un panneau solaire sur un mât plus haut voit par-dessus les rochers et les collines proches.",
+    "4. The answer": "4. La réponse",
+    "Does it survive?": "Survit-il ?",
+    "Here is the answer: it survives, or it is lost on a given day. It comes from a simple battery model: an hour of full Sun gives 3 hours of power and the lander uses 1 per hour. Treat it as a first check, not a final design.": "Voici la réponse : il survit, ou il est perdu tel jour. Elle vient d’un modèle de batterie simple : une heure de plein soleil donne 3 heures d’énergie, et l’atterrisseur en consomme 1 par heure. C’est une première vérification, pas une conception finale.",
+    "How do we save it?": "Comment le sauver ?",
+    "When the lander is lost, the page tries five single changes for you: land later, a bigger battery, a higher panel, another place or a shorter mission. Press one to try it; you can undo it.": "Quand l’atterrisseur est perdu, la page essaie pour vous cinq changements, un à la fois : atterrir plus tard, une plus grosse batterie, un panneau plus haut, un autre lieu ou une mission plus courte. Appuyez sur l’un d’eux pour l’essayer ; vous pouvez l’annuler.",
+    "5. Why": "5. Pourquoi",
+    "Watch the mission": "Regardez la mission",
+    "Press": "Appuyez sur",
+    "to run it hour by hour. Watch the Sun skim the horizon, and the battery fall when a hill hides it.": "pour la dérouler heure par heure. Regardez le Soleil raser l’horizon, et la batterie baisser quand une colline le cache.",
+    "The 3D view": "La vue 3D",
+    "The real ground around the lander, from NASA's height map.": "Le vrai relief autour de l’atterrisseur, d’après la carte d’altitude de la NASA.",
+    "Drag": "Faites glisser",
+    "to look around,": "pour regarder autour,",
+    "right-drag": "clic droit + glisser",
+    "to move, and hold": "pour vous déplacer, et maintenez",
+    "and scroll (or use": "en faisant défiler (ou utilisez",
+    "and": "et",
+    ") to zoom. Scrolling without Ctrl moves the page as usual.": ") pour zoomer. Sans Ctrl, le défilement déplace la page comme d’habitude.",
+    "A yellow line runs from the lander to the Sun. When a hill is in the way it turns red and names the ridge.": "Une ligne jaune relie l’atterrisseur au Soleil. Quand une colline la bloque, elle devient rouge et nomme la crête.",
+    "Camera buttons": "Boutons de caméra",
+    "is the starting view.": "est la vue de départ.",
+    "shows the craters around you.": "montre les cratères autour de vous.",
+    "is what the solar panel sees.": "est ce que voit le panneau solaire.",
+    "turns to Earth, which matters for radio contact.": "se tourne vers la Terre, importante pour le contact radio.",
+    "makes ridges easier to see.": "rend les crêtes plus faciles à voir.",
+    "The Sun and Earth are drawn 3× bigger than real so you can spot them.": "Le Soleil et la Terre sont dessinés 3 fois plus grands qu’en réalité pour être repérables.",
+    "The battery chart": "Le graphique de la batterie",
+    "The line is the battery from landing to the end of the mission. Drag across it, or use the arrow keys, to jump to any hour. The 3D view follows.": "La ligne montre la batterie de l’atterrissage à la fin de la mission. Faites glisser dessus, ou utilisez les flèches du clavier, pour aller à n’importe quelle heure. La vue 3D suit.",
+    "6. Try again": "6. Réessayer",
+    "What if we land later?": "Et si on atterrissait plus tard ?",
+    "The same mission, landing one day later, two days later, and so on. Tap a square to switch to that date and compare.": "La même mission, en atterrissant un jour plus tard, deux jours plus tard, et ainsi de suite. Touchez une case pour passer à cette date et comparer.",
+    "7. Go deeper": "7. Aller plus loin",
+    "Simple or Mission planner": "Simple ou Planifier la mission",
+    "shows the answer and why.": "montre la réponse et pourquoi.",
+    "adds more: how sure the answer is, science jobs, two places side by side, a two-year calendar of safe dates and every number as a CSV file.": "ajoute le reste : la fiabilité de la réponse, les tâches scientifiques, deux lieux côte à côte, un calendrier de deux ans des dates sûres et tous les chiffres dans un fichier CSV.",
+    "Finish": "Terminer",
+    "Done": "Terminé",
+    "You're ready": "Vous êtes prêt",
+    "Pick a place and a date and see if the lander makes it. The address bar always holds your settings, so copying it shares exactly what you see. Press": "Choisissez un lieu et une date, et voyez si l’atterrisseur tient le coup. La barre d’adresse contient toujours vos réglages : la copier partage exactement ce que vous voyez. Appuyez sur",
+    "at the top to see this again.": "en haut pour revoir cette visite.",
+    "Start exploring": "Commencer l’exploration"
+  };
+  for (var k in tour) if (Object.prototype.hasOwnProperty.call(tour, k) && !Object.prototype.hasOwnProperty.call(E, k)) E[k] = tour[k];
+  var n = [[/^(\d+) of (\d+)$/, "$1 sur $2"]];
+  F.rules = n.concat(F.rules); F.first = (F.first || 0) + n.length;
+})();
+
+/* French for the 3D view's status line and the "what hides the Sun" label (terrain3d.js). */
+(function () {
+  var F = window.LANDER_FR;
+  var DIR = { "north": "nord", "north-east": "nord-est", "east": "est", "south-east": "sud-est", "south": "sud", "south-west": "sud-ouest", "west": "ouest", "north-west": "nord-ouest" };
+  function dist(d) { return d.replace(".", ","); }
+  function block(t) {
+    var m;
+    if ((m = /^This ridge hides the Sun(?:: ([\d.]+ k?m) away)?(?:, its top (\d+) m above the lander)?$/.exec(t)))
+      return "Cette crête cache le Soleil" + (m[1] ? " : à " + dist(m[1]) : "") + (m[2] ? ", son sommet " + m[2] + " m au-dessus de l’atterrisseur" : "");
+    if ((m = /^The Sun is below the horizon here(?: \(the land ([\d.]+ k?m) away hides it\))?$/.exec(t)))
+      return "Ici, le Soleil est sous l’horizon" + (m[1] ? " (le relief à " + dist(m[1]) + " le cache)" : "");
+    if ((m = /^A hill ([\d.]+ k?m) away hides the Sun(?:, its top (\d+) m above the lander)?$/.exec(t)))
+      return "Une colline à " + dist(m[1]) + " cache le Soleil" + (m[2] ? ", son sommet " + m[2] + " m au-dessus de l’atterrisseur" : "");
+    if ((m = /^A far hill hides the Sun(?:, its top (\d+) m above the lander)?$/.exec(t)))
+      return "Une colline lointaine cache le Soleil" + (m[1] ? ", son sommet " + m[1] + " m au-dessus de l’atterrisseur" : "");
+    return null;
+  }
+  var SUN = { "fully out": "entièrement visible", "hidden by the hills": "caché par les collines" };
+  var LANDER = { "lost": "atterrisseur perdu", "charging": "atterrisseur en charge", "on battery": "atterrisseur sur batterie" };
+  var rules = [
+    [/^(This ridge hides the Sun|The Sun is below the horizon here|A hill [\d.]+ k?m away hides the Sun|A far hill hides the Sun).*$/, function (t) { return block(t) || t; }],
+    [/^in the ([a-z-]+) · (fully out|hidden by the hills|(\d+)% of it above the hills) · lander (lost|charging|on battery)(?: · (.+))?$/, function (t, d, s, pct, l, b) {
+      return (/^(est|ouest)$/.test(DIR[d] || d) ? "à l’" : "au ") + (DIR[d] || d) + " · " + (pct ? pct + " % au-dessus des collines" : SUN[s]) + " · " + LANDER[l] + (b ? " · " + (block(b) || b) : "");
+    }],
+    [/^This date works, and so does every day for the next two weeks\. But the battery drops below 25%, so it is close\.$/, "Cette date fonctionne, ainsi que tous les jours des deux prochaines semaines. Mais la batterie descend sous 25 % : la marge est faible."],
+    [/^([\d.]+)° above level ground$/, function (t, a) { return dist(a) + "° au-dessus du niveau du sol"; }],
+    [/^([\d.]+)° below level ground$/, function (t, a) { return dist(a) + "° sous le niveau du sol"; }]
+  ];
+  F.rules = rules.concat(F.rules); F.first = (F.first || 0) + rules.length;
+})();
