@@ -168,13 +168,13 @@
     // "working it out" spinner, and recalculate once the slider settles (or is let go), always with the last value.
     var battTimer = null;
     var battApply = function () {
-      clearTimeout(battTimer); battTimer = null;
+      clearTimeout(battTimer); battTimer = null; dragging = false;
       state.batt = +$("batt").value; state.hour = Math.min(state.hour, hoursTotal());
       refresh();
       document.body.classList.remove("recalc");
     };
     $("batt").oninput = function () {
-      state.batt = +this.value; showBatt();
+      dragging = true; state.batt = +this.value; showBatt();
       document.body.classList.add("recalc");
       clearTimeout(battTimer); battTimer = setTimeout(battApply, 250);
     };
@@ -198,9 +198,10 @@
       out.textContent = txt;
       out.classList.remove("pop"); void out.offsetWidth; out.classList.add("pop");
     }
-    $("setSum").textContent = state.days + "-day mission · battery lasts " + battText(state.batt) +
+    if (!dragging) $("setSum").textContent = state.days + "-day mission · battery lasts " + battText(state.batt) +
       " without Sun · panel " + state.mast + " m high";
   }
+  var dragging = false;   // true while the battery slider is moving
   var siteShown = null;
   function syncControls() {
     rovingTabs($("sites"), function (b) { return b.dataset.id === state.site; });

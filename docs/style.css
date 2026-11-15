@@ -116,7 +116,7 @@ input[type="range"] { width: 100%; accent-color: var(--sun); margin: 4px 0 0; mi
 #batt { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; --fill: 50%; }
 #batt:focus-visible, #batt:focus { outline: none; }
 /* phones draw their own shaded box over a touched control; the thumb already shows what is happening */
-#batt { -webkit-tap-highlight-color: transparent; touch-action: pan-y; }
+#batt { -webkit-tap-highlight-color: transparent; touch-action: none; }   /* a drag moves the slider, never the page */
 #batt::-webkit-slider-runnable-track {
   height: 6px; border-radius: 6px;
   background: linear-gradient(90deg, var(--sun) 0 var(--fill), rgba(232, 228, 216, 0.14) var(--fill) 100%);
