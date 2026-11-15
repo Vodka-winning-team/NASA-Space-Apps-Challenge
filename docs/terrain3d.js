@@ -32,6 +32,7 @@
   var api = null, idx = 0, started = false, siteShown = null, mastShown = null, exag = 1, view = "ground", follow = true;
   var renderer, scene, camera, controls, ground, far, ring, sunLight, hemi, sunSprite, earth, stars, lander, panelPivot, statusMat, shadowStrip, beacon, landerMat;
   var sight, blockMark, labels = {}, block = null, soil = null, ratio = 1;
+  var levelLine = null, LEVEL_R = 200000;          // the level line of phone look-around: a ring at eye height, 0 degrees up
   function DATA() { return api ? api.data : window.LANDER_DATA; }
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
 
@@ -214,6 +215,17 @@
       var el = document.createElement("span"); el.className = "t3dLabel t3dLabel-" + key; $("t3dLabels").appendChild(el); labels[key] = el;
     });
     labels.sun.textContent = "Sun"; labels.earth.textContent = "Earth";
+    // phone look-around helpers: a box that says which way to turn for the Sun, and a level line with compass letters
+    ["guide", "level", "n", "e", "s", "w"].forEach(function (key) {
+      var el = document.createElement("span"); el.className = "t3dLabel t3dLabel-" + (key.length === 1 ? "compass" : key); $("t3dLabels").appendChild(el); labels[key] = el;
+    });
+    labels.n.textContent = "N"; labels.e.textContent = "E"; labels.s.textContent = "S"; labels.w.textContent = "W";
+    var ringPts = [];
+    for (var ri = 0; ri < 180; ri++) ringPts.push(new T.Vector3(Math.sin(ri * 2 * D2R) * LEVEL_R, 0, -Math.cos(ri * 2 * D2R) * LEVEL_R));
+    levelLine = new T.LineLoop(new T.BufferGeometry().setFromPoints(ringPts),
+      new T.LineBasicMaterial({ color: 0x9fd6ff, transparent: true, opacity: 0.75, depthTest: false, depthWrite: false }));
+    levelLine.renderOrder = 4; levelLine.frustumCulled = false; levelLine.visible = false;
+    scene.add(levelLine);
 
     soil = soilTextures();
 
@@ -652,6 +664,35 @@
       var a = labels.block.getBoundingClientRect(), b = labels.sun.getBoundingClientRect();
       if (a.left < b.right && b.left < a.right && a.top < b.bottom + 4 && b.top < a.bottom + 4) labels.sun.style.display = "none";
     }
+    lookHelpers(w, h, put);
+  }
+
+  // Phone look-around only: the level line's name and compass letters, and, when the Sun (or the ridge hiding it)
+  // is out of the picture, a red box pinned to the edge that says which way to turn.
+  function lookHelpers(w, h, put) {
+    var keys = ["guide", "level", "n", "e", "s", "w"];
+    if (!looking) { keys.forEach(function (k) { labels[k].style.display = "none"; }); return; }
+    var eye = camera.position, at = function (az) { return { position: dir(az, 0).multiplyScalar(LEVEL_R).add(eye) }; };
+    put(labels.n, at(0), undefined, true); put(labels.e, at(90), undefined, true); put(labels.s, at(180), undefined, true); put(labels.w, at(270), undefined, true);
+    // name the line where it crosses the middle of the picture, with how far up or down you are looking
+    var f = (lookF || new T.Vector3(0, 0, -1)), el = Math.asin(clamp(f.y, -1, 1)) / D2R, az = Math.atan2(f.x, -f.z) / D2R;
+    put(labels.level, at(az), "Level line \u00b7 you look " + (Math.abs(el) < 1 ? "level" : Math.abs(el).toFixed(0) + "\u00b0 " + (el > 0 ? "up" : "down")), true);
+    if (labels.level.style.display === "block") labels.level.style.left = Math.max(labels.level.offsetWidth / 2 + 6, w * 0.22) + "px";
+
+    var target = block ? blockMark.position : sunSprite.position;
+    var seen = (block ? labels.block : labels.sun).style.display === "block" || (block && labels.sun.style.display === "block");
+    var g = labels.guide;
+    if (seen) { g.style.display = "none"; return; }
+    var v = target.clone().applyMatrix4(camera.matrixWorldInverse);          // where it is, seen from the camera
+    var side = Math.atan2(v.x, -v.z) / D2R, rise = Math.atan2(v.y, Math.sqrt(v.x * v.x + v.z * v.z)) / D2R;
+    var turn = Math.abs(side) > 22, what = block ? (block.sunBelow ? "the Sun (below the horizon)" : "the Sun, hidden by a ridge") : "the Sun";
+    var text = turn ? (side > 0 ? "Turn right for " + what + " \u2192" : "\u2190 Turn left for " + what)
+                    : (rise > 0 ? "\u2191 Look up for " + what : "\u2193 Look down for " + what);
+    if (turn) text += " \u00b7 " + Math.round(Math.abs(side)) + "\u00b0";
+    g.textContent = text; g.style.display = "block";
+    var gw = g.offsetWidth / 2 + 8, gh = g.offsetHeight;
+    g.style.left = (turn ? (side > 0 ? w - gw : gw) : w / 2) + "px";
+    g.style.top = (turn ? h * 0.42 + gh : rise > 0 ? gh + 64 : h - 84) + "px";
   }
 
   /* ---------- phone look-around (gyro.js): the phone's orientation owns the camera while it is on ---------- */
@@ -664,6 +705,7 @@
     lookPrev = view; lookCb = onEnd || null;
     if (view !== "eye") { lookEntering = true; setView("eye"); lookEntering = false; }     // stand at the panel; starts facing the Sun
     looking = true; lookQ = null; follow = false;
+    if (levelLine) { levelLine.visible = true; levelLine.position.set(0, camera.position.y, 0); }
     controls.enabled = false;                             // dragging would fight the phone
     return { az: lookAz() };
   }
@@ -673,6 +715,7 @@
     camera.position.set(0, parseFloat(api.state.mast) * exag, 0);     // turning only: moving the phone never walks you across the Moon
     camera.quaternion.set(q[0], q[1], q[2], q[3]);
     lookF = (lookF || new T.Vector3()).set(0, 0, -1).applyQuaternion(camera.quaternion);
+    if (levelLine) levelLine.position.set(0, camera.position.y, 0);
     controls.target.copy(camera.position).add(lookF);     // keeps "which way am I looking" true for everything else
     render();
   }
@@ -680,6 +723,7 @@
   function lookEnd(reason, restore) {
     if (!looking) return;
     looking = false; lookQ = null;
+    if (levelLine) levelLine.visible = false;
     controls.enabled = true;
     var cb = lookCb; lookCb = null;
     if (restore && lookPrev !== "eye") setView(lookPrev);

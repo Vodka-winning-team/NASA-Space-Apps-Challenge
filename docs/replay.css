@@ -69,3 +69,18 @@
 .lookSay.on { color: var(--sun); }
 .lookSay.bad { color: #ffb4a6; }
 @media (max-width: 560px) { .lookBar { left: 8px; right: 8px; bottom: 8px; gap: 6px; } .lookBar button { padding: 8px 14px; font-size: 14px; } }
+
+/* look-around helpers: which way to turn for the Sun, the level line and compass letters, full screen */
+.t3dLabel-guide {
+  color: #ffd9d1; background: rgba(60, 14, 8, 0.86); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(236, 96, 73, 0.85);
+  white-space: normal; max-width: 200px; text-align: center; text-shadow: none; font-size: 13px; transform: translate(-50%, -100%);
+  animation: guidePulse 1.6s ease-in-out infinite;
+}
+@keyframes guidePulse { 50% { border-color: #ffb4a6; box-shadow: 0 0 0 4px rgba(236, 96, 73, 0.22); } }
+.t3dLabel-level { color: #9fd6ff; font-size: 11px; letter-spacing: 0.04em; transform: translate(-50%, calc(-100% - 4px)); }
+.t3dLabel-compass { color: #9fd6ff; font-size: 13px; font-weight: 700; transform: translate(-50%, 6px); }
+.t3dCanvas.lookFull { position: fixed !important; inset: 0; z-index: 60; width: 100vw; height: 100vh !important; height: 100dvh !important; margin: 0 !important; }
+html.lookFullPage, html.lookFullPage body { overflow: hidden; }
+.t3dCanvas.lookFull .lookBar { bottom: max(12px, env(safe-area-inset-bottom)); }
+.lookBar #lookFull[aria-pressed="true"] { border-color: var(--sun); color: var(--sun); }
+@media (prefers-reduced-motion: reduce) { .t3dLabel-guide { animation: none; } }

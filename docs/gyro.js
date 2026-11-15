@@ -153,6 +153,7 @@
   function reset(text) {             // back to ordinary controls
     clearTimeout(timer); timer = null; listen(false); attempt++;
     state = "off"; smoothed = null;
+    setFull(false);
     wrap.classList.remove("looking"); bar.hidden = true; btn.hidden = false; btn.textContent = LABEL;
     tell(text || INTRO);
   }
@@ -171,6 +172,24 @@
     t.look.apply(yawBy(last, offset));
     tell("Re-centred: you now face the Sun's direction. Turn your phone to look around.", "on");
   }
+  // Full screen: the picture fills the screen (works everywhere); where the browser allows it, also hide the browser's bars.
+  var host = $("t3dCanvas");
+  function fullOn() { return host.classList.contains("lookFull"); }
+  function setFull(on) {
+    if (on === fullOn()) return;
+    host.classList.toggle("lookFull", on); doc.documentElement.classList.toggle("lookFullPage", on);
+    var b = $("lookFull"); b.setAttribute("aria-pressed", on); b.textContent = on ? "Exit full screen" : "Full screen";
+    try {
+      if (on) { var ask = host.requestFullscreen || host.webkitRequestFullscreen; if (ask) { var p = ask.call(host); if (p && p.catch) p.catch(function () {}); } }
+      else if (doc.fullscreenElement || doc.webkitFullscreenElement) { var out = doc.exitFullscreen || doc.webkitExitFullscreen; if (out) out.call(doc); }
+    } catch (err) { /* the fill-the-screen layout still applies */ }
+    root.dispatchEvent(new Event("resize"));
+  }
+  ["fullscreenchange", "webkitfullscreenchange"].forEach(function (n) {
+    doc.addEventListener(n, function () { if (!doc.fullscreenElement && !doc.webkitFullscreenElement && fullOn()) setFull(false); });   // left with the back gesture
+  });
+  $("lookFull").onclick = function () { setFull(!fullOn()); };
+
   function syncPlay() { var p = $("play"), b = $("lookPlay"); if (p && b) b.textContent = /pause/i.test(p.textContent) ? "Pause" : "Play"; }
 
   btn.onclick = begin;
