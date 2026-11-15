@@ -20,7 +20,9 @@
     root.dataset.theme = theme;
     var next = theme === "dark" ? "light" : "dark";
     if (button) {
-      button.textContent = next === "light" ? "Light" : "Dark";
+      // a small sun or moon, plus the word (the word is hidden on narrow screens; the label stays for screen readers)
+      button.innerHTML = '<i class="themeIcon" aria-hidden="true"></i><span>' + (next === "light" ? "Light" : "Dark") + "</span>";
+      button.className = "themeBtn to-" + next;
       button.setAttribute("aria-label", "Switch to " + next + " mode");
     }
     var meta = document.querySelector('meta[name="theme-color"]');
