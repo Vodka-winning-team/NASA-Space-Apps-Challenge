@@ -37,7 +37,7 @@
   }
   function excluded(node) {
     var el = node.nodeType === 1 ? node : node.parentElement;
-    return !el || !!el.closest("script,style,canvas,#langBtn");
+    return !el || !!el.closest("script,style,canvas,#langBtn,#tour");   // the tour has its own French (tour.js)
   }
   function updateText(node) {
     if (excluded(node) || !node.data.trim()) return;
@@ -49,7 +49,7 @@
     record.shown = next; originals.set(node, record);
   }
   function updateAttributes(el) {
-    if (el.id === "langBtn" || el.closest("script,style")) return;
+    if (el.id === "langBtn" || el.closest("script,style,#tour")) return;
     var records = attributes.get(el) || Object.create(null);
     names.forEach(function (name) {
       if (!el.hasAttribute(name)) { delete records[name]; return; }
@@ -129,5 +129,8 @@
     } finally { observer.observe(document.body, options); }
   }
   button.addEventListener("click", function () { apply(language === "fr" ? "en" : "fr", true); });
-  apply(language, language === "fr");
+  // At startup nothing is drawn yet (app.js starts after the fonts), and asking it to redraw now would write
+  // its default settings into the address bar before it has read the link: a shared link opened in French lost
+  // its place, date and battery. The canvases pick up French by themselves when they are first drawn.
+  apply(language, false);
 })();

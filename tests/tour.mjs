@@ -32,7 +32,7 @@ const STEPCHECK = `var w = arguments[0] ? document.getElementById("f").contentWi
     if (getComputedStyle(hole).display === "none") bad.push("no spotlight");
     else {
       var vis = { l: Math.max(4, t.left - 8), t: Math.max(4, t.top - 8), r: Math.min(W - 4, t.right + 8), b: Math.min(H - 4, t.bottom + 8) };
-      if (Math.abs(h.left - vis.l) > 3 || Math.abs(h.top - vis.t) > 3 || Math.abs(h.right - vis.r) > 3 || Math.abs(h.bottom - vis.b) > 3)
+      if (Math.abs(h.left - vis.l) > 2 || Math.abs(h.top - vis.t) > 2 || Math.abs(h.right - vis.r) > 2 || Math.abs(h.bottom - vis.b) > 2)
         bad.push("spotlight off its target " + JSON.stringify([h.left, h.top, h.right, h.bottom].map(Math.round)) + " vs " + JSON.stringify([vis.l, vis.t, vis.r, vis.b].map(Math.round)));
     }
     if (t.bottom < 20 || t.top > H - 20) bad.push("target not on screen " + Math.round(t.top));
@@ -55,7 +55,7 @@ async function walk(name, frame) {
   ok(probs.length === 0, `${name}: ${titles.length} steps, card on screen and spotlight on its target every time` + (probs.length ? "\n  " + probs.join("\n  ") : ""));
   ok(!end, `${name}: the last button closes the tour`);
   const mid = counts.slice(1, -1), m = mid.length;
-  ok(mid.every((c, i) => c === `${i + 1} of ${m}`), `${name}: the step counter runs 1 to ${m} with no gaps (${mid[0]} … ${mid[m - 1]})`);
+  ok(mid.every((c, i) => c === `${i + 1} of ${m}` || c === `${i + 1} sur ${m}`), `${name}: the step counter runs 1 to ${m} with no gaps (${mid[0]} … ${mid[m - 1]})`);
   return titles;
 }
 
@@ -77,6 +77,10 @@ await realClick('#sites [data-id="SP07"]'); await sleep(700);
 const after = await js(`return window.LANDER_APP.get().state.site`);
 ok(before !== "SP07" && after === "SP07", `a real click on another place works while the tour is open (${before} -> ${after})`);
 const chk = await js(STEPCHECK, false);
+await js(`window.scrollBy(0, 120)`); await sleep(120);
+const glued = await js(STEPCHECK, false);
+ok(glued.bad.length === 0, `scrolling the page with the tour open: the spotlight stays on the list (${glued.bad.join("; ") || "ok"})`);
+await js(`window.scrollBy(0, -120)`); await sleep(200);
 ok(chk.bad.length === 0, `after that click the spotlight still sits on the list (${chk.bad.join("; ") || "ok"})`);
 // keyboard: arrows move only when the card has focus; Escape closes
 await js(`document.getElementById("tourNext").focus()`);
@@ -131,6 +135,33 @@ await js(`window.LANDER_TOUR.start()`); await sleep(400);
 await call("POST", S + "/actions", { actions: [{ type: "pointer", id: "m", parameters: { pointerType: "mouse" }, actions: [{ type: "pointerMove", x: 30, y: 400 }, { type: "pointerDown", button: 0 }, { type: "pointerUp", button: 0 }] }] });
 await sleep(300);
 ok(!(await tour()).on, "a click beside the welcome card closes it");
+
+ok(!t1.includes("Look around with your phone"), "the phone look-around step is left out on a laptop (its button is hidden there)");
+ok(t1.includes("Light or dark, English or French"), "the tour shows the Light / Dark and FR / EN buttons");
+
+// ---------- 3b. phone look-around (button forced on with ?gyro=1), French, light theme ----------
+await call("POST", S + "/window/rect", { width: 1366, height: 768 + 85 });
+await open("index.html?gyro=1#site=HW06&date=2027-07-28&days=7&batt=240&panel=10");
+await js(`window.LANDER_TOUR.start()`); await sleep(400);
+const tg = await walk("1366x768 with the phone look-around button", false);
+ok(tg.indexOf("Look around with your phone") === tg.indexOf("Camera buttons") + 1, `when the look-around button is there, its step comes right after the camera buttons`);
+await open("index.html?lang=fr&theme=light#site=HW06&date=2027-07-28&days=60&batt=24&panel=0.5");
+const keepLink = await js(`return [location.hash, document.getElementById("vText").textContent]`);
+ok(keepLink[0] === "#site=HW06&date=2027-07-28&days=60&batt=24&panel=0.5" && /jour 6/.test(keepLink[1]), `a link opened in French keeps its settings (${keepLink.join(" | ")})`);
+await js(`window.LANDER_TOUR.start()`); await sleep(500);
+const fr0 = await js(`return [document.getElementById("tourTitle").textContent, document.getElementById("tourNext").textContent, document.getElementById("tourBtn").textContent, document.documentElement.dataset.theme]`);
+ok(fr0[0] === "L’atterrisseur va-t-il survivre ?" && fr0[1] === "Commencer la visite" && /Visite/.test(fr0[2]) && fr0[3] === "light", `in French the tour and its button are in French, light theme on (${fr0.join(" | ")})`);
+await js(`window.LANDER_TOUR.next()`); await sleep(600);
+const fr1 = await js(`return [document.getElementById("tourText").textContent, document.getElementById("tourCount").textContent, document.getElementById("tourNext").textContent]`);
+ok(/^Ces six lieux/.test(fr1[0]) && / sur /.test(fr1[1]) && fr1[2] === "Suivant", `French step text, counter and button are whole French sentences, untouched by the page translator (${fr1[1]}, ${fr1[2]})`);
+await js(`document.getElementById("langBtn").click()`); await sleep(500);
+const en1 = await js(`return [document.getElementById("tourTitle").textContent, document.getElementById("tourNext").textContent, document.getElementById("tourCount").textContent]`);
+ok(en1[0] === "Pick a landing place" && en1[1] === "Next" && / of /.test(en1[2]), `switching to English mid-tour redraws the card in English (${en1.join(" | ")})`);
+await js(`document.getElementById("langBtn").click()`); await sleep(500);
+await js(`window.LANDER_TOUR.stop(); window.LANDER_TOUR.start()`); await sleep(400);
+const tfr = await walk("French, light theme, mission lost", false);
+ok(tfr.includes("How do we save it?") && tfr.length === 15, `French tour has every step (${tfr.length}: ${tfr.join(" | ")})`);
+await js(`try { localStorage.removeItem("lander-lang"); localStorage.removeItem("lander-theme"); } catch (e) {}`);
 
 // ---------- 4. small laptop, and phones (page in a frame exactly that wide) ----------
 await call("POST", S + "/window/rect", { width: 1280, height: 720 + 85 });

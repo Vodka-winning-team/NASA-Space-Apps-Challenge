@@ -1,6 +1,6 @@
 # Plan: Will the lander survive?
 
-Deadline: **Sunday 11:30**, everything ready. Judging at 12:00. Pitch is 4 minutes, strictly timed.
+Deadline: **Sunday 11:30**, everything ready. Judging at 12:00. Pitch is 5 minutes, strictly timed.
 
 The idea is in [IDEA.md](IDEA.md). The live task list is in [TASKS.md](TASKS.md).
 

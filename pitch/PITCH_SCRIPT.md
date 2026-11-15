@@ -1,8 +1,16 @@
-# Pitch script, 4 minutes (task S4)
+# Pitch script, 5 minutes (task S4)
 
 **Who speaks:** Paveesh presents (story lead in PLAN.md). Who drives the laptop during the demo: [CHECK: team to decide]. Practise the hand-over at slide 4.
 
-**Length:** the spoken words below are 544 words (530 without the optional sentence in brackets on slide 5). Per slide: 37, 88, 58, 111, 82, 99, 69. That is about 135 words a minute overall, slower on slide 4 to leave room for the demo clicks.
+**What the judges score**, and where each one is earned:
+
+| Criterion | Where we earn it |
+|---|---|
+| Relevance | Slide 2 and slide 5: the challenge's own problem (hard-to-use tools, launch delays), answered on one screen |
+| Impact | Slides 3, 4 and 7: planners get an answer in seconds; the public sees why, in 3D, on their own phone, in English or French |
+| Creativity | Slide 4: the page finds the fix by itself; the 3D replay; turning your phone to stand on the Moon |
+| Validity | Slide 6: NASA LOLA hills, NASA JPL Horizons Sun and Earth, our own check against NASA's maps, limits stated by us |
+| Presentation | One story (lost, then saved), a live demo, a QR code the judges can try |
 
 **Time budget**
 
@@ -10,13 +18,13 @@
 |---|---|---|---|
 | 1 | Title | 0:15 | 0:15 |
 | 2 | The problem | 0:35 | 0:50 |
-| 3 | One screen, one answer | 0:25 | 1:15 |
-| 4 | Live demo: lost, then saved | 1:00 | 2:15 |
-| 5 | When the launch slips | 0:35 | 2:50 |
-| 6 | NASA data and our check | 0:40 | 3:30 |
-| 7 | Mauritius, QR code, thanks | 0:30 | 4:00 |
+| 3 | One screen, one answer | 0:20 | 1:10 |
+| 4 | Live demo: lost, saved, then the 3D replay | 1:40 | 2:50 |
+| 5 | When the launch slips | 0:35 | 3:25 |
+| 6 | NASA data and our check | 0:50 | 4:15 |
+| 7 | Mauritius, QR code, your phone, thanks | 0:45 | 5:00 |
 
-The pitch is strictly timed. If you are behind at 2:15, drop the line in brackets on slide 5.
+The pitch is strictly timed. If you are behind at 2:50, drop the 3D zoom-out (demo step 10) and the line in brackets on slide 5.
 
 ---
 
@@ -28,13 +36,13 @@ Imagine a lander touches down at the Moon's south pole. Nine days later, it is l
 
 ### Slide 2 (0:35)
 
-The south pole has ice, so space agencies want to land there. But it is a hard place. The Sun never climbs high. It skims the edge of the sky, so a hill or a crater rim can hide it for days. A lander runs on solar panels. No Sun, and the battery drains. Empty battery, lost lander. And to talk to us, the lander must see Earth. If a hill hides Earth, there is no contact. So where and when you land decides whether the mission lives.
+The south pole has ice, so space agencies want to land there. But it is a hard place. The Sun never climbs high. It skims the edge of the sky, so a hill or a crater rim can hide it for days. A lander runs on solar panels. No Sun, and the battery drains. Empty battery, lost lander. And to talk to us, the lander must see Earth. If a hill hides Earth, there is no contact. So where and when you land decides everything.
 
-### Slide 3 (0:25)
+### Slide 3 (0:20)
 
-The tools that check this today are powerful, but hard to read. Ours is one screen. Pick a place. Pick a date. You see the real hills around the lander, with the Sun and Earth moving along them. A battery runs through the mission, and you get an answer in big letters. On a laptop or a phone.
+The tools that check this today are powerful, but hard to read. Ours is one screen. Pick a place. Pick a date. A battery runs through the mission, and you get an answer in big letters. A short guided tour shows first-time visitors around.
 
-### Slide 4 (1:00), live demo
+### Slide 4 (1:40), live demo
 
 Let me show you. Haworth, landing 28 July 2027. A two-week mission, and a battery that lasts four days without Sun.
 
@@ -44,9 +52,11 @@ We do not stop there. We ask: how do we save it? It tried five changes by itself
 
 Let's land five days later.
 
-Survived, just. The battery fell to twelve percent. One click, and I can put it back.
+Survived, just. The battery fell to twelve percent.
 
 But look: Earth is now in view only five percent of the time. Power is saved. Contact is the next problem. The tool shows both.
+
+Why did the first date fail? Watch. This is the real ground at Haworth, from NASA's laser maps. Press Play. The Sun skims the horizon. When a ridge hides it, this line turns red and names the ridge. Here is Earth, low in the sky. And if we zoom out, you see the craters that get in the way.
 
 ### Slide 5 (0:35)
 
@@ -56,17 +66,19 @@ And which place is safest? Two years of landing dates for all six places. With t
 
 (Planners can also land anywhere south of 85 degrees, and download every hour as a spreadsheet.)
 
-### Slide 6 (0:40)
+### Slide 6 (0:50)
 
-Is it real? Every hill comes from NASA's LOLA laser altimeter on the Lunar Reconnaissance Orbiter, with the Moon's curve included. Every Sun and Earth position comes from NASA JPL Horizons, every hour of 2027 and 2028.
+Is it real? Every hill comes from NASA's LOLA laser altimeter on the Lunar Reconnaissance Orbiter, with the Moon's curve included. Every Sun and Earth position comes from NASA JPL Horizons, every hour of 2027 and 2028, with no atmosphere.
 
-We cross-checked against NASA's long-term visibility maps. The comparison uses different time periods, terrain resolutions, observer heights and Earth-visibility definitions; it is not a measurement of prediction accuracy. Our Earth metric uses its centre; NASA counts any visible part of Earth's disc. The battery is a simple model, and Earth visibility does not establish a radio link.
+We cross-checked against NASA's long-term visibility maps. The comparison uses different time periods, terrain resolutions, observer heights and Earth-visibility definitions; it is not a measurement of prediction accuracy. Our Earth metric uses its centre; NASA counts any visible part of Earth's disc. The battery is a simple model, and Earth visibility does not establish a radio link. We say all of this on the page.
 
-### Slide 7 (0:30)
+### Slide 7 (0:45)
 
 One last thing. On 28 July 2027, from four in the morning, our lander can see Earth while the Moon is up over Port Louis. Go outside, look at the Moon, and the lander is looking back.
 
-Scan the code. It works on your phone, even offline. Everything is open: the code, the data, and our check against NASA. Will the lander survive? Now anyone can check. Thank you.
+Scan the code. It works on your phone, even offline, in English or in French. Press "Look around with your phone", hold it up and turn: you are standing at Haworth, and you can find the Sun on the horizon yourself.
+
+Everything is open: the code, the data, and our check against NASA. Will the lander survive? Now anyone can check. Thank you.
 
 ---
 
@@ -75,8 +87,10 @@ Scan the code. It works on your phone, even offline. Everything is open: the cod
 **Before the pitch**
 
 1. On the demo laptop, open this link once while online, so the offline copy is stored:
-   https://vodka-winning-team.github.io/NASA-Space-Apps-Challenge/?mode=planner#site=HW06&date=2027-07-28&days=14&batt=96&panel=2
-   It opens in **Mission planner** mode with the demo mission already set.
+   https://vodka-winning-team.github.io/NASA-Space-Apps-Challenge/?mode=planner&lang=en#site=HW06&date=2027-07-28&days=14&batt=96&panel=2
+   It opens in **Mission planner** mode, in English, with the demo mission already set. Links with settings never open the guided tour, so nothing pops up.
+   - If the projector washes out the dark page, press **Light** at the top right (and **Dark** to go back). The page remembers it.
+   - Check the button at the top right says **FR** (the page is in English). If it says **EN**, the page is in French: press it once.
 2. Check that it says **"Lost on day 9."** and that "How do we save it?" says **4 of 5**.
 3. Keep a second tab on the same link, in case you need to start again. Keep `docs/index.html` from the repo on the laptop as a second backup (it opens with no internet).
 
@@ -90,9 +104,10 @@ Scan the code. It works on your phone, even offline. Everything is open: the cod
 6. Scroll down one screen to **"How do we save it?"**: "We tried five changes, one at a time. 4 of 5 would save this mission." Point at the one card with a cross, "Raise the solar panel": "Does not work. Even at 10 m the hills still hide the Sun for too long."
 7. On the first card, **"Land 5 days later"** (Land on 2 Aug instead of 28 Jul), click **Try it**.
 8. The page scrolls back up by itself. The verdict now says **"Survived, just."** and "The battery fell to 12%". The line under it says Earth is in view 5% of the time.
-9. If there is time: scroll to **"Why? Watch the mission."** and press **Play the mission**. The 3D view shows the lander on the real ground, the Sun on the horizon, and the Earth above it (click **Look at Earth**). When the Sun goes behind a hill the line to it turns red. Ctrl + scroll zooms out over the craters. Skip this if behind.
-10. If there is still time: the box below says "Saved. One change did it: landing 5 days later." Click **Put it back the way it was** to show the undo. Skip this if behind.
-11. Go back to the slides for slide 5.
+9. Scroll to **"Why? Watch the mission."** and press **Play the mission**. The 3D view shows the lander on the real ground at Haworth with the Sun on the horizon. When the Sun goes behind a hill, the line to it turns red and names the ridge. Click **Look at Earth** to show Earth low in the sky. Press **Pause** when you have said it.
+10. If there is time: hold **Ctrl** and scroll up over the 3D view to zoom out over the craters (or press **−** twice), then **Reset view**. Skip this if behind.
+11. If there is still time: the box below says "Saved. One change did it: landing 5 days later." Click **Put it back the way it was** to show the undo. Skip this if behind.
+12. Go back to the slides for slide 5.
 
 **If the demo fails**
 
@@ -122,6 +137,12 @@ A better battery model (cold, heat, real lander power numbers), a finer height m
 
 **5. Who is this for?**
 Planners who need a fast first look, especially when a launch slips, and teachers and the public. It opens in a simple mode for everyone; the Mission planner mode adds the detail. It does not replace NASA's professional tools.
+
+**6. Does the phone look-around use the camera or my location?**
+No. Only the phone's motion sensors, and only after you press the button (iPhones ask for permission first). Directions are for the Moon scene, not the real sky: "Re-centre" sets which way is forward. On a laptop the button is hidden; you drag the view instead.
+
+**7. Why French?**
+Mauritius uses both. The switch translates the words on the page and the charts; the numbers and the calculation are the same in both languages.
 
 **If asked how AI was used:** code, data scripts and text were written with AI assistance (Claude), and OpenAI Codex helped with review and parts of the last night's work. The science comes from NASA data and published papers, and our numbers were checked against NASA's maps.
 

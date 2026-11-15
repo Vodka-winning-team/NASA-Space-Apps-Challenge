@@ -3,6 +3,7 @@ window.LANDER_FR = { exact: {
   "Will the lander": "L’atterrisseur va-t-il",
   "survive?": "survivre ?",
   "Will the lander survive?": "L’atterrisseur va-t-il survivre ?",
+  "Tour": "Visite",
   "Simple": "Simple",
   "Mission planner": "Planifier la mission",
   "How much detail to show": "Niveau de détail",

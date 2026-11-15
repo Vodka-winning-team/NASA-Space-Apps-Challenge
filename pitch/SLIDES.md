@@ -8,12 +8,12 @@ All pictures are in `pitch/screenshots/`. They show the real website on the demo
 |---|---|---|---|
 | 1 | Will the lander survive? | 0:15 | Presentation |
 | 2 | The south pole is hard | 0:35 | Relevance, Impact |
-| 3 | One screen, one answer | 0:25 | Impact, Presentation |
-| 4 | Lost on day 9. Can we save it? (live demo) | 1:00 | Creativity, Impact |
+| 3 | One screen, one answer | 0:20 | Impact, Presentation |
+| 4 | Lost on day 9. Can we save it? (live demo, then the 3D replay) | 1:40 | Creativity, Impact |
 | 5 | When the launch slips | 0:35 | Relevance, Creativity |
-| 6 | Built on NASA data, checked against NASA | 0:40 | Validity |
-| 7 | Mauritius can see it. So can you. | 0:30 | Impact, Presentation |
-| | **Total** | **4:00** | |
+| 6 | Built on NASA data, checked against NASA | 0:50 | Validity |
+| 7 | Mauritius can see it. So can you. | 0:45 | Impact, Presentation |
+| | **Total** | **5:00** | |
 
 ---
 
@@ -121,13 +121,14 @@ We cross-checked against NASA's long-term visibility maps. The comparison uses d
 
 - "Go outside, look at the Moon, and the lander is looking back."
 - Picture: `desktop-lost-planner-14-mauritius.jpg` ("Yes. For 54 hours of this mission, the lander can see Earth while the Moon is in the sky over Port Louis.")
+- Under the QR code: **Scan, press “Look around with your phone”, and turn.** · English / Français
 - QR code: `pitch/qr-code-dark.png` (for a dark slide) or `pitch/qr-code.png` (for a white slide). Scan it once with a phone before the pitch.
 - Links: vodka-winning-team.github.io/NASA-Space-Apps-Challenge · github.com/Vodka-winning-team/NASA-Space-Apps-Challenge
 - Footer, small: NASA data: LRO LOLA, NASA/JPL Horizons, NASA GSFC PGDA. Built with AI assistance (Claude, OpenAI Codex). Not a NASA product.
 
 **Speaker notes**
 
-On 28 July 2027, from 4 in the morning Mauritius time, our lander can see Earth while the Moon is up over Port Louis. Scan the code: it works on your phone, even offline. Thank you.
+On 28 July 2027, from 4 in the morning Mauritius time, our lander can see Earth while the Moon is up over Port Louis. Scan the code: it works on your phone, even offline, in English or French. Press “Look around with your phone” and turn: you are standing at Haworth. Thank you.
 
 ---
 
