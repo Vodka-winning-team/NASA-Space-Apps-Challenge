@@ -71,7 +71,8 @@
   var SMOOTH = 0.4, WAIT_MS = 2500;
   var INTRO = "Turn your phone to look around the Moon. Your camera is not used.";
   var state = "off";                 // off -> asking -> waiting -> on
-  var offset = 0, smoothed = null, last = null, timer = null, listening = false, attached = 0;
+  var offset = 0, smoothed = null, last = null, timer = null, listening = false, attached = 0, attempt = 0;
+  var LABEL = btn.textContent;
 
   function T3D() { return root.LANDER_T3D && root.LANDER_T3D.look ? root.LANDER_T3D : null; }
   function tell(text, kind) { say.textContent = text; say.className = "lookSay" + (kind ? " " + kind : ""); }
@@ -104,7 +105,10 @@
     state = "on";
     offset = offsetFor(last, entered.az); smoothed = null;
     wrap.classList.add("looking"); bar.hidden = false; btn.hidden = true;
+    btn.textContent = LABEL;
     syncPlay();
+    smoothed = yawBy(last, offset); t.look.apply(smoothed);            // the very first reading already sets the tilt
+    try { $("lookExit").focus({ preventScroll: true }); } catch (err) { /* old browser */ }
     tell("Turn your phone to look around. Re-centre to set forward. Directions are for this Moon scene, not the real sky.", "on");
     var r = wrap.getBoundingClientRect(), vh = root.innerHeight, mid = r.top + r.height / 2;
     if (mid < vh * 0.3 || mid > vh * 0.7) {                  // bring the picture to the middle, once
@@ -114,16 +118,22 @@
   }
 
   function fail(text) {
-    clearTimeout(timer); timer = null; listen(false);
-    state = "off"; btn.disabled = false;
+    clearTimeout(timer); timer = null; listen(false); attempt++;
+    state = "off"; btn.textContent = LABEL;
     tell(text || "Motion controls are unavailable. You can still drag to look around.", "bad");
   }
 
   function begin() {                 // called straight from the tap, so a permission prompt is allowed
+    if (state === "asking" || state === "waiting") {         // a second tap while it is still starting: cancel, never get stuck
+      fail("Cancelled. You can still drag to look around.");
+      return;
+    }
     if (state !== "off") return;
     var DOE = root.DeviceOrientationEvent;
     if (!DOE) { fail(); return; }
-    state = "asking"; btn.disabled = true; last = null;
+    var mine = ++attempt;                                    // answers to an older tap are ignored
+    state = "asking"; last = null; btn.textContent = "Cancel";
+    tell("Waiting for motion access… If nothing happens, tap Cancel and drag to look around instead.");
     var go = function () {
       state = "waiting"; listen(true);
       tell("Waiting for your phone's motion sensors…");
@@ -133,17 +143,17 @@
       var p;
       try { p = DOE.requestPermission(); } catch (err) { fail(); return; }
       p.then(function (answer) {
-        if (state !== "asking") return;
+        if (state !== "asking" || mine !== attempt) return;
         if (answer === "granted") go();
         else fail("Motion access was not allowed. You can still drag to look around.");
-      }, function () { if (state === "asking") fail(); });
+      }, function () { if (state === "asking" && mine === attempt) fail(); });
     } else go();                     // no permission step on this browser: just see whether readings arrive
   }
 
   function reset(text) {             // back to ordinary controls
-    clearTimeout(timer); timer = null; listen(false);
+    clearTimeout(timer); timer = null; listen(false); attempt++;
     state = "off"; smoothed = null;
-    wrap.classList.remove("looking"); bar.hidden = true; btn.hidden = false; btn.disabled = false;
+    wrap.classList.remove("looking"); bar.hidden = true; btn.hidden = false; btn.textContent = LABEL;
     tell(text || INTRO);
   }
   function ended(reason) {           // the 3D view closed the mode itself (place, panel or camera changed, graphics lost)

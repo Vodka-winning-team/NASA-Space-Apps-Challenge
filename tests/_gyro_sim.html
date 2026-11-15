@@ -93,6 +93,23 @@ document.getElementById("f").onload = async function () {
     ok(asked === 1 && w.LANDER_GYRO.state() === "on", "permission granted: asked once, mode starts on the first reading");
     $("lookExit").click(); await sleep(200);
 
+    // 8b. a permission answer that never comes: the button turns into Cancel, a second tap gets out, a late answer is ignored
+    var late; w.DeviceOrientationEvent.requestPermission = function () { return new Promise(function (res) { late = res; }); };
+    $("t3dLook").click(); await sleep(200);
+    ok(w.LANDER_GYRO.state() === "asking" && !$("t3dLook").disabled && /cancel/i.test($("t3dLook").textContent) && /cancel/i.test($("lookSay").textContent), "permission never answered: button reads Cancel and the text says how to get out");
+    $("t3dLook").click(); await sleep(100);
+    ok(w.LANDER_GYRO.state() === "off" && /look around/i.test($("t3dLook").textContent), "a second tap cancels and restores the button");
+    late("granted"); await sleep(100); send(0, 90, 0); await sleep(200);
+    ok(w.LANDER_GYRO.state() === "off" && w.LANDER_GYRO.listeners() === 0, "a late answer to the cancelled request does nothing");
+    w.DeviceOrientationEvent.requestPermission = function () { return Promise.resolve("granted"); };
+    // 8c. the first reading already sets the tilt; focus moves to Exit; hidden Look at Earth cannot fight the phone
+    $("t3dLook").click(); await sleep(100); send(0, 120, 0); await sleep(250);
+    ok(Math.abs(look().el - 30) < 1, "the first reading already applies the tilt (el " + look().el.toFixed(1) + ")");
+    ok(d.activeElement === $("lookExit"), "keyboard focus moves to Exit look-around on entry");
+    var lb = look(); $("t3dEarth").click(); await sleep(200);
+    ok(diff(look().az, lb.az) < 0.01 && Math.abs(look().el - lb.el) < 0.01, "Look at Earth does not override the phone while look-around is on");
+    $("lookExit").click(); await sleep(200);
+
     // 9. layout on the phone-width page
     var c = $("t3dCanvas").getBoundingClientRect();
     $("t3dLook").click(); await sleep(100); send(0, 90, 0); await sleep(300);

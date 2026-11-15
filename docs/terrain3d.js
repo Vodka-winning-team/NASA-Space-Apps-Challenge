@@ -439,7 +439,7 @@
     render();
   }
   function lookAt(az, el) {        // turn so the given direction is ahead
-    if (!renderer || !api) return;
+    if (!renderer || !api || looking) return;      // in phone look-around the phone decides where you look
     follow = false;
     if (view === "eye") { controls.target.copy(camera.position).add(sky(az, el || 0)); controls.update(); render(); return; }
     var off = camera.position.clone().sub(controls.target), dist = off.length();
