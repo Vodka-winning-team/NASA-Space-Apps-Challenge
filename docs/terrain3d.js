@@ -635,7 +635,9 @@
     if (!renderer || !siteShown || !lander) return;
     exag = exag === 1 ? 3 : 1;
     this.setAttribute("aria-pressed", exag === 3);
+    var keep = view !== "eye" ? camera.position.clone().sub(controls.target) : null;     // stay as far out as you were
     buildGround(siteShown); buildFar(siteShown); buildRing(siteShown, api.state.mast); lander.scale.y = exag; setView(view, true);
+    if (keep) { camera.position.copy(controls.target).add(keep); controls.update(); onMove(); place(); }
   };
   if ($("t3dReset")) $("t3dReset").onclick = function () { setView(view); };
   if ($("t3dEarth")) $("t3dEarth").onclick = function () { if (api && siteShown) lookAt(DATA()[api.state.site].earth_az[idx]); };

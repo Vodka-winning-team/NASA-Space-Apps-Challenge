@@ -54,6 +54,8 @@ ok(f1 === false && (await js(`return window.LANDER_T3D.follow();`)), "dragging l
 await js(`document.querySelector('#t3dViews [data-v="above"]').click()`); await sleep(600);
 const ab = await js(`for (var k = 0; k < 8; k++) document.getElementById("t3dOut").click(); return { v: window.LANDER_T3D.view(), cam: window.LANDER_T3D.cam() };`);
 ok(ab.v === "above" && ab.cam.dist > 100000 && ab.cam.dist <= 160001, `'From above' zooms out over the whole region (${Math.round(ab.cam.dist / 1000)} km away)`);
+const ex = await js(`document.getElementById("t3dExag").click(); var a = window.LANDER_T3D.cam().dist; document.getElementById("t3dExag").click(); return [a, window.LANDER_T3D.cam().dist];`);
+ok(Math.abs(ex[0] - ab.cam.dist) < ab.cam.dist * 0.05 && Math.abs(ex[1] - ab.cam.dist) < ab.cam.dist * 0.05, `'Hills 3x taller' keeps you as far out as you were (${ex.map(function (d) { return Math.round(d / 1000); }).join(" km, ")} km)`);
 await js(`document.querySelector('#t3dViews [data-v="eye"]').click()`); await sleep(600);
 const ey = await js(`document.getElementById("t3dIn").click(); return { v: window.LANDER_T3D.view(), cam: window.LANDER_T3D.cam() };`);
 ok(ey.v === "eye" && Math.abs(ey.cam.y - 2) < 0.01 && ey.cam.fov < 55, `"Lander's eye" stands at panel height (${ey.cam.y} m); + zooms the lens (${ey.cam.fov.toFixed(0)}°)`);
