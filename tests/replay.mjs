@@ -61,6 +61,18 @@ const ey = await js(`document.getElementById("t3dIn").click(); return { v: windo
 ok(ey.v === "eye" && Math.abs(ey.cam.y - 2) < 0.01 && ey.cam.fov < 55, `"Lander's eye" stands at panel height (${ey.cam.y} m); + zooms the lens (${ey.cam.fov.toFixed(0)}°)`);
 await js(`document.getElementById("t3dEarth").click()`); await sleep(400);
 ok(!(await js(`return window.LANDER_T3D.follow();`)), "'Look at Earth' turns the view");
+// looking around from the lander's eye turns on the spot: the next hour keeps the way you look
+await mouse([{ type: "pointerMove", x: Math.round(r.x + r.w * 0.5), y: Math.round(r.y + r.h * 0.4), origin: "viewport" }, { type: "pointerDown", button: 0 },
+  { type: "pointerMove", duration: 300, x: Math.round(r.x + r.w * 0.3), y: Math.round(r.y + r.h * 0.5), origin: "viewport" }, { type: "pointerUp", button: 0 }]);
+await sleep(300);
+const lk = await js(`var a = window.LANDER_T3D.cam(); window.LANDER_APP.setHour(window.LANDER_APP.get().state.hour + 1); var b = window.LANDER_T3D.cam(); return [a.look, b.look, b.y];`);
+ok(Math.abs(lk[0].az - lk[1].az) < 0.5 && Math.abs(lk[0].el - lk[1].el) < 0.5 && Math.abs(lk[2] - 2) < 0.01, `in the lander's eye, a drag turns the view on the spot and the next hour keeps it (${lk[0].az.toFixed(1)}° -> ${lk[1].az.toFixed(1)}°)`);
+// with the hills (and the sky) 3x taller, 'Look at Earth' still finds the Earth high in the sky, also zoomed in
+const ee = await js(`document.getElementById("t3dExag").click(); document.getElementById("t3dIn").click(); document.getElementById("t3dIn").click(); document.getElementById("t3dEarth").click();
+  var a = window.LANDER_APP.get(), d = a.data[a.state.site], i = a.state.start + Math.round(a.state.hour); return { el: d.earth_el[i], look: window.LANDER_T3D.cam().look };`);
+await sleep(400);
+await js(`document.getElementById("t3dExag").click();`);
+ok(ee.look.el > ee.el, `'Look at Earth' aims up at the Earth in the lander's eye (Earth ${ee.el.toFixed(1)}° up, drawn higher with 3x hills; looking ${ee.look.el.toFixed(1)}° up)`);
 await js(`document.querySelector('#t3dViews [data-v="above"]').click()`); await sleep(600);
 // find a mission hour where a ridge in the 3D square (not a far hill) hides the Sun, at any place
 const near = await js(`var A = window.LANDER_APP, out = null;
@@ -85,6 +97,8 @@ await js(`document.querySelector('#t3dViews [data-v="ground"]').click(); window.
 const lab = await js(`var e = document.querySelector(".t3dLabel-block"), r = e.getBoundingClientRect(), c = document.getElementById("t3dCanvas").getBoundingClientRect();
   return { shown: e.style.display === "block", inside: r.left >= c.left && r.right <= c.right && r.top >= c.top, text: e.textContent };`);
 ok(lab.shown && lab.inside, `the blocking-hill label stays inside the 3D view ("${lab.text}")`);
+const bm = await js(`var b = window.LANDER_T3D.block(); return b ? { far: b.far, dist: b.dist, at: Math.hypot(b.pos.x, b.pos.z) } : null;`);
+ok(bm && bm.far && Math.abs(bm.at - bm.dist) < 1, `the marker sits on the far hill itself (${bm ? Math.round(bm.at / 1000) + " km out, hill " + Math.round(bm.dist / 1000) + " km" : "none"})`);
 // the Earth turns smoothly: no jump from one hour to the next beyond its normal turn (about 14.5 degrees an hour)
 const spin = await js(`var m = 0; for (var i = 1; i < 17000; i++) { var d = ((window.LANDER_T3D.earthLon(i) - window.LANDER_T3D.earthLon(i - 1)) % 360 + 540) % 360 - 180; m = Math.max(m, Math.abs(d)); } return m;`);
 ok(spin < 16, `the Earth turns evenly hour by hour (largest step ${spin.toFixed(1)} degrees)`);

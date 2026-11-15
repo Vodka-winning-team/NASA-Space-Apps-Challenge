@@ -18,7 +18,11 @@
   var section = $("terrain3d"), host = $("t3dCanvas");
   if (!APP || !section || !host) return;
   var note = function (t) { if ($("t3dNote")) $("t3dNote").textContent = t; };
-  if (!T || !T.OrbitControls || !window.WebGLRenderingContext) { note("This browser cannot show 3D graphics."); return; }
+  if (!T || !T.OrbitControls || !window.WebGLRenderingContext) {
+    note("This browser cannot show 3D graphics. The flat 360° view below shows the same hills.");
+    if ($("flatView")) $("flatView").open = true;
+    return;
+  }
 
   var COMPASS = ["north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west"];
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -53,8 +57,9 @@
     loading[id] = done;
     var s = document.createElement("script");
     s.src = "data/terrain_" + id + ".js";
-    s.onload = function () { var f = loading[id]; delete loading[id]; if (window.LANDER_TERRAIN && window.LANDER_TERRAIN[id]) f(); else note("Could not load the ground data for this place."); };
-    s.onerror = function () { delete loading[id]; note("Could not load the ground data for this place."); };
+    var failed = function () { delete loading[id]; if (api && api.state.site === id) note("Could not load the ground data for this place."); };
+    s.onload = function () { var f = loading[id]; if (!(window.LANDER_TERRAIN && window.LANDER_TERRAIN[id])) return failed(); delete loading[id]; f(); };
+    s.onerror = failed;
     document.head.appendChild(s);
   }
   function b64i16(b64) {
@@ -134,7 +139,7 @@
     renderer.outputEncoding = T.sRGBEncoding;
     host.insertBefore(renderer.domElement, host.firstChild);
     renderer.domElement.setAttribute("role", "img");
-    renderer.domElement.setAttribute("aria-label", "3D view of the real ground around the lander, lit by the Sun at the hour shown. A line from the lander to the Sun turns red when a ridge blocks it.");
+    renderer.domElement.setAttribute("aria-label", "3D view of the real ground around the lander, lit by the Sun at the hour shown. A line from the lander to the Sun turns red when a ridge blocks it. Arrow keys move the view, Shift and arrow keys turn it.");
 
     scene = new T.Scene();
     scene.background = new T.Color(0x020306);
@@ -166,12 +171,13 @@
     scene.add(sunSprite);
 
     // the Earth: NASA's Blue Marble on a ball, lit from the Sun's side, so it shows its real phase
-    var et = new T.TextureLoader().load("data/far/earth.jpg", render);
+    // if a picture cannot be loaded (Chromium opened from disk refuses them), plain colours stand in
+    var et = new T.TextureLoader().load("data/far/earth.jpg", function () { earth.material.uniforms.hasMap.value = 1; render(); });
     earth = new T.Mesh(new T.SphereGeometry(1, 48, 32), new T.ShaderMaterial({
-      uniforms: { map: { value: et }, sunDir: { value: new T.Vector3(1, 0, 0) } },
+      uniforms: { map: { value: et }, hasMap: { value: 0 }, sunDir: { value: new T.Vector3(1, 0, 0) } },
       vertexShader: "varying vec3 vN; varying vec3 vP; varying vec2 vUv; void main(){ vN = normalize(mat3(modelMatrix) * normal); vUv = uv; vec4 w = modelMatrix * vec4(position, 1.0); vP = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }",
       // day side brightened a little (the oceans in the picture are very dark), with a thin blue haze at the edge
-      fragmentShader: "uniform sampler2D map; uniform vec3 sunDir; varying vec3 vN; varying vec3 vP; varying vec2 vUv; void main(){ vec3 n = normalize(vN); float d = dot(n, sunDir); float lit = smoothstep(-0.06, 0.22, d); vec3 c = texture2D(map, vUv).rgb; c = c * 1.5 + vec3(0.02, 0.05, 0.11); float rim = pow(1.0 - max(dot(n, normalize(cameraPosition - vP)), 0.0), 2.2); c += vec3(0.30, 0.50, 0.95) * rim * 0.9; gl_FragColor = vec4(c * (0.015 + lit), 1.0); }"
+      fragmentShader: "uniform sampler2D map; uniform float hasMap; uniform vec3 sunDir; varying vec3 vN; varying vec3 vP; varying vec2 vUv; void main(){ vec3 n = normalize(vN); float d = dot(n, sunDir); float lit = smoothstep(-0.06, 0.22, d); vec3 c = mix(vec3(0.05, 0.12, 0.30), texture2D(map, vUv).rgb, hasMap); c = c * 1.5 + vec3(0.02, 0.05, 0.11); float rim = pow(1.0 - max(dot(n, normalize(cameraPosition - vP)), 0.0), 2.2); c += vec3(0.30, 0.50, 0.95) * rim * 0.9; gl_FragColor = vec4(c * (0.015 + lit), 1.0); }"
     }));
     scene.add(earth);
 
@@ -218,6 +224,8 @@
     controls.addEventListener("change", onMove);
     renderer.domElement.addEventListener("pointerdown", function () { follow = false; });
     renderer.domElement.style.touchAction = "pan-y";       // on phones the page still scrolls past
+    renderer.domElement.tabIndex = 0;                      // keyboard: arrow keys move, Shift + arrows turn
+    controls.listenToKeyEvents(renderer.domElement);
 
     renderer.domElement.addEventListener("webglcontextlost", function (e) { e.preventDefault(); note("3D paused: the graphics card was reset. It comes back by itself."); });
     renderer.domElement.addEventListener("webglcontextrestored", function () { note(""); renderer.shadowMap.needsUpdate = true; render(); });
@@ -286,7 +294,7 @@
   }
 
   // the land beyond the detailed square, out to the edge of NASA's 80 S map, with the Moon's curve
-  var farTex = null;
+  var farTex = null, farBad = false;
   function farGrid() {
     var F = window.LANDER_FAR;
     if (!F) return null;
@@ -328,8 +336,13 @@
     geo.setAttribute("uv", new T.BufferAttribute(uv, 2));
     geo.setIndex(new T.BufferAttribute(new Uint32Array(index), 1));
     geo.computeVertexNormals();
-    if (!farTex) { farTex = new T.TextureLoader().load("data/far/shade.jpg", render); farTex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); }
-    far = new T.Mesh(geo, new T.MeshLambertMaterial({ map: farTex, color: 0xbab8b2 }));
+    if (!farTex) {
+      farTex = new T.TextureLoader().load("data/far/shade.jpg", render, undefined, function () {
+        farBad = true; if (far) { far.material.map = null; far.material.needsUpdate = true; render(); }
+      });
+      farTex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    }
+    far = new T.Mesh(geo, new T.MeshLambertMaterial({ map: farBad ? null : farTex, color: 0xbab8b2 }));
     far.visible = view !== "eye";
     scene.add(far);
   }
@@ -357,7 +370,9 @@
   /* ---------- the camera ---------- */
 
   var CAM = { ground: { dist: 24, el: 6 }, above: { dist: 19000, el: 38 } };
-  function camAz() { var d = DATA()[api.state.site]; return d.sun_az[idx] + 180 + 38; }      // behind the lander, a little to one side, Sun ahead
+  // how far to one side the camera may stand and still keep the target direction in the picture (narrow screens: less)
+  function side(max) { var half = Math.atan(Math.tan(camera.fov / 2 * D2R) * camera.aspect) / D2R; return clamp(half - 6, 0, max); }
+  function camAz() { var d = DATA()[api.state.site]; return d.sun_az[idx] + 180 + side(38); }      // behind the lander, a little to one side, Sun ahead
   function setOrbit(dist, el, az) {
     camera.position.copy(dir(az, el)).multiplyScalar(dist).add(controls.target);
   }
@@ -376,11 +391,12 @@
       camera.position.set(0, eye, 0);
       controls.target.set(look.x, eye, look.z);
       controls.enableZoom = false; controls.enablePan = false; controls.rotateSpeed = -0.35;
-      controls.minDistance = controls.maxDistance = 1; controls.maxPolarAngle = Math.PI * 0.6;
+      // (the camera sits behind the point it looks at, so these read upside down: look up to ~70 degrees, down to ~55)
+      controls.minDistance = controls.maxDistance = 1; controls.minPolarAngle = Math.PI * 0.2; controls.maxPolarAngle = Math.PI * 0.88;
     } else {
       camera.fov = 50;
       controls.enableZoom = true; controls.enablePan = true; controls.rotateSpeed = 0.6;
-      controls.minDistance = 9; controls.maxDistance = 160000; controls.maxPolarAngle = 89.2 * D2R;
+      controls.minDistance = 9; controls.maxDistance = 160000; controls.minPolarAngle = 0; controls.maxPolarAngle = 89.2 * D2R;
       controls.target.set(0, 1.6 * exag, 0);
       setOrbit(CAM[v].dist, CAM[v].el, camAz());
     }
@@ -389,8 +405,14 @@
   // keep the camera sensible while you move: above the ground, not too flat when far out
   var moving = false;
   function onMove() {
-    if (moving || !api || view === "eye") { render(); return; }
+    if (moving || !api) { render(); return; }
     moving = true;
+    if (view === "eye") {          // turn on the spot: keep the way you look, put the eye back at the panel
+      var fw = controls.target.clone().sub(camera.position).normalize();
+      camera.position.set(0, parseFloat(api.state.mast) * exag, 0);
+      controls.target.copy(camera.position).add(fw); camera.lookAt(controls.target);
+      moving = false; render(); return;
+    }
     var t = siteShown && window.LANDER_TERRAIN && window.LANDER_TERRAIN[siteShown] ? heights(siteShown) : null, tg = controls.target, flat = Math.sqrt(tg.x * tg.x + tg.z * tg.z);
     if (flat > FINE_R - 600) { tg.x *= (FINE_R - 600) / flat; tg.z *= (FINE_R - 600) / flat; }       // stay over the detailed ground
     if (t) { var gt = groundAt(t, tg.x, tg.z); if (gt !== null) tg.y = gt * exag + 1.6 * exag; }
@@ -404,12 +426,12 @@
     moving = false;
     render();
   }
-  function lookAt(az) {            // turn so the given direction is ahead
+  function lookAt(az, el) {        // turn so the given direction is ahead
     if (!renderer || !api) return;
     follow = false;
-    if (view === "eye") { var y = camera.position.y, l = dir(az, 0); controls.target.set(l.x, y, l.z); controls.update(); render(); return; }
+    if (view === "eye") { controls.target.copy(camera.position).add(sky(az, el || 0)); controls.update(); render(); return; }
     var off = camera.position.clone().sub(controls.target), dist = off.length();
-    setOrbit(dist, Math.min(8, Math.asin(clamp(off.y / dist, -1, 1)) / D2R), az + 180 + 18);
+    setOrbit(dist, Math.min(8, Math.asin(clamp(off.y / dist, -1, 1)) / D2R), az + 180 + side(18));
     controls.update(); onMove();
   }
   function zoom(k) {
@@ -445,10 +467,13 @@
       } else {
         var R = window.LANDER_RIDGES && window.LANDER_RIDGES[api.state.site], hor = d.horizons[api.state.mast], step = d.horizon_step_deg;
         var i = Math.round((((az % 360) + 360) % 360) / step) % hor.length, ridge = R && R.by_height && R.by_height[api.state.mast];
-        var top = Math.max(el, hor[i]) * D2R;
-        b = { far: true, dist: ridge ? ridge.dist_km[i] * 1000 : null, rise: ridge ? ridge.rise_m[i] : null,
-              pos: new T.Vector3(Math.sin(az * D2R) * RING_R, (mast + Math.tan(Math.min(top, el * D2R + 0.0001)) * RING_R) * exag, -Math.cos(az * D2R) * RING_R) };
-        if (b.pos.y < (t.min_m * exag - 400)) b.pos.y = t.min_m * exag - 400;
+        var top = Math.max(el, hor[i]) * D2R, rd = ridge && ridge.dist_km[i] ? ridge.dist_km[i] * 1000 : 0;
+        // seen from outside: the marker sits on the hill top that hides the Sun (its angle above the panel already includes
+        // the Moon's curve, like the far land). From the lander's eye: on the hill wall, on the way to the Sun.
+        var D = view !== "eye" && rd ? rd : RING_R, ang = D === RING_R ? Math.min(top, el * D2R + 0.0001) : hor[i] * D2R;
+        b = { far: true, dist: rd || null, rise: ridge ? ridge.rise_m[i] : null,
+              pos: new T.Vector3(Math.sin(az * D2R) * D, (mast + Math.tan(ang) * D) * exag, -Math.cos(az * D2R) * D) };
+        if (D === RING_R && b.pos.y < (t.min_m * exag - 400)) b.pos.y = t.min_m * exag - 400;
       }
       b.sunBelow = el + d.sun_width_deg / 2 < 0;       // even flat ground would hide it
       end = b.pos.clone(); colour = 0xec6049;
@@ -537,9 +562,10 @@
 
     if (view === "eye") {
       var y = parseFloat(api.state.mast) * exag;
+      var fwd = controls.target.clone().sub(camera.position).normalize();
       camera.position.set(0, y, 0);                       // pinned at the panel, so it cannot drift
       if (follow) { var look = dir(d.sun_az[idx], 0); controls.target.set(look.x, y, look.z); }
-      else { var fwd = controls.target.clone().sub(camera.position).normalize(); controls.target.copy(camera.position).add(fwd); }
+      else controls.target.copy(camera.position).add(fwd);
       controls.update();
     } else if (follow) {                                  // keep the Sun ahead until you look around yourself
       var off = camera.position.clone().sub(controls.target), dist = off.length();
@@ -604,6 +630,11 @@
     var top = { position: earth.position.clone().add(new T.Vector3(0, 1, 0).applyQuaternion(camera.quaternion).multiplyScalar(earth.scale.x)) };
     put(labels.earth, top, undefined, true);
     put(labels.block, blockMark, blockText(block), !!block);
+    // the Sun is often right behind what blocks it: then the bigger label says it all
+    if (block && labels.block.style.display === "block" && labels.sun.style.display === "block") {
+      var a = labels.block.getBoundingClientRect(), b = labels.sun.getBoundingClientRect();
+      if (a.left < b.right && b.left < a.right && a.top < b.bottom + 4 && b.top < a.bottom + 4) labels.sun.style.display = "none";
+    }
   }
 
   /* ---------- keep in step with the rest of the page ---------- */
@@ -635,12 +666,15 @@
     if (!renderer || !siteShown || !lander) return;
     exag = exag === 1 ? 3 : 1;
     this.setAttribute("aria-pressed", exag === 3);
-    var keep = view !== "eye" ? camera.position.clone().sub(controls.target) : null;     // stay as far out as you were
+    // keep the camera as it was: where you look from, which way, how far out, the lens
+    var off = camera.position.clone().sub(controls.target), tg = controls.target.clone(), fov = camera.fov;
     buildGround(siteShown); buildFar(siteShown); buildRing(siteShown, api.state.mast); lander.scale.y = exag; setView(view, true);
-    if (keep) { camera.position.copy(controls.target).add(keep); controls.update(); onMove(); place(); }
+    if (view === "eye") { controls.target.copy(camera.position).sub(off.normalize()); camera.fov = fov; camera.updateProjectionMatrix(); }
+    else { controls.target.set(tg.x, controls.target.y, tg.z); camera.position.copy(controls.target).add(off); }
+    controls.update(); onMove(); place();
   };
   if ($("t3dReset")) $("t3dReset").onclick = function () { setView(view); };
-  if ($("t3dEarth")) $("t3dEarth").onclick = function () { if (api && siteShown) lookAt(DATA()[api.state.site].earth_az[idx]); };
+  if ($("t3dEarth")) $("t3dEarth").onclick = function () { if (api && siteShown) lookAt(DATA()[api.state.site].earth_az[idx], DATA()[api.state.site].earth_el[idx]); };
   if ($("t3dIn")) $("t3dIn").onclick = function () { zoom(0.66); };
   if ($("t3dOut")) $("t3dOut").onclick = function () { zoom(1 / 0.66); };
   // the page scrolls as usual over the 3D view; zooming takes Ctrl + scroll (a trackpad pinch counts), like an embedded map
@@ -670,7 +704,8 @@
   }
   window.LANDER_T3D = { view: function () { return view; }, block: function () { return block; }, follow: function () { return follow; },
     lookAt: lookAt, earthLon: earthLon,
-    cam: function () { return camera && controls ? { dist: camera.position.distanceTo(controls.target), y: camera.position.y, fov: camera.fov, ratio: ratio } : null; },
+    cam: function () { return camera && controls ? { dist: camera.position.distanceTo(controls.target), y: camera.position.y, fov: camera.fov, ratio: ratio,
+      look: (function (f) { return { az: (Math.atan2(f.x, -f.z) / D2R + 360) % 360, el: Math.asin(clamp(f.y, -1, 1)) / D2R }; })(controls.target.clone().sub(camera.position).normalize()) } : null; },
     ready: function () { return !!ground && !!lander && siteShown === (api && api.state.site); } };   // for tests
   if (!("IntersectionObserver" in window)) { begin(); return; }      // very old browsers: build straight away
   var io = new IntersectionObserver(function (es) {
